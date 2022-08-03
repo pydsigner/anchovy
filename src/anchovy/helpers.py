@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from .context import Context
+from .core import Context
 
 
 def trim_ext_prefix(path: Path, match: re.Match[str]):

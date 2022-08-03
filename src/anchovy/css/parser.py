@@ -57,7 +57,7 @@ def find_selector_start(index: int, content: list[c2ast.Node]):
         if isinstance(n, c2ast.LiteralToken) and n == ';':
             index += 1
             break
-        elif isinstance(n, c2ast.CurlyBracketsBlock):
+        if isinstance(n, c2ast.CurlyBracketsBlock):
             index += 1
             break
         index -= 1

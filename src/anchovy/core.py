@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import contextlib
+import abc
 import functools
 import re
 import shutil
-import tempfile
 import typing as t
 from pathlib import Path
 
@@ -17,8 +16,6 @@ try:
 except ImportError:
     _tqdm = None
 
-from .step import Step
-
 
 T = t.TypeVar('T')
 StepFunc = t.Callable[[Path, re.Match[str], 'Context'], t.Iterable[Path]]
@@ -26,6 +23,7 @@ UnboundStep = t.Union[StepFunc, 'Step', None]
 Rule = tuple[str, UnboundStep]
 BoundStep = t.Callable[[Path, re.Match[str]], t.Iterable[Path]]
 BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_dirs']
+
 
 class InputBuildSettings(t.TypedDict, total=False):
     input_dir: Path
@@ -126,3 +124,14 @@ class Context:
             _rm_children(self['output_dir'])
             _rm_children(self['working_dir'])
         self.process(input_paths)
+
+
+class Step(abc.ABC):
+    context: Context
+
+    def bind(self, context: Context):
+        self.context = context
+
+    @abc.abstractmethod
+    def __call__(self, path: Path, match: re.Match[str]) -> t.Iterable[Path]:
+        ...

@@ -7,7 +7,7 @@ import tempfile
 import typing as t
 from pathlib import Path
 
-from .context import BuildSettings, Context, InputBuildSettings, Rule
+from .core import BuildSettings, Context, InputBuildSettings, Rule
 
 
 class BuildNamespace:

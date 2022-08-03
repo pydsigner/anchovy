@@ -8,9 +8,8 @@ import commonmark
 import commonmark.render.renderer
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from .step import Step
-if t.TYPE_CHECKING:
-    from .context import Context
+from . import helpers
+from .core import Context, Step
 
 
 class JinjaRenderStep(Step):
@@ -54,7 +53,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
         ast = self.md_parser.parse(content.strip())
         meta |= {'rendered_markdown': self.md_renderer.render(ast).strip()}
 
-        target_path = self.context['output_dir'] / path.relative_to(self.context['input_dir']).with_suffix('.html')
+        target_path = helpers.to_output(self.context, path, match, '.html')
 
         yield self.render_template(
             meta.get('template', self.default_template),
