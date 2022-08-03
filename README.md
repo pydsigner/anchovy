@@ -4,8 +4,8 @@
 
 # Anchovy
 
-Anchovy is a lightweight static site generator with a few core focuses which
-differentiate it from the many other options available.
+Anchovy is a minimal, unopinionated file processing engine intended for static
+website generation.
 
 * **Minimal:** Anchovy is less than a thousand lines of code and has no
   mandatory dependencies. Plus, Anchovy can be used for real projects without
