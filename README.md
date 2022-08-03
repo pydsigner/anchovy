@@ -1,6 +1,6 @@
-![PyPI - Python Version](https://img.shields.io/pypi/v/anchovy)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/anchovy)
-![PyPI - Python Version](https://img.shields.io/pypi/l/anchovy)
+[![PyPI - Project Version](https://img.shields.io/pypi/v/anchovy)](https://pypi.org/project/anchovy)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/anchovy)](https://pypi.org/project/anchovy)
+[![PyPI - Project License](https://img.shields.io/pypi/l/anchovy)](https://pypi.org/project/anchovy)
 
 # Anchovy
 
