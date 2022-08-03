@@ -102,6 +102,8 @@ def main():
 
         namespace: dict[str, t.Any] = {'__file__': label}
         with open(args.config_file) as file:
+            # We're basically emulating the python command line here.
+            # pylint: disable=exec-used
             exec(file.read(), namespace)
 
         settings: InputBuildSettings | None = namespace.get('SETTINGS')
