@@ -29,10 +29,14 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 jinja = ["Jinja2>=3.1.2"]
-markdown = ["Jinja2>=3.1.2", "commonmark>=0.9.1"]
+markdown = ["anchovy[jinja]", "commonmark>=0.9.1"]
 css = ["tinycss2>=1.1.1"]
 pretty = ["rich>=12.5.1"]
-all = ["Jinja2>=3.1.2", "commonmark>=0.9.1", "tinycss2>=1.1.1", "rich>=12.5.1"]
+web = ["anchovy[markdown]", "anchovy[css]"]
+base = ["anchovy[web]", 'anchovy[pretty]']
+# Currently, [all] is the same as [base]; this will change in the future if
+# heavy dependencies for non-core Steps are added.
+all = ["anchovy[base]"]
 
 [project.scripts]
 anchovy = "anchovy.cli:main"
