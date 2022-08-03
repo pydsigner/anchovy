@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anchovy"
+description = "A minimal, unopinionated framework for static website generation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {"file" = "LICENSE"}
+authors = [
+    {"name" = "Daniel Foerster", "email" = "pydsigner@gmail.com"},
+]
+keywords = ["static", "website", "generation", "html", "css", "template"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Pre-processors",
+    "Topic :: Text Processing :: Markup",
+    "Typing :: Typed",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+jinja = ["Jinja2>=3.1.2"]
+markdown = ["Jinja2>=3.1.2", "commonmark>=0.9.1"]
+css = ["tinycss2>=1.1.1"]
+pretty = ["rich>=12.5.1"]
+all = ["Jinja2>=3.1.2", "commonmark>=0.9.1", "tinycss2>=1.1.1", "rich>=12.5.1"]
+
+[project.scripts]
+anchovy = "anchovy.cli:main"
+
+[tool.setuptools_scm]
