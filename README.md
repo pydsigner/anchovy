@@ -1,3 +1,7 @@
+![PyPI - Python Version](https://img.shields.io/pypi/v/anchovy)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/anchovy)
+![PyPI - Python Version](https://img.shields.io/pypi/l/anchovy)
+
 # Anchovy
 
 Anchovy is a lightweight static site generator with a few core focuses which
