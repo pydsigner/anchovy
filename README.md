@@ -21,6 +21,20 @@ website generation.
   it's simple to integrate tools like imagemagick, dart-sass, or less.js if you
   need them.
 
+## Installation
+
+Anchovy has no essential prerequisites and can be installed with
+`pip install anchovy` to get just the framework and a few built-in components,
+but for typical usage `pip install anchovy[base]` is recommended. This will
+pull in support for Jinja2 templating, markdown, and Anchovy's CSS preprocessor.
+A full list of available extras may be found in the
+[pyproject.toml](https://github.com/pydsigner/anchovy/blob/master/pyproject.toml)
+file.
+
+Alternatively, Anchovy may be installed directly from source with
+`pip install git+https://github.com/pydsigner/anchovy` or the corresponding
+`pip install git+https://github.com/pydsigner/anchovy#egg=anchovy[base]`.
+
 ## Usage
 
 Anchovy operates on config files written in Python, or even modules directly.
