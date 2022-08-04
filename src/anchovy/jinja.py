@@ -13,12 +13,19 @@ from .core import Context, Step
 
 
 class JinjaRenderStep(Step):
+    """
+    Abstract base class for Steps using Jinja rendering.
+    """
     env: Environment
 
     def __init__(self, env: Environment | None):
         self._temporary_env = env
 
     def bind(self, context: Context):
+        """
+        Bind this Step to a specific context. Also initializes a Jinja
+        environment if none is set up already.
+        """
         super().bind(context)
 
         if self._temporary_env:
@@ -38,6 +45,10 @@ class JinjaRenderStep(Step):
 
 
 class JinjaMarkdownStep(JinjaRenderStep):
+    """
+    A Step for rendering Markdown using Jinja templates. Parses according to
+    CommonMark and Renders to HTML by default.
+    """
     def __init__(self,
                  default_template: str | None = None,
                  md_parser: commonmark.Parser | None = None,
@@ -62,6 +73,9 @@ class JinjaMarkdownStep(JinjaRenderStep):
         )
 
     def extract_metadata(self, text: str):
+        """
+        Read metadata from the front of a markdown-formatted text.
+        """
         meta = {}
         lines = text.splitlines()
 

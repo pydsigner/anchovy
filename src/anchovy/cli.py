@@ -11,6 +11,10 @@ from .core import BuildSettings, Context, InputBuildSettings, Rule
 
 
 class BuildNamespace:
+    """
+    Internal used to preserve typing between InputBuildSettings, argparse, and
+    BuildSettings.
+    """
     input_dir: Path
     output_dir: Path
     working_dir: Path | None
@@ -40,6 +44,11 @@ def _wrap_temp(path: Path | None):
 
 
 def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[str] | None = None, **kw):
+    """
+    Internal function used by `run_from_rules()` to combine an instance of
+    InputBuildSettings with CLI arguments to produce a BuildNamespace, which
+    can be easily turned into BuildSettings.
+    """
     namespace = BuildNamespace(settings)
 
     parser = argparse.ArgumentParser(**kw)
@@ -75,6 +84,10 @@ def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[s
 
 
 def run_from_rules(settings: InputBuildSettings | None, rules: list[Rule], **kw):
+    """
+    Build a new Context from Settings, Rules, and command line arguments. Then,
+    execute a build using the new Context.
+    """
     final_settings = parse_settings_args(settings, **kw)
     with _wrap_temp(final_settings.working_dir) as working_dir:
         context = Context(final_settings.to_build_settings(working_dir), rules)
@@ -82,6 +95,10 @@ def run_from_rules(settings: InputBuildSettings | None, rules: list[Rule], **kw)
 
 
 def main():
+    """
+    Anchovy main function. Finds or creates a Context using an Anchovy config
+    file and command line arguments, then executes a build using it.
+    """
     parser = argparse.ArgumentParser(description='Build an anchovy project.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-m',

@@ -59,6 +59,9 @@ def _rm_children(path: Path):
 
 
 class Context:
+    """
+    A context and configuration class for building Anchovy projects.
+    """
     def __init__(self,
                  settings: BuildSettings,
                  rules: list[Rule]):
@@ -73,6 +76,10 @@ class Context:
         return self.settings[key]
 
     def bind(self, step: UnboundStep) -> BoundStep | None:
+        """
+        Bind a Step to this Context. Calls the `bind()` method on class Steps,
+        and creates a partial for function Steps.
+        """
         if not step:
             return
 
@@ -86,6 +93,11 @@ class Context:
         return bound
 
     def find_inputs(self, path: Path):
+        """
+        Overridable function to get paths to process based on a given @path.
+        Default behavior is to recursively search for files but exclude the
+        directories themselves.
+        """
         for candidate in path.iterdir():
             if candidate.is_dir():
                 yield from self.find_inputs(candidate)
@@ -93,6 +105,12 @@ class Context:
                 yield candidate
 
     def process(self, input_paths: list[Path] | None = None):
+        """
+        Process a set of files using the Context's defined rules. If
+        @input_paths is empty or None, `self.find_inputs()` will be used to get
+        a tree of files to process. If intermediate files are produced,
+        `self.process()` will be called recursively with them.
+        """
         input_paths = input_paths or list(self.find_inputs(self.settings['input_dir']))
         # We want to handle tasks in the order they're defined!
         tasks: dict[BoundStep, list[tuple[Path, re.Match[str]]]]
@@ -120,6 +138,11 @@ class Context:
             self.process(further_processing)
 
     def run(self, input_paths: list[Path] | None = None):
+        """
+        Execute pre-run hooks (currently only the baked-in directory purge),
+        then call `self.process()` with @input_paths.
+        TODO: Support custom pre/post hooks.
+        """
         if self['purge_dirs']:
             _rm_children(self['output_dir'])
             _rm_children(self['working_dir'])
@@ -127,9 +150,16 @@ class Context:
 
 
 class Step(abc.ABC):
+    """
+    Abstract base class for Steps, individual processing stages used to build a
+    full Anchovy ruleset.
+    """
     context: Context
 
     def bind(self, context: Context):
+        """
+        Bind this Step to a Context.
+        """
         self.context = context
 
     @abc.abstractmethod

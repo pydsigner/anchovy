@@ -11,6 +11,10 @@ if t.TYPE_CHECKING:
 
 
 def direct_copy_step(path: Path, match: re.Match[str], context: Context):
+    """
+    A simple Step which only copies a file to the output directory without
+    renaming or extension changes.
+    """
     target_path = helpers.to_output(context, path, match)
     target_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy(path, target_path)
