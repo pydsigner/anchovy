@@ -162,7 +162,6 @@ disable = [
     "useless-suppression",
     "deprecated-pragma",
     "use-symbolic-message-instead",
-    "unspecified-encoding",
     "too-few-public-methods",
     "inconsistent-return-statements",
 ]
