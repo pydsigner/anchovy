@@ -9,8 +9,8 @@
 Anchovy is a minimal, unopinionated file processing engine intended for static
 website generation.
 
-* **Minimal:** Anchovy is less than a thousand lines of code and has no
-  mandatory dependencies. Plus, Anchovy can be used for real projects without
+* **Minimal:** Anchovy's core code is just a few hundred lines of code and has
+  no mandatory dependencies. Plus, Anchovy can be used for real projects without
   bringing in dependencies on external executables or languages, even if you
   want to preprocess CSS.
 
