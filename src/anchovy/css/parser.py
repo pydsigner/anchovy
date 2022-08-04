@@ -41,23 +41,23 @@ def mk_whitespace(node: c2ast.Node, whitespace: str):
 
 def wrap_newlines(content: t.Iterable[c2ast.Node]):
     first = True
-    for n in content:
+    for node in content:
         if first:
-            yield mk_whitespace(n, '\n')
+            yield mk_whitespace(node, '\n')
             first = False
-        if not isinstance(n, c2ast.WhitespaceToken):
-            yield n
-            if isinstance(n, LineNodes):
-                yield mk_whitespace(n, '\n')
+        if not isinstance(node, c2ast.WhitespaceToken):
+            yield node
+            if isinstance(node, LineNodes):
+                yield mk_whitespace(node, '\n')
 
 
 def find_selector_start(index: int, content: list[c2ast.Node]):
     while index:
-        n = content[index]
-        if isinstance(n, c2ast.LiteralToken) and n == ';':
+        node = content[index]
+        if isinstance(node, c2ast.LiteralToken) and node == ';':
             index += 1
             break
-        if isinstance(n, c2ast.CurlyBracketsBlock):
+        if isinstance(node, c2ast.CurlyBracketsBlock):
             index += 1
             break
         index -= 1
@@ -68,12 +68,12 @@ def find_selector_start(index: int, content: list[c2ast.Node]):
 
 def split_selector(content: list[c2ast.Node]):
     selector: list[c2ast.Node] = []
-    for n in content:
-        if isinstance(n, c2ast.LiteralToken) and n == ',':
+    for node in content:
+        if isinstance(node, c2ast.LiteralToken) and node == ',':
             yield strip_whitespace(selector, end=False)
             selector = []
         else:
-            selector.append(n)
+            selector.append(node)
 
     if selector:
         yield strip_whitespace(selector, end=False)
@@ -110,35 +110,35 @@ def pump_at_rule(parent: c2ast.QualifiedRule, at_rule: c2ast.AtRule):
         [new_qualified]
     )
 
-    for n in t.cast(list[c2ast.Node], at_rule.content):
-        if isinstance(n, c2ast.QualifiedRule):
+    for node in t.cast(list[c2ast.Node], at_rule.content):
+        if isinstance(node, c2ast.QualifiedRule):
             new_at.content.extend(
                 flatten_qual(
-                    merge_selectors(parent.prelude, n.prelude),
-                    n.content,
+                    merge_selectors(parent.prelude, node.prelude),
+                    node.content,
                     parse_declarations=False
                 )
             )
         else:
-            new_qualified.content.append(n)
+            new_qualified.content.append(node)
 
     new_qualified.content = list(wrap_newlines(tinycss2.parse_declaration_list(new_qualified.content)))
     new_at.content = list(wrap_newlines(new_at.content))
     return new_at
 
 
-def flatten_at(ar: c2ast.AtKeywordToken, sel: list[c2ast.Node], body: list[c2ast.Node]):
-    rule = c2ast.AtRule(
-        ar.source_line,
-        ar.source_column,
-        ar.value,
-        ar.lower_value,
+def flatten_at(rule: c2ast.AtKeywordToken, sel: list[c2ast.Node], body: list[c2ast.Node]):
+    at_rule = c2ast.AtRule(
+        rule.source_line,
+        rule.source_column,
+        rule.value,
+        rule.lower_value,
         list(sel),
         []
     )
-    rule.content.extend(flatten_children(rule, body))
-    rule.content = list(wrap_newlines(rule.content))
-    yield rule
+    at_rule.content.extend(flatten_children(at_rule, body))
+    at_rule.content = list(wrap_newlines(at_rule.content))
+    yield at_rule
 
 
 def flatten_qual(sel: list[c2ast.Node], body: list[c2ast.Node], parse_declarations=True):
@@ -149,12 +149,12 @@ def flatten_qual(sel: list[c2ast.Node], body: list[c2ast.Node], parse_declaratio
         []
     )
     children: list[Rule] = []
-    for c in flatten_children(rule, body):
-        if isinstance(c, c2ast.QualifiedRule):
-            c.prelude = merge_selectors(sel, c.prelude)
-            children.append(c)
-        elif isinstance(c, c2ast.AtRule):
-            children.append(pump_at_rule(rule, c))
+    for child in flatten_children(rule, body):
+        if isinstance(child, c2ast.QualifiedRule):
+            child.prelude = merge_selectors(sel, child.prelude)
+            children.append(child)
+        elif isinstance(child, c2ast.AtRule):
+            children.append(pump_at_rule(rule, child))
     rule.prelude = strip_whitespace(rule.prelude, end=False)
     if parse_declarations:
         rule.content = tinycss2.parse_declaration_list(rule.content)
@@ -165,17 +165,17 @@ def flatten_qual(sel: list[c2ast.Node], body: list[c2ast.Node], parse_declaratio
 
 def flatten_children(parent: Rule, content: list[c2ast.Node]):
     last_safe = 0
-    for i, n in enumerate(content):
-        if isinstance(n, c2ast.CurlyBracketsBlock):
+    for i, node in enumerate(content):
+        if isinstance(node, c2ast.CurlyBracketsBlock):
             start = find_selector_start(i-1, content)
             assert start >= last_safe
             parent.content.extend(strip_whitespace(content[last_safe:start]))
             sel = strip_whitespace(content[start:i], end=False)
             if isinstance(sel[0], c2ast.AtKeywordToken):
-                yield from flatten_at(sel[0], sel[1:], n.content)
+                yield from flatten_at(sel[0], sel[1:], node.content)
             else:
                 for sub_sel in split_selector(sel):
-                    yield from flatten_qual(sub_sel, n.content)
+                    yield from flatten_qual(sub_sel, node.content)
             last_safe = i + 1
 
     parent.content.extend(strip_whitespace(content[last_safe:]))
