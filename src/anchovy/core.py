@@ -118,7 +118,7 @@ class Context:
 
         for path in _progress(input_paths, 'Planning...'):
             for test, step in self.rules:
-                if match := test.match(str(path)):
+                if match := test.match(path.as_posix()):
                     # None can be used to halt further rule processing.
                     if not step:
                         break
