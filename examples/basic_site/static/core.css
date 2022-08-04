@@ -1,0 +1,16 @@
+body {
+    font-family: 'Arial Narrow', sans-serif;
+    color: #eee;
+    background-color: #333;
+    padding: 10px;
+}
+
+main, footer {
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+footer {
+    border-top: 1px #eee dotted;
+    padding-top: 10px;
+}
