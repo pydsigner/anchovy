@@ -30,6 +30,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install build
+    - name: Patch README.md links
+      # Replace relative README links like
+      # [`examples/basic_site.py`](./examples/basic_site.py)
+      # with
+      # [`examples/basic_site.py`](https://github.com/pydsigner/anchovy/blob/master/examples/basic_site.py)
+      run: sed -Ee "s:\[(.*)\]\(\./(.*)\):[\1](https\://github.com/pydsigner/anchovy/blob/master/\2):g" README.md
     - name: Build package
       run: python -m build
     - name: Publish package
