@@ -9,6 +9,10 @@ LineNodes = Rule | c2ast.Declaration
 
 
 def strip_whitespace(content: list[c2ast.Node], beginning: bool = True, end: bool = True):
+    """
+    Based on the @beginning and @end flags, return a version of @content with
+    leading and/or trailing whitespace Nodes removed.
+    """
     start = 0
     stop = len(content) - 1
     if beginning:
@@ -25,6 +29,10 @@ def strip_whitespace(content: list[c2ast.Node], beginning: bool = True, end: boo
 
 
 def mk_whitespace(node: c2ast.Node, whitespace: str):
+    """
+    Create a whitespace Node with the given @whitespace literal, deriving
+    source line and column from @node.
+    """
     if isinstance(node, Rule) and node.content:
         line = node.content[-1].source_line
         col = node.content[-1].source_column
@@ -40,6 +48,10 @@ def mk_whitespace(node: c2ast.Node, whitespace: str):
 
 
 def wrap_newlines(content: t.Iterable[c2ast.Node]):
+    """
+    Discard existing whitespace Nodes from @content and ensure there's a newline
+    before and after each other Node.
+    """
     first = True
     for node in content:
         if first:
@@ -52,6 +64,11 @@ def wrap_newlines(content: t.Iterable[c2ast.Node]):
 
 
 def find_selector_start(index: int, content: list[c2ast.Node]):
+    """
+    Search backwards in @content, starting from @index, and find a starting
+    point for a selector block. Works by looking for the end of the prior
+    statement or block.
+    """
     while index:
         node = content[index]
         if isinstance(node, c2ast.LiteralToken) and node == ';':
@@ -67,6 +84,9 @@ def find_selector_start(index: int, content: list[c2ast.Node]):
 
 
 def split_selector(content: list[c2ast.Node]):
+    """
+    Split a comma-separated selector up into indivual selectors.
+    """
     selector: list[c2ast.Node] = []
     for node in content:
         if isinstance(node, c2ast.LiteralToken) and node == ',':
@@ -80,6 +100,22 @@ def split_selector(content: list[c2ast.Node]):
 
 
 def merge_selectors(sel_1: list[c2ast.Node], sel_2: list[c2ast.Node]):
+    """
+    Merge two selectors into one. Intended for use with nested selectors. The
+    first segment of @sel_2 will not be merged with the last segment of @sel_1
+    unless it is a pseudo-class/pseudo-element or a literal "&" begins it.
+    For example:
+    >>> merge_selectors('body.home #banner', '.wide-logo')
+    'body.home #banner .wide-logo'
+    >>> merge_selectors(['body.home', '#banner'], ['::after'])
+    'body.home #banner::after'
+    >>> merge_selectors('body.home #banner', '& .wide-logo')
+    'body.home #banner.wide-logo'
+    >>> merge_selectors('body.home #banner', '& .wide-logo a')
+    'body.home #banner.wide-logo a'
+    >>> merge_selectors('body.home #banner', '& a')
+    <AssertionError>
+    """
     sel_1 = strip_whitespace(sel_1)
     sel_2 = strip_whitespace(sel_2)
     first = sel_2[0]
@@ -95,6 +131,11 @@ def merge_selectors(sel_1: list[c2ast.Node], sel_2: list[c2ast.Node]):
 
 
 def pump_at_rule(parent: c2ast.QualifiedRule, at_rule: c2ast.AtRule):
+    """
+    Propagate an AtRule nested within a another block outwards, so that
+    @parent's selectors are attached to all of @at_rule's children and the
+    AtRule can live at the top level as CSS3 requires it to.
+    """
     new_qualified = c2ast.QualifiedRule(
         at_rule.source_line,
         at_rule.source_column,
@@ -128,6 +169,10 @@ def pump_at_rule(parent: c2ast.QualifiedRule, at_rule: c2ast.AtRule):
 
 
 def flatten_at(rule: c2ast.AtKeywordToken, sel: list[c2ast.Node], body: list[c2ast.Node]):
+    """
+    Handle de-nesting the children of an AtRule. Only produces one AtRule
+    because CSS3 accepts a single layer of nesting within AtRules.
+    """
     at_rule = c2ast.AtRule(
         rule.source_line,
         rule.source_column,
@@ -142,6 +187,11 @@ def flatten_at(rule: c2ast.AtKeywordToken, sel: list[c2ast.Node], body: list[c2a
 
 
 def flatten_qual(sel: list[c2ast.Node], body: list[c2ast.Node], parse_declarations=True):
+    """
+    Handle de-nesting the children of a QualifiedRule. Will split nested
+    QualifiedRules into their own blocks as well as pumping AtRules (see
+    `pump_at_rule()` for an explanation).
+    """
     rule = c2ast.QualifiedRule(
         sel[0].source_line,
         sel[0].source_column,
@@ -164,6 +214,11 @@ def flatten_qual(sel: list[c2ast.Node], body: list[c2ast.Node], parse_declaratio
 
 
 def flatten_children(parent: Rule, content: list[c2ast.Node]):
+    """
+    Shared behavior between `flatten_at()` and `flatten_qual()` that adds any
+    Nodes that do not need de-nesting to @parent.content, and yields any new
+    top-level at-rules/qualified rules.
+    """
     last_safe = 0
     for i, node in enumerate(content):
         if isinstance(node, c2ast.CurlyBracketsBlock):
@@ -182,6 +237,10 @@ def flatten_children(parent: Rule, content: list[c2ast.Node]):
 
 
 def flatten_one(node: c2ast.Node):
+    """
+    Handle de-nesting and parsing for a single node of any type, discarding
+    whitespace.
+    """
     if isinstance(node, c2ast.AtRule) and node.content:
         token = c2ast.AtKeywordToken(node.source_line, node.source_column, node.at_keyword)
         yield from flatten_at(token, node.prelude, node.content)
@@ -191,10 +250,16 @@ def flatten_one(node: c2ast.Node):
         yield node
 
 
-def flatten_all(nodes: list[c2ast.Node]):
+def flatten_all(nodes: t.Iterable[c2ast.Node]):
+    """
+    Parse and de-nest a series of Nodes.
+    """
     for node in nodes:
         yield from wrap_newlines(flatten_one(node))
 
 
 def process(code: str):
+    """
+    Parse a string of CSS, de-nest it, and return a string of new code.
+    """
     return tinycss2.serialize(flatten_all(tinycss2.parse_stylesheet(code)))
