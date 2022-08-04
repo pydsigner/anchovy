@@ -49,6 +49,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
     A Step for rendering Markdown using Jinja templates. Parses according to
     CommonMark and Renders to HTML by default.
     """
+    encoding = 'utf-8'
+
     def __init__(self,
                  default_template: str | None = None,
                  md_parser: commonmark.Parser | None = None,
@@ -60,7 +62,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
         self.md_renderer = md_renderer or commonmark.HtmlRenderer()
 
     def __call__(self, path: Path, match: re.Match[str]) -> t.Iterable[Path]:
-        meta, content = self.extract_metadata(path.read_text())
+        meta, content = self.extract_metadata(path.read_text(self.encoding))
         ast = self.md_parser.parse(content.strip())
         meta |= {'rendered_markdown': self.md_renderer.render(ast).strip()}
 
