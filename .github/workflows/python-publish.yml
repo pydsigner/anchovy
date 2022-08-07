@@ -35,7 +35,7 @@ jobs:
       # [`examples/basic_site.py`](./examples/basic_site.py)
       # with
       # [`examples/basic_site.py`](https://github.com/pydsigner/anchovy/blob/master/examples/basic_site.py)
-      run: sed -iEe "s:\[(.*)\]\(\./(.*)\):[\1](https\://github.com/pydsigner/anchovy/blob/master/\2):g" README.md
+      run: sed -E -i -e "s:\[(.*)\]\(\./(.*)\):[\1](https\://github.com/pydsigner/anchovy/blob/master/\2):g" README.md
     - name: Build package
       run: python -m build
     - name: Publish package
