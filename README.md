@@ -86,5 +86,5 @@ output/
     contact.html
 ```
 
-This example can be found in runnable form as [`examples/basic_site.py`](./examples/basic_site.py)
+This example can be found in runnable form as [examples/basic_site.py](./examples/basic_site.py)
 in the source distribution.
