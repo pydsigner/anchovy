@@ -123,7 +123,7 @@ class Context:
 
         for path in _progress(input_paths, 'Planning...'):
             for rule, step in self.rules:
-                if match := rule.match(path):
+                if match := rule.match(self, path):
                     # None can be used to halt further rule processing.
                     if not step:
                         break
@@ -177,12 +177,12 @@ class Rule(t.Generic[T]):
     A single rule for Anchovy file processing, with a matcher, output path
     calculators, and an optional Step to run.
     """
-    match: t.Callable[[Path], T | None]
+    match: t.Callable[[Context, Path], T | None]
     pathcalcs: list[PathCalc[T] ]
     step: UnboundStep
 
     def __init__(self,
-                 match: t.Callable[[Path], T | None],
+                 match: t.Callable[[Context, Path], T | None],
                  pathcalc: t.Sequence[PathCalc[T] | Path ] | PathCalc[T] | Path,
                  step: UnboundStep = None):
         self.match = match

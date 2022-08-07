@@ -77,6 +77,6 @@ def match_re(re_string: str):
     Simple path matcher using regular expressions.
     """
     regex = re.compile(re_string)
-    def match_func(path: Path):
+    def match_func(context: Context, path: Path):
         return regex.match(path.as_posix())
     return match_func
