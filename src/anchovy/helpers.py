@@ -14,6 +14,22 @@ def _trim_ext_prefix(path: Path, match: re.Match[str]):
     return path
 
 
+def _to_dir_inner(dest: Path, ext: str | None, context: Context, path: Path, match: t.Any):
+    path = _trim_ext_prefix(path, match) if ext and isinstance(match, re.Match) else path
+
+    rel = path.relative_to(
+        context['input_dir']
+        if path.is_relative_to(context['input_dir'])
+        else context['working_dir']
+    )
+    new_path = dest / rel
+
+    if ext:
+        new_path = new_path.with_suffix(ext)
+
+    return new_path
+
+
 def to_dir(dest: Path, ext: str | None = None):
     """
     Factory for PathCalculators that make their input paths children of @dest.
@@ -23,19 +39,8 @@ def to_dir(dest: Path, ext: str | None = None):
     `.tar.gz`.
     """
     def inner(context: Context, path: Path, match: t.Any):
-        path = _trim_ext_prefix(path, match) if ext and isinstance(match, re.Match) else path
+        return _to_dir_inner(dest, ext, context, path, match)
 
-        rel = path.relative_to(
-            context['input_dir']
-            if path.is_relative_to(context['input_dir'])
-            else context['working_dir']
-        )
-        new_path = dest / rel
-
-        if ext:
-            new_path = new_path.with_suffix(ext)
-
-        return new_path
     return inner
 
 
@@ -48,19 +53,8 @@ def to_output(ext: str | None = None):
     extensions like `.tar.gz`.
     """
     def inner(context: Context, path: Path, match: t.Any):
-        path = _trim_ext_prefix(path, match) if ext and isinstance(match, re.Match) else path
+        return _to_dir_inner(context['output_dir'], ext, context, path, match)
 
-        rel = path.relative_to(
-            context['input_dir']
-            if path.is_relative_to(context['input_dir'])
-            else context['working_dir']
-        )
-        new_path = context['output_dir'] / rel
-
-        if ext:
-            new_path = new_path.with_suffix(ext)
-
-        return new_path
     return inner
 
 
@@ -73,19 +67,8 @@ def to_working(ext: str | None = None):
     extensions like `.tar.gz`.
     """
     def inner(context: Context, path: Path, match: t.Any):
-        path = _trim_ext_prefix(path, match) if ext and isinstance(match, re.Match) else path
+        return _to_dir_inner(context['working_dir'], ext, context, path, match)
 
-        rel = path.relative_to(
-            context['input_dir']
-            if path.is_relative_to(context['input_dir'])
-            else context['working_dir']
-        )
-        new_path = context['working_dir'] / rel
-
-        if ext:
-            new_path = new_path.with_suffix(ext)
-
-        return new_path
     return inner
 
 
