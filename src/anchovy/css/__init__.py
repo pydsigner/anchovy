@@ -7,6 +7,9 @@ from .parser import process
 
 
 def anchovy_css_step(context: Context, path: Path, output_paths: list[Path]):
+    """
+    Simple Step to preprocess an Anchovy CSS file into compliant CSS.
+    """
     if not output_paths:
         return
     processed = process(path.read_text())

@@ -25,12 +25,18 @@ BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_di
 
 
 class InputBuildSettings(t.TypedDict, total=False):
+    """
+    TypedDict for defining build settings in an Anchovy config file.
+    """
     input_dir: Path
     output_dir: Path
     working_dir: Path | None
     purge_dirs: bool
 
 class BuildSettings(t.TypedDict):
+    """
+    TypedDict for processed build settings ready for passing to Context.
+    """
     input_dir: Path
     output_dir: Path
     working_dir: Path
@@ -167,6 +173,10 @@ class Context:
 
 
 class Rule(t.Generic[T]):
+    """
+    A single rule for Anchovy file processing, with a matcher, output path
+    calculators, and an optional Step to run.
+    """
     match: t.Callable[[Path], T | None]
     pathcalcs: list[PathCalc[T] ]
     step: UnboundStep

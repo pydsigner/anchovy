@@ -36,6 +36,10 @@ class JinjaRenderStep(Step):
             )
 
     def render_template(self, template_name: str, meta: dict[str, t.Any], output_paths: list[Path]):
+        """
+        Look up a Jinja template by name and render it with @meta as
+        parameters, then save the result to each of the provided @output_paths.
+        """
         if not output_paths:
             return
 

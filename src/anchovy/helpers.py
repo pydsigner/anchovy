@@ -91,6 +91,9 @@ def to_working(ext: str | None = None):
 
 
 def match_re(re_string: str):
+    """
+    Simple path matcher using regular expressions.
+    """
     regex = re.compile(re_string)
     def match_func(path: Path):
         return regex.match(path.as_posix())
