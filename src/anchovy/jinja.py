@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import re
+import shutil
 import typing as t
 from pathlib import Path
 
@@ -8,7 +8,6 @@ import commonmark
 import commonmark.render.renderer
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import helpers
 from .core import Context, Step
 
 
@@ -36,12 +35,16 @@ class JinjaRenderStep(Step):
                 autoescape=select_autoescape()
             )
 
-    def render_template(self, template_name: str, meta: dict[str, t.Any], target_path: Path):
+    def render_template(self, template_name: str, meta: dict[str, t.Any], output_paths: list[Path]):
+        if not output_paths:
+            return
+
         template = self.env.get_template(template_name)
-        target_path.parent.mkdir(parents=True, exist_ok=True)
-        template.stream(**meta).dump(str(target_path), encoding='utf-8')
-        # Returning the path makes for easier composition.
-        return target_path
+        for path in output_paths:
+            path.parent.mkdir(parents=True, exist_ok=True)
+        template.stream(**meta).dump(str(output_paths[0]), encoding='utf-8')
+        for path in output_paths[1:]:
+            shutil.copy(output_paths[0], path)
 
 
 class JinjaMarkdownStep(JinjaRenderStep):
@@ -61,17 +64,15 @@ class JinjaMarkdownStep(JinjaRenderStep):
         self.md_parser = md_parser or commonmark.Parser()
         self.md_renderer = md_renderer or commonmark.HtmlRenderer()
 
-    def __call__(self, path: Path, match: re.Match[str]) -> t.Iterable[Path]:
+    def __call__(self, path: Path, output_paths: list[Path]):
         meta, content = self.extract_metadata(path.read_text(self.encoding))
         ast = self.md_parser.parse(content.strip())
         meta |= {'rendered_markdown': self.md_renderer.render(ast).strip()}
 
-        target_path = helpers.to_output(self.context, path, match, '.html')
-
-        yield self.render_template(
+        self.render_template(
             meta.get('template', self.default_template),
             meta,
-            target_path
+            output_paths
         )
 
     def extract_metadata(self, text: str):

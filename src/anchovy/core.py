@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import abc
 import functools
-import re
 import shutil
 import typing as t
 from pathlib import Path
@@ -18,10 +17,10 @@ except ImportError:
 
 
 T = t.TypeVar('T')
-StepFunc = t.Callable[[Path, re.Match[str], 'Context'], t.Iterable[Path]]
-UnboundStep = t.Union[StepFunc, 'Step', None]
-Rule = tuple[str, UnboundStep]
-BoundStep = t.Callable[[Path, re.Match[str]], t.Iterable[Path]]
+StepFunc = t.Callable[['Context', Path, list[Path]], t.Any]
+UnboundStep = t.Union[StepFunc, 'Step'] | None
+PathCalc = t.Callable[['Context', Path, T], Path] | None
+BoundStep = t.Callable[[Path, list[Path]], t.Any]
 BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_dirs']
 
 
@@ -66,7 +65,7 @@ class Context:
                  settings: BuildSettings,
                  rules: list[Rule]):
         self.settings = settings
-        self.rules = [(re.compile(r), self.bind(f)) for r, f in rules]
+        self.rules = [(r, self.bind(r.step)) for r in rules]
 
     @t.overload
     def __getitem__(self, key: t.Literal['input_dir', 'output_dir', 'working_dir']) -> Path: ...
@@ -88,8 +87,8 @@ class Context:
             return step
 
         @functools.wraps(step)
-        def bound(path: Path, match: re.Match[str]):
-            return step(path, match, self)
+        def bound(path: Path, output_paths: list[Path]):
+            return step(self, path, output_paths)
         return bound
 
     def find_inputs(self, path: Path):
@@ -113,26 +112,44 @@ class Context:
         """
         input_paths = input_paths or list(self.find_inputs(self.settings['input_dir']))
         # We want to handle tasks in the order they're defined!
-        tasks: dict[BoundStep, list[tuple[Path, re.Match[str]]]]
-        tasks = {step: [] for test, step in self.rules if step}
+        tasks: dict[BoundStep, list[tuple[Path, list[Path]]]]
+        tasks = {step: [] for rule, step in self.rules if step}
 
         for path in _progress(input_paths, 'Planning...'):
-            for test, step in self.rules:
-                if match := test.match(path.as_posix()):
+            for rule, step in self.rules:
+                if match := rule.match(path):
                     # None can be used to halt further rule processing.
                     if not step:
                         break
-                    tasks[step].append((path, match))
+                    output_paths: list[Path] = []
+                    for pathcalc in rule.pathcalcs:
+                        # None can be used to halt further rule processing in
+                        # paths as well. This allows a single rule to both do
+                        # processing and also halt further processing.
+                        if not pathcalc:
+                            break
+                        output_paths.append(pathcalc(self, path, match))
+                    else:
+                        tasks[step].append((path, output_paths))
+                        # We didn't break above, avoid the break below!
+                        continue
+                    tasks[step].append((path, output_paths))
+                    # We need two breaks because we're trying to get out of the
+                    # surrounding for loop.
+                    break
 
-        flattened: list[tuple[BoundStep, Path, re.Match[str]]] = []
+        flattened: list[tuple[BoundStep, Path, list[Path]]] = []
         for step, paths in tasks.items():
-            flattened.extend((step, p, m) for p, m in paths)
+            flattened.extend((step, p, ops) for p, ops in paths)
 
         further_processing: list[Path] = []
-        for step, path, match in _progress(flattened, 'Processing...'):
-            new_paths = list(step(path, match))
-            print(f'{path} ⇒ {", ".join(str(p) for p in new_paths)}')
-            further_processing.extend(p for p in new_paths if p.is_relative_to(self['working_dir']))
+        for step, path, output_paths in _progress(flattened, 'Processing...'):
+            print(f'{path} ⇒ {", ".join(str(p) for p in output_paths)}')
+            step(path, output_paths)
+            further_processing.extend(
+                p for p in output_paths
+                if p.is_relative_to(self['working_dir'])
+            )
 
         if further_processing:
             self.process(further_processing)
@@ -149,6 +166,27 @@ class Context:
         self.process(input_paths)
 
 
+class Rule(t.Generic[T]):
+    match: t.Callable[[Path], T | None]
+    pathcalcs: list[PathCalc[T] ]
+    step: UnboundStep
+
+    def __init__(self,
+                 match: t.Callable[[Path], T | None],
+                 pathcalc: t.Sequence[PathCalc[T] | Path ] | PathCalc[T] | Path,
+                 step: UnboundStep = None):
+        self.match = match
+        self.step = step
+        if not isinstance(pathcalc, t.Sequence):
+            pathcalc = [pathcalc]
+        self.pathcalcs = [self._path_to_pathcalc(p) if isinstance(p, Path) else p for p in pathcalc]
+
+    def _path_to_pathcalc(self, path: Path):
+        def wrapper(_context: Context, _input_path: Path, _match: t.Any):
+            return path
+        return wrapper
+
+
 class Step(abc.ABC):
     """
     Abstract base class for Steps, individual processing stages used to build a
@@ -163,5 +201,5 @@ class Step(abc.ABC):
         self.context = context
 
     @abc.abstractmethod
-    def __call__(self, path: Path, match: re.Match[str]) -> t.Iterable[Path]:
+    def __call__(self, path: Path, output_paths: list[Path]):
         ...
