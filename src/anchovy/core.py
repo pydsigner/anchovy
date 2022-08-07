@@ -86,7 +86,7 @@ class Context:
         and creates a partial for function Steps.
         """
         if not step:
-            return
+            return None
 
         if isinstance(step, Step):
             step.bind(self)
@@ -177,10 +177,6 @@ class Rule(t.Generic[T]):
     A single rule for Anchovy file processing, with a matcher, output path
     calculators, and an optional Step to run.
     """
-    match: t.Callable[[Context, Path], T | None]
-    pathcalcs: list[PathCalc[T] ]
-    step: UnboundStep
-
     def __init__(self,
                  match: t.Callable[[Context, Path], T | None],
                  pathcalc: t.Sequence[PathCalc[T] | Path ] | PathCalc[T] | Path,
