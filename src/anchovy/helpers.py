@@ -39,7 +39,6 @@ def to_dir(dest: Path, ext: str | None = None):
     return inner
 
 
-
 def to_output(ext: str | None = None):
     """
     Factory for PathCalculators that make their input paths children of their

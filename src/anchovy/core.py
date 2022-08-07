@@ -192,7 +192,8 @@ class Rule(t.Generic[T]):
         self.pathcalcs = [self._path_to_pathcalc(p) if isinstance(p, Path) else p for p in pathcalc]
 
     def _path_to_pathcalc(self, path: Path):
-        def wrapper(_context: Context, _input_path: Path, _match: t.Any):
+        # pylint: disable=unused-argument
+        def wrapper(context: Context, input_path: Path, match: t.Any):
             return path
         return wrapper
 
