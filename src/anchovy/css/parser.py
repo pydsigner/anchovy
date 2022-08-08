@@ -148,10 +148,10 @@ def pump_at_rule(parent: c2ast.QualifiedRule, at_rule: c2ast.AtRule):
         at_rule.at_keyword,
         at_rule.lower_at_keyword,
         at_rule.prelude,
-        [new_qualified]
+        t.cast(list[c2ast.Node], [new_qualified])
     )
 
-    for node in t.cast(list[c2ast.Node], at_rule.content):
+    for node in at_rule.content:
         if isinstance(node, c2ast.QualifiedRule):
             new_at.content.extend(
                 flatten_qual(
