@@ -39,7 +39,7 @@ jobs:
     - name: Build package
       # https://stackoverflow.com/a/15988793/1795505
       run: |
-        SETUPTOOLS_SCM_PRETEND_VERSION=${GITHUB_REF##*/} python -m build
+        SETUPTOOLS_SCM_PRETEND_VERSION=${GITHUB_REF##*/v} python -m build
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
