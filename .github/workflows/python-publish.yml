@@ -37,7 +37,10 @@ jobs:
       # [`examples/basic_site.py`](https://github.com/pydsigner/anchovy/blob/master/examples/basic_site.py)
       run: sed -E -i -e "s:\[(.*)\]\(\./(.*)\):[\1](https\://github.com/pydsigner/anchovy/blob/master/\2):g" README.md
     - name: Build package
-      run: python -m build
+      # https://stackoverflow.com/a/15988793/1795505
+      run: |
+        LONG_REF_NAME=${{ GITHUB_REF }}
+        SETUPTOOLS_SCM_PRETEND_VERSION=${LONG_REF_NAME##*/} python -m build
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:

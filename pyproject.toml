@@ -42,7 +42,6 @@ all = ["anchovy[base]"]
 anchovy = "anchovy.cli:main"
 
 [tool.setuptools_scm]
-local_scheme = "no-local-version"
 
 [tool.pylint.main]
 # Return non-zero exit code if any of these messages/categories are detected,
