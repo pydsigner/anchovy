@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import abc
-import functools
 import shutil
 import typing as t
 from pathlib import Path
