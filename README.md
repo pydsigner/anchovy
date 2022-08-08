@@ -109,7 +109,9 @@ from my_site.config import SETTINGS, RULES
 
 
 def main():
+    print('Pretending to run pre-pipeline tasks...')
     run_from_rules(SETTINGS, RULES)
+    print('Pretending to run post-pipeline tasks...')
 
 
 if __name__ == '__main__':
