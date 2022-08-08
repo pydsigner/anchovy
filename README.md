@@ -47,8 +47,8 @@ Anchovy operates on config files written in Python, or even modules directly.
 from pathlib import Path
 
 from anchovy.core import InputBuildSettings, Rule
-from anchovy.helpers import match_re, to_output
 from anchovy.jinja import JinjaMarkdownStep
+from anchovy.paths import match_re, to_output
 from anchovy.simple import DirectCopyStep
 
 
