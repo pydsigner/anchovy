@@ -22,6 +22,7 @@ UnboundStep = t.Union[StepFunc, 'Step'] | None
 PathCalc = t.Callable[['Context', Path, T], Path] | None
 BoundStep = t.Callable[[Path, list[Path]], t.Any]
 BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_dirs']
+ContextDir = t.Literal['input_dir', 'output_dir', 'working_dir']
 
 
 class InputBuildSettings(t.TypedDict, total=False):
@@ -74,7 +75,7 @@ class Context:
         self.rules = [(r, self.bind(r.step)) for r in rules]
 
     @t.overload
-    def __getitem__(self, key: t.Literal['input_dir', 'output_dir', 'working_dir']) -> Path: ...
+    def __getitem__(self, key: ContextDir) -> Path: ...
     @t.overload
     def __getitem__(self, key: t.Literal['purge_dirs']) -> bool: ...
     def __getitem__(self, key):

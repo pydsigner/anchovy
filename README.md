@@ -54,12 +54,13 @@ SETTINGS = InputBuildSettings(
     output_dir=Path('build'),
 )
 RULES = [
-    # Ignore dotfiles.
-    Rule(match_re(r'(.*/)*\..*'), None),
+    # Ignore dotfiles in both the input_dir and the working dir.
+    Rule(match_re(r'(.*/)*\..*', dir='input_dir'), None),
+    Rule(match_re(r'(.*/)*\..*', dir='working_dir'), None),
     # Render markdown files, then stop processing them.
     Rule(match_re(r'.*\.md'), [to_output('.html'), None], JinjaMarkdownStep()),
     # Copy everything else in static/ directories through.
-    Rule(match_re(r'.*/static/.*'), to_output(), direct_copy_step),
+    Rule(match_re(r'(.*/)*static/.*', dir='input_dir'), to_output(), direct_copy_step),
 ]
 ```
 
