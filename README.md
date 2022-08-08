@@ -35,9 +35,13 @@ Alternatively, Anchovy may be installed directly from source with
 `pip install git+https://github.com/pydsigner/anchovy` or the corresponding
 `pip install git+https://github.com/pydsigner/anchovy#egg=anchovy[base]`.
 
-## Usage
+## Command Line Usage
 
 Anchovy operates on config files written in Python, or even modules directly.
+
+* `python -m anchovy -h`
+* `anchovy -m mypackage.anchovyconf -o ../release/`
+* `python -m anchovy mysite/anchovy_site.py -- -h`
 
 ```python
 from pathlib import Path
@@ -88,4 +92,26 @@ output/
 ```
 
 This example can be found in runnable form as [examples/basic_site.py](./examples/basic_site.py)
-in the source distribution.
+in the source distribution. Available command line arguments can be seen by
+passing `-h`: `python -m anchovy examples/basic_site.py -- -h`. The `--` is
+required because `anchovy` itself also accepts the flag.
+
+## Programmatic Usage
+
+Anchovy is very usable from the command line, but projects desiring to
+customize behavior, for example by running tasks before or after pipeline
+execution, may utilize `anchovy.cli.run_from_rules()`:
+
+```python
+from anchovy.cli import run_from_rules
+
+from my_site.config import SETTINGS, RULES
+
+
+def main():
+    run_from_rules(SETTINGS, RULES)
+
+
+if __name__ == '__main__':
+    main()
+```
