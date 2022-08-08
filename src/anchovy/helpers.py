@@ -72,11 +72,12 @@ def to_working(ext: str | None = None):
     return inner
 
 
-def match_re(re_string: str):
+def match_re(re_string: str, re_flags: int = 0):
     """
-    Simple path matcher using regular expressions.
+    Simple path matcher using regular expressions. @re_flags will be passed to
+    `re.compile()`.
     """
-    regex = re.compile(re_string)
+    regex = re.compile(re_string, re_flags)
     def match_func(context: Context, path: Path):
         return regex.match(path.as_posix())
     return match_func
