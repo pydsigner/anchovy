@@ -17,10 +17,7 @@ except ImportError:
 
 
 T = t.TypeVar('T')
-StepFunc = t.Callable[['Context', Path, list[Path]], t.Any]
-UnboundStep = t.Union[StepFunc, 'Step'] | None
 PathCalc = t.Callable[['Context', Path, T], Path] | None
-BoundStep = t.Callable[[Path, list[Path]], t.Any]
 BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_dirs']
 ContextDir = t.Literal['input_dir', 'output_dir', 'working_dir']
 
@@ -72,7 +69,10 @@ class Context:
                  settings: BuildSettings,
                  rules: list[Rule]):
         self.settings = settings
-        self.rules = [(r, self.bind(r.step)) for r in rules]
+        self.rules: list[Rule] = []
+        for r in rules:
+            self.rules.append(r)
+            self.bind(r.step)
 
     @t.overload
     def __getitem__(self, key: ContextDir) -> Path: ...
@@ -81,22 +81,13 @@ class Context:
     def __getitem__(self, key):
         return self.settings[key]
 
-    def bind(self, step: UnboundStep) -> BoundStep | None:
+    def bind(self, step: Step | None):
         """
         Bind a Step to this Context. Calls the `bind()` method on class Steps,
         and creates a partial for function Steps.
         """
-        if not step:
-            return None
-
-        if isinstance(step, Step):
+        if step:
             step.bind(self)
-            return step
-
-        @functools.wraps(step)
-        def bound(path: Path, output_paths: list[Path]):
-            return step(self, path, output_paths)
-        return bound
 
     def find_inputs(self, path: Path):
         """
@@ -119,14 +110,14 @@ class Context:
         """
         input_paths = input_paths or list(self.find_inputs(self.settings['input_dir']))
         # We want to handle tasks in the order they're defined!
-        tasks: dict[BoundStep, list[tuple[Path, list[Path]]]]
-        tasks = {step: [] for rule, step in self.rules if step}
+        tasks: dict[Step, list[tuple[Path, list[Path]]]]
+        tasks = {r.step: [] for r in self.rules if r.step}
 
         for path in _progress(input_paths, 'Planning...'):
-            for rule, step in self.rules:
+            for rule in self.rules:
                 if match := rule.match(self, path):
                     # None can be used to halt further rule processing.
-                    if not step:
+                    if not rule.step:
                         break
                     output_paths: list[Path] = []
                     for pathcalc in rule.pathcalcs:
@@ -137,15 +128,15 @@ class Context:
                             break
                         output_paths.append(pathcalc(self, path, match))
                     else:
-                        tasks[step].append((path, output_paths))
+                        tasks[rule.step].append((path, output_paths))
                         # We didn't break above, avoid the break below!
                         continue
-                    tasks[step].append((path, output_paths))
+                    tasks[rule.step].append((path, output_paths))
                     # We need two breaks because we're trying to get out of the
                     # surrounding for loop.
                     break
 
-        flattened: list[tuple[BoundStep, Path, list[Path]]] = []
+        flattened: list[tuple[Step, Path, list[Path]]] = []
         for step, paths in tasks.items():
             flattened.extend((step, p, ops) for p, ops in paths)
 
@@ -181,7 +172,7 @@ class Rule(t.Generic[T]):
     def __init__(self,
                  match: t.Callable[[Context, Path], T | None],
                  pathcalc: t.Sequence[PathCalc[T] | Path ] | PathCalc[T] | Path,
-                 step: UnboundStep = None):
+                 step: Step | None = None):
         self.match = match
         self.step = step
         if not isinstance(pathcalc, t.Sequence):
