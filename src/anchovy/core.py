@@ -16,7 +16,7 @@ except ImportError:
 
 
 T = t.TypeVar('T')
-PathCalc = t.Callable[['Context', Path, T], Path] | None
+T2 = t.TypeVar('T2')
 BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_dirs']
 ContextDir = t.Literal['input_dir', 'output_dir', 'working_dir']
 
@@ -114,12 +114,12 @@ class Context:
 
         for path in _progress(input_paths, 'Planning...'):
             for rule in self.rules:
-                if match := rule.match(self, path):
+                if match := rule.matcher(self, path):
                     # None can be used to halt further rule processing.
                     if not rule.step:
                         break
                     output_paths: list[Path] = []
-                    for pathcalc in rule.pathcalcs:
+                    for pathcalc in rule.path_calcs:
                         # None can be used to halt further rule processing in
                         # paths as well. This allows a single rule to both do
                         # processing and also halt further processing.
@@ -163,20 +163,60 @@ class Context:
         self.process(input_paths)
 
 
+class Matcher(t.Generic[T], abc.ABC):
+    """
+    Abstract base class for Path Matchers. Provides pre-baked ability to
+    combine Matchers with | and &.
+    """
+    @abc.abstractmethod
+    def __call__(self, context: Context, path: Path) -> T:
+        ...
+
+    def __or__(self, other: Matcher[T2]):
+        return _OrMatcher(self, other)
+
+    def __and__(self, other: Matcher[T2]):
+        return _AndMatcher(self, other)
+
+
+class _OrMatcher(Matcher[T | T2]):
+    def __init__(self, left: Matcher[T], right: Matcher[T2]):
+        self.left = left
+        self.right = right
+
+    def __call__(self, context: Context, path: Path):
+        return self.left(context, path) or self.right(context, path)
+
+
+class _AndMatcher(Matcher[T | T2]):
+    def __init__(self, left: Matcher[T], right: Matcher[T2]):
+        self.left = left
+        self.right = right
+
+    def __call__(self, context: Context, path: Path):
+        return self.left(context, path) and self.right(context, path)
+
+
+class PathCalc(t.Generic[T], abc.ABC):
+    @abc.abstractmethod
+    def __call__(self, context: Context, path: Path, match: T) -> Path:
+        ...
+
+
 class Rule(t.Generic[T]):
     """
     A single rule for Anchovy file processing, with a matcher, output path
     calculators, and an optional Step to run.
     """
     def __init__(self,
-                 match: t.Callable[[Context, Path], T | None],
-                 pathcalc: t.Sequence[PathCalc[T] | Path ] | PathCalc[T] | Path,
+                 matcher: Matcher[T],
+                 path_calc: t.Sequence[PathCalc[T] | Path | None] | PathCalc[T] | Path | None,
                  step: Step | None = None):
-        self.match = match
+        self.matcher = matcher
         self.step = step
-        if not isinstance(pathcalc, t.Sequence):
-            pathcalc = [pathcalc]
-        self.pathcalcs = [self._path_to_pathcalc(p) if isinstance(p, Path) else p for p in pathcalc]
+        if not isinstance(path_calc, t.Sequence):
+            path_calc = [path_calc]
+        self.path_calcs = [self._path_to_pathcalc(p) if isinstance(p, Path) else p for p in path_calc]
 
     def _path_to_pathcalc(self, path: Path):
         # pylint: disable=unused-argument

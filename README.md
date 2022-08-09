@@ -48,7 +48,7 @@ from pathlib import Path
 
 from anchovy.core import InputBuildSettings, Rule
 from anchovy.jinja import JinjaMarkdownStep
-from anchovy.paths import match_re, to_output
+from anchovy.paths import OutputDirPathCalc, REMatcher
 from anchovy.simple import DirectCopyStep
 
 
@@ -58,13 +58,26 @@ SETTINGS = InputBuildSettings(
     output_dir=Path('build'),
 )
 RULES = [
-    # Ignore dotfiles in both the input_dir and the working dir.
-    Rule(match_re(r'(.*/)*\..*', dir='input_dir'), None),
-    Rule(match_re(r'(.*/)*\..*', dir='working_dir'), None),
+    # Ignore dotfiles found in either the input_dir or the working dir.
+    Rule(
+        (
+            REMatcher(r'(.*/)*\..*', dir='input_dir')
+            | REMatcher(r'(.*/)*\..*', dir='working_dir')
+        ),
+        None
+    ),
     # Render markdown files, then stop processing them.
-    Rule(match_re(r'.*\.md'), [to_output('.html'), None], JinjaMarkdownStep()),
+    Rule(
+        REMatcher(r'.*\.md'),
+        [OutputDirPathCalc('.html'), None],
+        JinjaMarkdownStep()
+    ),
     # Copy everything else in static/ directories through.
-    Rule(match_re(r'(.*/)*static/.*', dir='input_dir'), to_output(), DirectCopyStep()),
+    Rule(
+        REMatcher(r'(.*/)*static/.*', dir='input_dir'),
+        OutputDirPathCalc(),
+        DirectCopyStep()
+    ),
 ]
 ```
 

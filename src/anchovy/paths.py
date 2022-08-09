@@ -2,7 +2,10 @@ import re
 import typing as t
 from pathlib import Path
 
-from .core import Context, ContextDir
+from .core import Context, ContextDir, Matcher, PathCalc
+
+
+T = t.TypeVar('T')
 
 
 def _trim_ext_prefix(path: Path, match: re.Match[str]):
@@ -30,62 +33,70 @@ def _to_dir_inner(dest: Path, ext: str | None, context: Context, path: Path, mat
     return new_path
 
 
-def to_dir(dest: Path, ext: str | None = None):
+class DirPathCalc(PathCalc[T]):
     """
-    Factory for PathCalculators that make their input paths children of @dest.
+    PathCalc which makes its input paths children of a specified directory.
     If @ext is specified, it will replace the extension of input paths. If the
     matcher produced an re.Match, it will be checked for explicitly defined
-    extension information for the input paths, allowing for extensions like
+    extension information for the input paths, allowing for meaningful work
+    with extensions that `pathlib.Path` does not reflect, like `.tar.gz`.
+    """
+    def __init__(self, dest: Path, ext: str | None = None):
+        self.dest = dest
+        self.ext = ext
+
+    def __call__(self, context: Context, path: Path, match: T) -> Path:
+        return _to_dir_inner(self.dest, self.ext, context, path, match)
+
+
+class OutputDirPathCalc(PathCalc[T]):
+    """
+    PathCalc which makes its input paths children of the Context's output
+    directory. If @ext is specified, it will replace the extension of input
+    paths. If the matcher produced an re.Match, it will be checked for
+    explicitly defined extension information for the input paths, allowing for
+    meaningful work with extensions that `pathlib.Path` does not reflect, like
     `.tar.gz`.
     """
-    def inner(context: Context, path: Path, match: t.Any):
-        return _to_dir_inner(dest, ext, context, path, match)
+    def __init__(self, ext: str | None = None):
+        self.ext = ext
 
-    return inner
+    def __call__(self, context: Context, path: Path, match: T) -> Path:
+        return _to_dir_inner(context['output_dir'], self.ext, context, path, match)
 
 
-def to_output(ext: str | None = None):
+class WorkingDirPathCalc(PathCalc[T]):
     """
-    Factory for PathCalculators that make their input paths children of their
-    Context's output dir. If @ext is specified, it will replace the extension
-    of input paths. If the matcher produced an re.Match, it will be checked for
+    PathCalc which makes its input paths children of the Context's working
+    directory. If @ext is specified, it will replace the extension of input
+    paths. If the matcher produced an re.Match, it will be checked for
     explicitly defined extension information for the input paths, allowing for
-    extensions like `.tar.gz`.
+    meaningful work with extensions that `pathlib.Path` does not reflect, like
+    `.tar.gz`.
     """
-    def inner(context: Context, path: Path, match: t.Any):
-        return _to_dir_inner(context['output_dir'], ext, context, path, match)
+    def __init__(self, ext: str | None = None):
+        self.ext = ext
 
-    return inner
+    def __call__(self, context: Context, path: Path, match: T) -> Path:
+        return _to_dir_inner(context['working_dir'], self.ext, context, path, match)
 
 
-def to_working(ext: str | None = None):
+class REMatcher(Matcher[re.Match | None]):
     """
-    Factory for PathCalculators that make their input paths children of their
-    Context's working dir. If @ext is specified, it will replace the extension
-    of input paths. If the matcher produced an re.Match, it will be checked for
-    explicitly defined extension information for the input paths, allowing for
-    extensions like `.tar.gz`.
-    """
-    def inner(context: Context, path: Path, match: t.Any):
-        return _to_dir_inner(context['working_dir'], ext, context, path, match)
-
-    return inner
-
-
-def match_re(re_string: str, re_flags: int = 0, dir: ContextDir | None = None):
-    """
-    Path matcher using regular expressions. @re_flags will be passed to
+    Path Matcher using regular expressions. @re_flags will be passed to
     `re.compile()`. @dir, if specified, should be a key to a configured
     directory, not a Path, and will be used to handle matching the beginning of
     Paths; this can be used to avoid pitfalls with unexpected characters in
     input or working directories.
     """
-    regex = re.compile(re_string, re_flags)
-    def match_func(context: Context, path: Path):
-        if dir:
+    def __init__(self, re_string: str, re_flags: int = 0, dir: ContextDir | None = None):
+        self.regex = re.compile(re_string, re_flags)
+        self.root_dir: ContextDir | None = dir
+
+    def __call__(self, context: Context, path: Path):
+        if self.root_dir:
             # Handle this part of matching outside the regex.
-            if not path.is_relative_to(context[dir]):
+            if not path.is_relative_to(context[self.root_dir]):
                 return None
-            path = path.relative_to(context[dir])
-        return regex.match(path.as_posix())
-    return match_func
+            path = path.relative_to(context[self.root_dir])
+        return self.regex.match(path.as_posix())
