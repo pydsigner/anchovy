@@ -83,14 +83,17 @@ def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[s
     return parser.parse_args(argv, namespace=namespace)
 
 
-def run_from_rules(settings: InputBuildSettings | None, rules: list[Rule], **kw):
+def run_from_rules(settings: InputBuildSettings | None,
+                   rules: list[Rule],
+                   context_cls: t.Type[Context] = Context,
+                   **kw):
     """
     Build a new Context from Settings, Rules, and command line arguments. Then,
     execute a build using the new Context.
     """
     final_settings = parse_settings_args(settings, **kw)
     with _wrap_temp(final_settings.working_dir) as working_dir:
-        context = Context(final_settings.to_build_settings(working_dir), rules)
+        context = context_cls(final_settings.to_build_settings(working_dir), rules)
         context.run()
 
 

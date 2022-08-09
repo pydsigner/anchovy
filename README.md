@@ -116,14 +116,27 @@ customize behavior, for example by running tasks before or after pipeline
 execution, may utilize `anchovy.cli.run_from_rules()`:
 
 ```python
+import time
+from pathlib import Path
+
 from anchovy.cli import run_from_rules
+from anchovy.core import Context
 
 from my_site.config import SETTINGS, RULES
 
 
+class MyContext(Context):
+    def find_inputs(path: Path):
+        # Only process files modified in the last hour.
+        hour_ago = time.time() - 3600
+        for candidate in super().find_inputs(path):
+            if candidate.stat().st_mtime > hour_ago:
+                yield candidate
+
+
 def main():
     print('Pretending to run pre-pipeline tasks...')
-    run_from_rules(SETTINGS, RULES)
+    run_from_rules(SETTINGS, RULES, context_cls=MyContext)
     print('Pretending to run post-pipeline tasks...')
 
 
