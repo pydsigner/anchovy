@@ -2,7 +2,6 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/anchovy)](https://pypi.org/project/anchovy)
 [![GitHub - Project License](https://img.shields.io/github/license/pydsigner/anchovy)](https://github.com/pydsigner/anchovy)
 [![GitHub - Code Size](https://img.shields.io/github/languages/code-size/pydsigner/anchovy)](https://github.com/pydsigner/anchovy)
-[![Lines of code](https://img.shields.io/tokei/lines/github/pydsigner/anchovy)](https://github.com/pydsigner/anchovy)
 
 # Anchovy
 
