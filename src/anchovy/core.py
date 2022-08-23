@@ -5,14 +5,8 @@ import shutil
 import typing as t
 from pathlib import Path
 
-try:
-    import rich.progress as _rich_progress
-except ImportError:
-    _rich_progress = None
-try:
-    import tqdm as _tqdm
-except ImportError:
-    _tqdm = None
+from .dependencies import Dependency
+from .pretty_utils import track_progress
 
 
 T = t.TypeVar('T')
@@ -38,16 +32,6 @@ class BuildSettings(t.TypedDict):
     output_dir: Path
     working_dir: Path
     purge_dirs: bool
-
-
-def _progress(iterable: t.Iterable[T], desc: str) -> t.Iterable[T]:
-    if _rich_progress:
-        yield from _rich_progress.track(iterable, desc)
-    elif _tqdm is not None:
-        yield from _tqdm.tqdm(iterable, desc)
-    else:
-        print(desc)
-        yield from iterable
 
 
 def _rm_children(path: Path):
@@ -112,7 +96,7 @@ class Context:
         tasks: dict[Step, list[tuple[Path, list[Path]]]]
         tasks = {r.step: [] for r in self.rules if r.step}
 
-        for path in _progress(input_paths, 'Planning...'):
+        for path in track_progress(input_paths, 'Planning...'):
             for rule in self.rules:
                 if match := rule.matcher(self, path):
                     # None can be used to halt further rule processing.
@@ -140,7 +124,7 @@ class Context:
             flattened.extend((step, p, ops) for p, ops in paths)
 
         further_processing: list[Path] = []
-        for step, path, output_paths in _progress(flattened, 'Processing...'):
+        for step, path, output_paths in track_progress(flattened, 'Processing...'):
             print(f'{path} ⇒ {", ".join(str(p) for p in output_paths)}')
             step(path, output_paths)
             further_processing.extend(
