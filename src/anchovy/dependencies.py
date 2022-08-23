@@ -24,6 +24,9 @@ DEPENDENCY_TYPES: dict[str, tuple[str, t.Callable[[], bool]]] = {
 
 
 def import_install_check(dependency: Dependency):
+    """
+    An install checker which tries to import a Python module.
+    """
     try:
         importlib.import_module(dependency.name)
     except ImportError:
@@ -32,6 +35,9 @@ def import_install_check(dependency: Dependency):
 
 
 def which_install_check(dependency: Dependency):
+    """
+    An install checker using `shutil.which()` to look for an executable.
+    """
     return bool(shutil.which(dependency.name))
 
 
@@ -111,5 +117,6 @@ class _AndDependency(Dependency):
         # dependency is paired on more specific platforms.
         return self.left.needed or self.right.needed
 
+    @property
     def install_hint(self):
         return '; '.join(d.install_hint for d in [self.left, self.right] if d.needed)

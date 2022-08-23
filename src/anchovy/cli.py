@@ -100,6 +100,9 @@ def run_from_rules(settings: InputBuildSettings | None,
 
 
 def pprint_step(step: t.Type[Step]):
+    """
+    Prettily display dependency information for the given Step class.
+    """
     missing = [
         d.name for d in step.get_dependencies()
         if d.needed and not d.satisfied
@@ -113,6 +116,9 @@ def pprint_step(step: t.Type[Step]):
 
 
 def pprint_missing_deps(step: Step):
+    """
+    Prettily display an error for the given Step with missing dependencies.
+    """
     print_with_style(
         f'{step} is unavailable due to missing dependencies!',
         file=sys.stderr,

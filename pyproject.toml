@@ -164,6 +164,7 @@ disable = [
     "use-symbolic-message-instead",
     "too-few-public-methods",
     "inconsistent-return-statements",
+    "import-outside-toplevel",
 ]
 # Enable the message, report, category or checker with the given id(s).
 enable = [
