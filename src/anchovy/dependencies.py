@@ -42,6 +42,9 @@ def which_install_check(dependency: Dependency):
 
 
 class Dependency:
+    """
+    A class for tracking and evaluating dependencies.
+    """
     def __init__(self,
                  name: str,
                  type: str,
@@ -54,14 +57,23 @@ class Dependency:
 
     @property
     def satisfied(self):
+        """
+        A bool indicating if this dependency is met.
+        """
         return self.install_check(self)
 
     @property
     def needed(self):
+        """
+        A bool indicating if this dependency is needed on the current platform.
+        """
         return DEPENDENCY_TYPES[self.type][1]()
 
     @property
     def install_hint(self):
+        """
+        A string giving help on how to install this dependency.
+        """
         return DEPENDENCY_TYPES[self.type][0].format(name=self.name, source=self.source)
 
     def __repr__(self):
@@ -84,14 +96,24 @@ class _OrDependency(Dependency):
 
     @property
     def satisfied(self):
+        """
+        A bool indicating whether either of these dependencies are met.
+        """
         return self.left.satisfied or self.right.satisfied
 
     @property
     def needed(self):
+        """
+        A bool indicating whether either of these dependencies is needed.
+        """
         return self.left.needed or self.right.needed
 
     @property
     def install_hint(self):
+        """
+        A string giving help on how to meet one of these dependencies, if
+        either is needed.
+        """
         return (
             (self.left.needed and self.left.install_hint)
             or (self.right.needed and self.right.install_hint)
@@ -109,14 +131,24 @@ class _AndDependency(Dependency):
 
     @property
     def satisfied(self):
+        """
+        A bool indicating whether both of these dependencies are met.
+        """
         return self.left.satisfied and self.right.satisfied
 
     @property
     def needed(self):
+        """
+        A bool indicating whether either of these dependencies is needed.
+        """
         # These should mostly match, but we'll allow for cases where one
         # dependency is paired on more specific platforms.
         return self.left.needed or self.right.needed
 
     @property
     def install_hint(self):
+        """
+        A string giving help on how to install these dependencies, if they are
+        needed.
+        """
         return '; '.join(d.install_hint for d in [self.left, self.right] if d.needed)
