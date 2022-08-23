@@ -4,11 +4,13 @@ import shutil
 import typing as t
 from pathlib import Path
 
-import commonmark
-import commonmark.render.renderer
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+if t.TYPE_CHECKING:
+    import commonmark
+    import commonmark.render.renderer
+    from jinja2 import Environment
 
 from .core import Context, Step
+from .dependencies import Dependency, import_install_check
 
 
 class JinjaRenderStep(Step):
@@ -16,6 +18,12 @@ class JinjaRenderStep(Step):
     Abstract base class for Steps using Jinja rendering.
     """
     env: Environment
+
+    @classmethod
+    def get_dependencies(cls) -> set[Dependency]:
+        return super().get_dependencies() | {
+            Dependency('jinja2', 'pip', import_install_check),
+        }
 
     def __init__(self, env: Environment | None):
         self._temporary_env = env
@@ -30,6 +38,7 @@ class JinjaRenderStep(Step):
         if self._temporary_env:
             self.env = self._temporary_env
         else:
+            from jinja2 import Environment, FileSystemLoader, select_autoescape
             self.env = Environment(
                 loader=FileSystemLoader(context['input_dir']),
                 autoescape=select_autoescape()
@@ -58,6 +67,12 @@ class JinjaMarkdownStep(JinjaRenderStep):
     """
     encoding = 'utf-8'
 
+    @classmethod
+    def get_dependencies(cls) -> set[Dependency]:
+        return super().get_dependencies() | {
+            Dependency('commonmark', 'pip', import_install_check),
+        }
+
     def __init__(self,
                  default_template: str | None = None,
                  md_parser: commonmark.Parser | None = None,
@@ -65,8 +80,17 @@ class JinjaMarkdownStep(JinjaRenderStep):
                  jinja_env: Environment | None = None):
         super().__init__(jinja_env)
         self.default_template = default_template
-        self.md_parser = md_parser or commonmark.Parser()
-        self.md_renderer = md_renderer or commonmark.HtmlRenderer()
+
+        if md_parser:
+            self.md_parser = md_parser
+        else:
+            import commonmark
+            self.md_parser = commonmark.Parser()
+        if md_renderer:
+            self.md_renderer = md_renderer
+        else:
+            import commonmark
+            self.md_renderer = commonmark.HtmlRenderer()
 
     def __call__(self, path: Path, output_paths: list[Path]):
         meta, content = self.extract_metadata(path.read_text(self.encoding))

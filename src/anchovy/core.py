@@ -5,14 +5,8 @@ import shutil
 import typing as t
 from pathlib import Path
 
-try:
-    import rich.progress as _rich_progress
-except ImportError:
-    _rich_progress = None
-try:
-    import tqdm as _tqdm
-except ImportError:
-    _tqdm = None
+from .dependencies import Dependency
+from .pretty_utils import track_progress
 
 
 T = t.TypeVar('T')
@@ -38,16 +32,6 @@ class BuildSettings(t.TypedDict):
     output_dir: Path
     working_dir: Path
     purge_dirs: bool
-
-
-def _progress(iterable: t.Iterable[T], desc: str) -> t.Iterable[T]:
-    if _rich_progress:
-        yield from _rich_progress.track(iterable, desc)
-    elif _tqdm is not None:
-        yield from _tqdm.tqdm(iterable, desc)
-    else:
-        print(desc)
-        yield from iterable
 
 
 def _rm_children(path: Path):
@@ -86,6 +70,8 @@ class Context:
         and creates a partial for function Steps.
         """
         if step:
+            if not step.is_available():
+                raise StepUnavailableException(step)
             step.bind(self)
 
     def find_inputs(self, path: Path):
@@ -112,7 +98,7 @@ class Context:
         tasks: dict[Step, list[tuple[Path, list[Path]]]]
         tasks = {r.step: [] for r in self.rules if r.step}
 
-        for path in _progress(input_paths, 'Planning...'):
+        for path in track_progress(input_paths, 'Planning...'):
             for rule in self.rules:
                 if match := rule.matcher(self, path):
                     # None can be used to halt further rule processing.
@@ -140,7 +126,7 @@ class Context:
             flattened.extend((step, p, ops) for p, ops in paths)
 
         further_processing: list[Path] = []
-        for step, path, output_paths in _progress(flattened, 'Processing...'):
+        for step, path, output_paths in track_progress(flattened, 'Processing...'):
             print(f'{path} ⇒ {", ".join(str(p) for p in output_paths)}')
             step(path, output_paths)
             further_processing.extend(
@@ -231,6 +217,40 @@ class Step(abc.ABC):
     full Anchovy ruleset.
     """
     context: Context
+    _step_registry: list[t.Type[Step]] = []
+
+    def __init_subclass__(cls, **kw):
+        super().__init_subclass__(**kw)
+        cls._step_registry.append(cls)
+
+    @classmethod
+    def get_all_steps(cls):
+        """
+        Return a list of all currently known Steps.
+        """
+        return list(cls._step_registry)
+
+    @classmethod
+    def get_available_steps(cls):
+        """
+        Return a list of all currently known Steps whose requirements are met.
+        """
+        return [s for s in cls._step_registry if s.is_available()]
+
+    @classmethod
+    def is_available(cls) -> bool:
+        """
+        Return whether this Step's requirements are installed, making it
+        available for use.
+        """
+        return all(d.satisfied for d in cls.get_dependencies())
+
+    @classmethod
+    def get_dependencies(cls) -> set[Dependency]:
+        """
+        Return the requirements for this Step.
+        """
+        return set()
 
     def bind(self, context: Context):
         """
@@ -241,3 +261,9 @@ class Step(abc.ABC):
     @abc.abstractmethod
     def __call__(self, path: Path, output_paths: list[Path]):
         ...
+
+
+class StepUnavailableException(Exception):
+    def __init__(self, step: Step, *args: t.Any):
+        self.step = step
+        super().__init__(*args)
