@@ -3,11 +3,13 @@ from __future__ import annotations
 import argparse
 import contextlib
 import importlib
+import sys
 import tempfile
 import typing as t
 from pathlib import Path
 
-from .core import BuildSettings, Context, InputBuildSettings, Rule
+from .core import BuildSettings, Context, InputBuildSettings, Rule, Step, StepUnavailableException
+from .pretty_utils import print_with_style
 
 
 class BuildNamespace:
@@ -97,12 +99,49 @@ def run_from_rules(settings: InputBuildSettings | None,
         context.run()
 
 
+def pprint_step(step: t.Type[Step]):
+    missing = [
+        d.name for d in step.get_dependencies()
+        if d.needed and not d.satisfied
+
+    ]
+    if missing:
+        text = ', '.join(missing)
+        print_with_style(f'✗ {step.__name__} (missing: {text})', style='red')
+    else:
+        print_with_style(f'✓ {step.__name__}', style='green')
+
+
+def pprint_missing_deps(step: Step):
+    print_with_style(
+        f'{step} is unavailable due to missing dependencies!',
+        file=sys.stderr,
+        style='red'
+    )
+    for dep in step.get_dependencies():
+        missing = False
+        if not dep.needed:
+            style = None
+        elif dep.satisfied:
+            style = 'green'
+        else:
+            missing = True
+            style = 'red'
+
+        text = f'✗ {dep}: {dep.install_hint}' if missing else f'✓ {dep}'
+        print_with_style(text, style=style)
+
+
 def main():
     """
     Anchovy main function. Finds or creates a Context using an Anchovy config
     file and command line arguments, then executes a build using it.
     """
     parser = argparse.ArgumentParser(description='Build an anchovy project.')
+    parser.add_argument('--audit-steps',
+                        help=('show information about available, unavailable, '
+                              'and used steps, instead of building the project'),
+                        action='store_true')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-m',
                        help='import path of a config file to build',
@@ -135,9 +174,40 @@ def main():
         rules: list[Rule] | None = getattr(args.module, 'RULES')
         context: Context | None = getattr(args.module, 'CONTEXT')
 
-    if context:
-        context.run()
-    else:
-        if not rules:
+    if args.audit_steps:
+        audit_rules = context.rules if context else rules
+        if not audit_rules:
             raise RuntimeError('Anchovy config files must have a RULES or CONTEXT attribute!')
-        run_from_rules(settings, rules, argv=remaining, prog=f'anchovy {label}')
+
+        all_steps = set(Step.get_all_steps())
+        available_steps = set(Step.get_available_steps())
+        unavailable_steps = all_steps - available_steps
+        used_steps = {r.step.__class__ for r in audit_rules if r.step}
+
+        groups = {
+            'Available steps': available_steps,
+            'Unavailable steps': unavailable_steps,
+            'Used steps': used_steps,
+        }
+        for group_label, step_group in groups.items():
+            print(f'{group_label} ({len(step_group)})')
+            for step in step_group:
+                pprint_step(step)
+
+    elif context or rules:
+        try:
+            if context:
+                context.run()
+            elif rules:
+                run_from_rules(settings, rules, argv=remaining, prog=f'anchovy {label}')
+        except StepUnavailableException as e:
+            pprint_missing_deps(e.step)
+            sys.exit(1)
+
+    else:
+        print_with_style(
+            'Anchovy config files must have a RULES or CONTEXT attribute!',
+            file=sys.stderr,
+            style='red'
+        )
+        sys.exit(1)
