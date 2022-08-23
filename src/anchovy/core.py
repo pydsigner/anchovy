@@ -70,6 +70,8 @@ class Context:
         and creates a partial for function Steps.
         """
         if step:
+            if not step.is_available():
+                raise StepUnavailableException(step)
             step.bind(self)
 
     def find_inputs(self, path: Path):
@@ -215,6 +217,40 @@ class Step(abc.ABC):
     full Anchovy ruleset.
     """
     context: Context
+    _step_registry: list[t.Type[Step]] = []
+
+    def __init_subclass__(cls, **kw):
+        super().__init_subclass__(**kw)
+        cls._step_registry.append(cls)
+
+    @classmethod
+    def get_all_steps(cls):
+        """
+        Return a list of all currently known Steps.
+        """
+        return list(cls._step_registry)
+
+    @classmethod
+    def get_available_steps(cls):
+        """
+        Return a list of all currently known Steps whose requirements are met.
+        """
+        return [s for s in cls._step_registry if s.is_available()]
+
+    @classmethod
+    def is_available(cls) -> bool:
+        """
+        Return whether this Step's requirements are installed, making it
+        available for use.
+        """
+        return all(d.satisfied for d in cls.get_dependencies())
+
+    @classmethod
+    def get_dependencies(cls) -> set[Dependency]:
+        """
+        Return the requirements for this Step.
+        """
+        return set()
 
     def bind(self, context: Context):
         """
@@ -225,3 +261,9 @@ class Step(abc.ABC):
     @abc.abstractmethod
     def __call__(self, path: Path, output_paths: list[Path]):
         ...
+
+
+class StepUnavailableException(Exception):
+    def __init__(self, step: Step, *args: t.Any):
+        self.step = step
+        super().__init__(*args)
