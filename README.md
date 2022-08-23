@@ -45,10 +45,14 @@ Anchovy operates on config files written in Python, or even modules directly.
 ```python
 from pathlib import Path
 
-from anchovy.core import InputBuildSettings, Rule
-from anchovy.jinja import JinjaMarkdownStep
-from anchovy.paths import OutputDirPathCalc, REMatcher
-from anchovy.simple import DirectCopyStep
+from anchovy import (
+    DirectCopyStep,
+    InputBuildSettings,
+    JinjaMarkdownStep,
+    OutputDirPathCalc,
+    REMatcher,
+    Rule,
+)
 
 
 # Optional, and can be overridden with CLI arguments.
