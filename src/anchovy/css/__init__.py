@@ -20,7 +20,7 @@ class AnchovyCSSStep(Step):
         if not output_paths:
             return
         from .parser import process
-        processed = process(path.read_text())
+        processed = process(path.read_text('utf-8'))
         for target_path in output_paths:
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            target_path.write_text(processed)
+            target_path.write_text(processed, 'utf-8')
