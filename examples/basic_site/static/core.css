@@ -14,3 +14,7 @@ footer {
     border-top: 1px #eee dotted;
     padding-top: 10px;
 }
+
+img {
+    max-width: 100%;
+}

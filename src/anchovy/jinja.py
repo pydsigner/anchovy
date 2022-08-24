@@ -4,13 +4,13 @@ import shutil
 import typing as t
 from pathlib import Path
 
+from .core import Context, Step
+from .dependencies import Dependency, import_install_check
+
 if t.TYPE_CHECKING:
     import commonmark
     import commonmark.render.renderer
     from jinja2 import Environment
-
-from .core import Context, Step
-from .dependencies import Dependency, import_install_check
 
 
 class JinjaRenderStep(Step):

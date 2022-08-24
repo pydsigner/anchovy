@@ -1,0 +1,33 @@
+body {
+    font-family: 'Arial Narrow', sans-serif;
+    color: #eee;
+    background-color: #333;
+    padding: 10px;
+}
+
+main, footer {
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+footer {
+    margin-top: 10px;
+    border-top: 1px #eee dotted;
+    padding-top: 10px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    justify-items: center;
+    justify-content: space-evenly;
+    gap: 10px;
+}
+
+.gallery a {
+    place-self: center;
+}
+
+.gallery img {
+    border-radius: 5px;
+}

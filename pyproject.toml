@@ -32,8 +32,9 @@ jinja = ["Jinja2>=3.1.2"]
 markdown = ["anchovy[jinja]", "commonmark>=0.9.1"]
 css = ["tinycss2>=1.1.1"]
 pretty = ["rich>=12.5.1"]
-web = ["anchovy[markdown]", "anchovy[css]"]
-base = ["anchovy[web]", 'anchovy[pretty]']
+pillow = ["Pillow>=9.2.0"]
+web = ["anchovy[markdown]", "anchovy[css]", "anchovy[pillow]"]
+base = ["anchovy[web]", "anchovy[pretty]"]
 # Currently, [all] is the same as [base]; this will change in the future if
 # heavy dependencies for non-core Steps are added.
 all = ["anchovy[base]"]
