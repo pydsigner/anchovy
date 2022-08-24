@@ -25,8 +25,11 @@ class JinjaRenderStep(Step):
             Dependency('jinja2', 'pip', import_install_check),
         }
 
-    def __init__(self, env: Environment | None):
+    def __init__(self,
+                 env: Environment | None = None,
+                 extra_globals: dict[str, t.Any] | None = None):
         self._temporary_env = env
+        self._extra_globals = extra_globals
 
     def bind(self, context: Context):
         """
@@ -43,6 +46,8 @@ class JinjaRenderStep(Step):
                 loader=FileSystemLoader(context['input_dir']),
                 autoescape=select_autoescape()
             )
+        if self._extra_globals:
+            self.env.globals.update(self._extra_globals)
 
     def render_template(self, template_name: str, meta: dict[str, t.Any], output_paths: list[Path]):
         """
@@ -77,8 +82,9 @@ class JinjaMarkdownStep(JinjaRenderStep):
                  default_template: str | None = None,
                  md_parser: commonmark.Parser | None = None,
                  md_renderer: commonmark.render.renderer.Renderer | None = None,
-                 jinja_env: Environment | None = None):
-        super().__init__(jinja_env)
+                 jinja_env: Environment | None = None,
+                 jinja_globals: dict[str, t.Any] | None = None):
+        super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
 
         if md_parser:
