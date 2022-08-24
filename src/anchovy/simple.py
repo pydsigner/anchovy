@@ -5,10 +5,11 @@ import shutil
 import subprocess
 import typing as t
 from pathlib import Path
-if t.TYPE_CHECKING:
-    from _typeshed import StrOrBytesPath
 
 from .core import Step
+
+if t.TYPE_CHECKING:
+    from _typeshed import StrOrBytesPath
 
 
 class DirectCopyStep(Step):

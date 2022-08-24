@@ -4,19 +4,22 @@ import shutil
 import typing as t
 from pathlib import Path
 
-if t.TYPE_CHECKING:
-    from _typeshed import StrOrBytesPath
-
 from .core import Step
 from .dependencies import Dependency, import_install_check, which_install_check
 from .simple import BaseCommandStep
+
+if t.TYPE_CHECKING:
+    from _typeshed import StrOrBytesPath
 
 
 class CWebPStep(BaseCommandStep):
     """
     A WebP image conversion/optimization Step using cwebp.
     """
-    def __init__(self, quality: int = 75, lossless: bool = False, options: list[str] = []):
+    def __init__(self,
+                 quality: int = 75,
+                 lossless: bool = False,
+                 options: t.Iterable[str] = ()):
         """
         @quality controls the size of the output image, traded off with quality
         for lossy images and processing time for lossless images. @lossless can
@@ -48,7 +51,7 @@ class ImageMagickStep(BaseCommandStep):
     """
     A completely customizable image transformation Step using ImageMagick.
     """
-    def __init__(self, options: list[str] = []):
+    def __init__(self, options: t.Iterable[str] = ()):
         """
         If simple image conversion is desired, @options can be left empty.
         Otherwise, see https://imagemagick.org/script/command-line-options.php,
@@ -78,7 +81,7 @@ class IMThumbnailStep(ImageMagickStep):
     def __init__(self,
                  dimensions: str = '300x300',
                  fill_color: str | None = None,
-                 extra_options: list[str] = []):
+                 extra_options: t.Iterable[str] = ()):
         """
         @dimensions can be any "geometry" supported by imagemagick, and sets
         the target thumbnail size. Aspect ratio will be preserved. If output
@@ -134,7 +137,9 @@ class OptipngStep(BaseCommandStep):
     """
     A PNG optimization step using optipng.
     """
-    def __init__(self, optimization_level: int | None = None, extra_options: list[str] = []):
+    def __init__(self,
+                 optimization_level: int | None = None,
+                 extra_options: t.Iterable[str] = ()):
         """
         The default @optimization_level may vary based on your build of optipng
         but is probably 2. Extra flags may be supplied using @extra_options.
