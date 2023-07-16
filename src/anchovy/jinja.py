@@ -5,7 +5,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, Step
-from .dependencies import Dependency, import_install_check
+from .dependencies import pip_dependency
 
 if t.TYPE_CHECKING:
     import commonmark
@@ -20,9 +20,9 @@ class JinjaRenderStep(Step):
     env: Environment
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls):
         return super().get_dependencies() | {
-            Dependency('jinja2', 'pip', import_install_check),
+            pip_dependency('jinja2'),
         }
 
     def __init__(self,
@@ -73,9 +73,9 @@ class JinjaMarkdownStep(JinjaRenderStep):
     encoding = 'utf-8'
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls):
         return super().get_dependencies() | {
-            Dependency('commonmark', 'pip', import_install_check),
+            pip_dependency('commonmark'),
         }
 
     def __init__(self,

@@ -28,7 +28,7 @@ def import_install_check(dependency: Dependency):
     An install checker which tries to import a Python module.
     """
     try:
-        importlib.import_module(dependency.name)
+        importlib.import_module(dependency.check_name)
     except ImportError:
         return False
     return True
@@ -38,7 +38,22 @@ def which_install_check(dependency: Dependency):
     """
     An install checker using `shutil.which()` to look for an executable.
     """
-    return bool(shutil.which(dependency.name))
+    return bool(shutil.which(dependency.check_name))
+
+
+def pip_dependency(name: str, source: str | None = None, check_name: str | None = None):
+    """
+    A shortcut function for creating typical pip-based Dependencys.
+    """
+    return Dependency(name, 'pip', import_install_check, source, check_name)
+
+
+def web_exec_dependency(name: str, source: str | None = None, check_name: str | None = None):
+    """
+    A shortcut function for creating typical Dependencys for general
+    internet-sourced executables.
+    """
+    return Dependency(name, 'web', which_install_check, source, check_name)
 
 
 class Dependency:
@@ -49,11 +64,13 @@ class Dependency:
                  name: str,
                  type: str,
                  install_check: t.Callable[[Dependency], bool],
-                 source: str | None = None):
+                 source: str | None = None,
+                 check_name: str | None = None):
         self.name = name
         self.type = type
         self.install_check = install_check
         self.source = source or name
+        self.check_name = check_name or name
 
     @property
     def satisfied(self):
