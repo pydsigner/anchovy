@@ -87,16 +87,23 @@ class JinjaMarkdownStep(JinjaRenderStep):
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
 
-        if md_parser:
-            self.md_parser = md_parser
-        else:
+        self._md_parser = md_parser
+        self._md_renderer = md_renderer
+
+    @property
+    def md_parser(self):
+        if not self._md_parser:
             import commonmark
-            self.md_parser = commonmark.Parser()
-        if md_renderer:
-            self.md_renderer = md_renderer
-        else:
+            self._md_parser = commonmark.Parser()
+        return self._md_parser
+
+    @property
+    def md_renderer(self):
+        if not self._md_renderer:
             import commonmark
-            self.md_renderer = commonmark.HtmlRenderer()
+            self._md_renderer = commonmark.HtmlRenderer()
+        return self._md_renderer
+
 
     def __call__(self, path: Path, output_paths: list[Path]):
         meta, content = self.extract_metadata(path.read_text(self.encoding))
