@@ -22,8 +22,8 @@ RULES = [
     # Ignore dotfiles found in either the input_dir or the working dir.
     Rule(
         (
-            REMatcher(r'(.*/)*\..*', dir='input_dir')
-            | REMatcher(r'(.*/)*\..*', dir='working_dir')
+            REMatcher(r'(.*/)*\..*', parent_dir='input_dir')
+            | REMatcher(r'(.*/)*\..*', parent_dir='working_dir')
         ),
         None
     ),
@@ -53,7 +53,7 @@ RULES = [
     ),
     # Copy everything else in static/ directories through.
     Rule(
-        REMatcher(r'(.*/)*static/.*', dir='input_dir'),
+        REMatcher(r'(.*/)*static/.*', parent_dir='input_dir'),
         OutputDirPathCalc(),
         DirectCopyStep()
     ),

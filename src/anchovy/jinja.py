@@ -87,6 +87,26 @@ class JinjaMarkdownStep(JinjaRenderStep):
         return convert
 
     @classmethod
+    def _build_mistletoe(cls):
+        import mistletoe
+        processor = mistletoe.HTMLRenderer()
+
+        def convert(md_string: str) -> str:
+            return processor.render(mistletoe.Document(md_string))
+
+        return convert
+
+    @classmethod
+    def _build_markdown(cls):
+        import markdown
+        processor = markdown.Markdown()
+
+        def convert(md_string: str):
+            return processor.convert(md_string)
+
+        return convert
+
+    @classmethod
     def _build_commonmark(cls):
         import commonmark
         parser = commonmark.Parser()
@@ -101,6 +121,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
     def get_options(cls):
         return [
             (pip_dependency('markdown-it-py', None, 'markdown_it'), cls._build_markdownit),
+            (pip_dependency('mistletoe'), cls._build_mistletoe),
+            (pip_dependency('markdown'), cls._build_markdown),
             (pip_dependency('commonmark'), cls._build_commonmark),
         ]
 

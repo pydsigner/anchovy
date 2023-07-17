@@ -41,7 +41,7 @@ all = ["anchovy[base]"]
 # Includes all possible dependencies, including fallbacks that will not be used
 # under normal circumstances, for linting purposes. End users are intended to
 # ignore this option.
-cq = ["anchovy[all]", "commonmark>=0.9.1", "tqdm>=4.65.0"]
+cq = ["anchovy[all]", "commonmark>=0.9.1", "markdown>=3.4.3", "mistletoe>=1.1.0", "tqdm>=4.65.0"]
 
 [project.scripts]
 anchovy = "anchovy.cli:main"
