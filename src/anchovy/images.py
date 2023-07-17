@@ -5,7 +5,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Step
-from .dependencies import Dependency, import_install_check, which_install_check
+from .dependencies import pip_dependency, web_exec_dependency
 from .simple import BaseCommandStep
 
 if t.TYPE_CHECKING:
@@ -33,14 +33,9 @@ class CWebPStep(BaseCommandStep):
         self.options.extend(options)
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls):
         return super().get_dependencies() | {
-            Dependency(
-                'cwebp',
-                'web',
-                which_install_check,
-                'https://developers.google.com/speed/webp/download'
-            ),
+            web_exec_dependency('cwebp', 'https://developers.google.com/speed/webp/download'),
         }
 
     def get_command(self, input_path: Path, output_path: Path) -> list[StrOrBytesPath]:
@@ -60,13 +55,12 @@ class ImageMagickStep(BaseCommandStep):
         self.options = options
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls):
         return super().get_dependencies() | {
-            Dependency(
-                'magick',
-                'web',
-                which_install_check,
-                'https://imagemagick.org/script/download.php'
+            web_exec_dependency(
+                'imagemagick',
+                'https://imagemagick.org/script/download.php',
+                'magick'
             ),
         }
 
@@ -109,13 +103,11 @@ class PillowStep(Step):
         self.thumbnail = thumbnail
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls):
         return super().get_dependencies() | {
-            Dependency(
-                'PIL',
-                'pip',
-                import_install_check,
-                'Pillow'
+            pip_dependency(
+                'Pillow',
+                check_name='PIL'
             ),
         }
 
@@ -148,9 +140,9 @@ class OptipngStep(BaseCommandStep):
         self.options.extend(extra_options)
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls):
         return super().get_dependencies() | {
-            Dependency('optipng', 'web', which_install_check, 'http://optipng.sourceforge.net'),
+            web_exec_dependency('optipng', 'http://optipng.sourceforge.net'),
         }
 
     def get_command(self, input_path: Path, output_path: Path) -> list[StrOrBytesPath]:
