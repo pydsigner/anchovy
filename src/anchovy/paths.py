@@ -84,19 +84,19 @@ class WorkingDirPathCalc(PathCalc[T]):
 class REMatcher(Matcher[re.Match | None]):
     """
     Path Matcher using regular expressions. @re_flags will be passed to
-    `re.compile()`. @dir, if specified, should be a key to a configured
+    `re.compile()`. @parent_dir, if specified, should be a key to a configured
     directory, not a Path, and will be used to handle matching the beginning of
     Paths; this can be used to avoid pitfalls with unexpected characters in
     input or working directories.
     """
-    def __init__(self, re_string: str, re_flags: int = 0, dir: ContextDir | None = None):
+    def __init__(self, re_string: str, re_flags: int = 0, parent_dir: ContextDir | None = None):
         self.regex = re.compile(re_string, re_flags)
-        self.root_dir: ContextDir | None = dir
+        self.parent_dir: ContextDir | None = parent_dir
 
     def __call__(self, context: Context, path: Path):
-        if self.root_dir:
+        if self.parent_dir:
             # Handle this part of matching outside the regex.
-            if not path.is_relative_to(context[self.root_dir]):
+            if not path.is_relative_to(context[self.parent_dir]):
                 return None
-            path = path.relative_to(context[self.root_dir])
+            path = path.relative_to(context[self.parent_dir])
         return self.regex.match(path.as_posix())

@@ -53,9 +53,9 @@ class Context:
                  rules: list[Rule]):
         self.settings = settings
         self.rules: list[Rule] = []
-        for r in rules:
-            self.rules.append(r)
-            self.bind(r.step)
+        for rule in rules:
+            self.rules.append(rule)
+            self.bind(rule.step)
 
     @t.overload
     def __getitem__(self, key: ContextDir) -> Path: ...
