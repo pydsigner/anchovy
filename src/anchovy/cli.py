@@ -104,7 +104,7 @@ def pprint_step(step: t.Type[Step]):
     Prettily display dependency information for the given Step class.
     """
     missing = [
-        d.name for d in step.get_dependencies()
+        str(d) for d in step.get_dependencies()
         if d.needed and not d.satisfied
 
     ]

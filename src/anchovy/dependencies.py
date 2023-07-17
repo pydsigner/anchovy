@@ -96,6 +96,9 @@ class Dependency:
     def __repr__(self):
         return f'Dependency(name={self.name}, needed={self.needed}, satisfied={self.satisfied})'
 
+    def __str__(self):
+        return self.name
+
     def __or__(self, other: Dependency):
         return _OrDependency(self, other)
 
@@ -110,6 +113,9 @@ class _OrDependency(Dependency):
 
     def __repr__(self):
         return f'{self.left} | {self.right}'
+
+    def __str__(self):
+        return repr(self)
 
     @property
     def satisfied(self):
@@ -145,6 +151,9 @@ class _AndDependency(Dependency):
 
     def __repr__(self):
         return f'{self.left} & {self.right}'
+
+    def __str__(self):
+        return repr(self)
 
     @property
     def satisfied(self):
