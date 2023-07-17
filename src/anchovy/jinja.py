@@ -2,15 +2,19 @@ from __future__ import annotations
 
 import shutil
 import typing as t
+from functools import reduce
 from pathlib import Path
 
 from .core import Context, Step
-from .dependencies import pip_dependency
+from .dependencies import pip_dependency, Dependency
 
 if t.TYPE_CHECKING:
     import commonmark
     import commonmark.render.renderer
     from jinja2 import Environment
+
+
+MDProcessor = t.Callable[[str], str]
 
 
 class JinjaRenderStep(Step):
@@ -73,42 +77,64 @@ class JinjaMarkdownStep(JinjaRenderStep):
     encoding = 'utf-8'
 
     @classmethod
+    def _build_markdownit(cls):
+        import markdown_it
+        processor = markdown_it.MarkdownIt()
+
+        def convert(s: str) -> str:
+            return processor.render(s)
+
+        return convert
+
+    @classmethod
+    def _build_commonmark(cls):
+        import commonmark
+        parser = commonmark.Parser()
+        renderer = commonmark.HtmlRenderer()
+
+        def convert(s: str) -> str:
+            return renderer.render(parser.parse(s))
+
+        return convert
+
+    @classmethod
+    def get_options(cls):
+        return [
+            (pip_dependency('markdown-it-py', None, 'markdown_it'), cls._build_markdownit),
+            (pip_dependency('commonmark'), cls._build_commonmark),
+        ]
+
+    @classmethod
     def get_dependencies(cls):
-        return super().get_dependencies() | {
-            pip_dependency('commonmark'),
-        }
+        deps = [option[0] for option in cls.get_options()]
+        dep_set = {reduce(lambda x, y: x | y, deps)} if deps else set[Dependency]()
+
+        return super().get_dependencies() | dep_set
 
     def __init__(self,
                  default_template: str | None = None,
-                 md_parser: commonmark.Parser | None = None,
-                 md_renderer: commonmark.render.renderer.Renderer | None = None,
+                 md_processor: MDProcessor | None = None,
                  jinja_env: Environment | None = None,
                  jinja_globals: dict[str, t.Any] | None = None):
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
-
-        self._md_parser = md_parser
-        self._md_renderer = md_renderer
+        self._md_processor = md_processor
 
     @property
-    def md_parser(self):
-        if not self._md_parser:
-            import commonmark
-            self._md_parser = commonmark.Parser()
-        return self._md_parser
-
-    @property
-    def md_renderer(self):
-        if not self._md_renderer:
-            import commonmark
-            self._md_renderer = commonmark.HtmlRenderer()
-        return self._md_renderer
+    def md_processor(self):
+        if not self._md_processor:
+            for dep, factory in self.get_options():
+                if dep.satisfied:
+                    self._md_processor = factory()
+                    break
+            else:
+                raise RuntimeError('Markdown processor could not be initialized!')
+        return self._md_processor
 
 
     def __call__(self, path: Path, output_paths: list[Path]):
         meta, content = self.extract_metadata(path.read_text(self.encoding))
-        ast = self.md_parser.parse(content.strip())
-        meta |= {'rendered_markdown': self.md_renderer.render(ast).strip()}
+        meta |= {'rendered_markdown': self.md_processor(content.strip()).strip()}
 
         self.render_template(
             meta.get('template', self.default_template),
