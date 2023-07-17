@@ -81,8 +81,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
         import markdown_it
         processor = markdown_it.MarkdownIt()
 
-        def convert(s: str) -> str:
-            return processor.render(s)
+        def convert(md_string: str) -> str:
+            return processor.render(md_string)
 
         return convert
 
@@ -92,8 +92,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
         parser = commonmark.Parser()
         renderer = commonmark.HtmlRenderer()
 
-        def convert(s: str) -> str:
-            return renderer.render(parser.parse(s))
+        def convert(md_string: str) -> str:
+            return renderer.render(parser.parse(md_string))
 
         return convert
 
