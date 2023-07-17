@@ -38,6 +38,10 @@ base = ["anchovy[web]", "anchovy[pretty]"]
 # Currently, [all] is the same as [base]; this will change in the future if
 # heavy dependencies for non-core Steps are added.
 all = ["anchovy[base]"]
+# Includes all possible dependencies, including fallbacks that will not be used
+# under normal circumstances, for linting purposes. End users are intended to
+# ignore this option.
+cq = ["anchovy[all]", "commonmark>=0.9.1", "tqdm>=4.65.0"]
 
 [project.scripts]
 anchovy = "anchovy.cli:main"
