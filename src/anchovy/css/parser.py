@@ -102,7 +102,7 @@ def find_selector_start(index: int, content: list[c2ast.Node]):
 
 def split_selector(content: list[c2ast.Node]):
     """
-    Split a comma-separated selector up into indivual selectors.
+    Split a comma-separated selector up into individual selectors.
     """
     selector: list[c2ast.Node] = []
     for node in content:
