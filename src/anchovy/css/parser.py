@@ -46,6 +46,23 @@ def mk_whitespace(node: c2ast.Node, whitespace: str):
         whitespace
     )
 
+def mk_comma(node: c2ast.Node):
+    """
+    Create a comma Node, deriving source line and column from @node.
+    """
+    if isinstance(node, Rule) and node.content:
+        line = node.content[-1].source_line
+        col = node.content[-1].source_column
+    else:
+        line = node.source_line
+        col = node.source_column
+
+    return c2ast.LiteralToken(
+        line,
+        col,
+        ','
+    )
+
 
 def wrap_newlines(content: t.Iterable[c2ast.Node]):
     """
@@ -116,7 +133,7 @@ def merge_selectors(sel_1: list[c2ast.Node], sel_2: list[c2ast.Node]):
     >>> merge_selectors('body.home #banner', '& a')
     <AssertionError>
     """
-    sel_1 = strip_whitespace(sel_1)
+    sel_1_groups = list(split_selector(strip_whitespace(sel_1)))
     sel_2 = strip_whitespace(sel_2)
     first = sel_2[0]
     if isinstance(first, c2ast.LiteralToken) and first.value in {'&', ':'}:
@@ -124,10 +141,18 @@ def merge_selectors(sel_1: list[c2ast.Node], sel_2: list[c2ast.Node]):
             sel_2 = strip_whitespace(sel_2[1:])
             assert not isinstance(sel_2[0], c2ast.IdentToken)
     else:
-        sel_1.append(mk_whitespace(sel_1[-1], ' '))
+        for sel_1 in sel_1_groups:
+            sel_1.append(mk_whitespace(sel_1[-1], ' '))
 
-    sel_2.append(mk_whitespace(sel_2[-1], ' '))
-    return [*sel_1, *sel_2]
+    final = []
+    for sel_1 in sel_1_groups:
+        first = False
+        final.extend(sel_1)
+        final.extend(sel_2)
+        final.append(mk_comma(sel_2[-1]))
+        final.append(mk_whitespace(sel_2[-1], ' '))
+    final.pop(-2)
+    return final
 
 
 def pump_at_rule(parent: c2ast.QualifiedRule, at_rule: c2ast.AtRule):
