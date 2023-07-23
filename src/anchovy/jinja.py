@@ -23,7 +23,7 @@ class JinjaRenderStep(Step):
 
     @classmethod
     def get_dependencies(cls):
-        return super().get_dependencies() | {
+        return {
             pip_dependency('jinja2'),
         }
 
