@@ -11,6 +11,12 @@ TEST_STYLES = '''
     color: #abc;
 }
 
+.a, .b {
+    .c, .d {
+        color: #def;
+    }
+}
+
 p {
     color: #fff;
     a {
