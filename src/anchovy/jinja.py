@@ -9,8 +9,6 @@ from .core import Context, Step
 from .dependencies import pip_dependency, Dependency
 
 if t.TYPE_CHECKING:
-    import commonmark
-    import commonmark.render.renderer
     from jinja2 import Environment
 
 

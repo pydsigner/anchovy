@@ -17,7 +17,12 @@ def _trim_ext_prefix(path: Path, match: re.Match[str]):
     return path
 
 
-def _to_dir_inner(dest: Path, ext: str | None, context: Context, path: Path, match: t.Any):
+def _to_dir_inner(dest: Path,
+                  ext: str | None,
+                  context: Context,
+                  path: Path,
+                  match: t.Any,
+                  transform: t.Callable[[Path], Path] | None = None):
     path = _trim_ext_prefix(path, match) if ext and isinstance(match, re.Match) else path
 
     rel = path.relative_to(
@@ -25,6 +30,8 @@ def _to_dir_inner(dest: Path, ext: str | None, context: Context, path: Path, mat
         if path.is_relative_to(context['input_dir'])
         else context['working_dir']
     )
+    if transform:
+        rel = transform(rel)
     new_path = dest / rel
 
     if ext:
@@ -41,12 +48,13 @@ class DirPathCalc(PathCalc[T]):
     extension information for the input paths, allowing for meaningful work
     with extensions that `pathlib.Path` does not reflect, like `.tar.gz`.
     """
-    def __init__(self, dest: Path, ext: str | None = None):
+    def __init__(self, dest: Path, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
         self.dest = dest
         self.ext = ext
+        self.transform = transform
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(self.dest, self.ext, context, path, match)
+        return _to_dir_inner(self.dest, self.ext, context, path, match, self.transform)
 
 
 class OutputDirPathCalc(PathCalc[T]):
@@ -58,11 +66,12 @@ class OutputDirPathCalc(PathCalc[T]):
     meaningful work with extensions that `pathlib.Path` does not reflect, like
     `.tar.gz`.
     """
-    def __init__(self, ext: str | None = None):
+    def __init__(self, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
         self.ext = ext
+        self.transform = transform
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(context['output_dir'], self.ext, context, path, match)
+        return _to_dir_inner(context['output_dir'], self.ext, context, path, match, self.transform)
 
 
 class WorkingDirPathCalc(PathCalc[T]):
@@ -74,11 +83,12 @@ class WorkingDirPathCalc(PathCalc[T]):
     meaningful work with extensions that `pathlib.Path` does not reflect, like
     `.tar.gz`.
     """
-    def __init__(self, ext: str | None = None):
+    def __init__(self, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
         self.ext = ext
+        self.transform = transform
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(context['working_dir'], self.ext, context, path, match)
+        return _to_dir_inner(context['working_dir'], self.ext, context, path, match, self.transform)
 
 
 class REMatcher(Matcher[re.Match | None]):
