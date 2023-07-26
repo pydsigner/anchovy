@@ -6,6 +6,12 @@ import tinycss2.ast as c2ast
 
 Rule = c2ast.AtRule | c2ast.QualifiedRule
 LineNodes = Rule | c2ast.Declaration
+InlineNodes = (c2ast.DimensionToken
+               | c2ast.NumberToken
+               | c2ast.PercentageToken
+               | c2ast.StringToken
+               | c2ast.URLToken
+               | c2ast.FunctionBlock)
 
 
 def strip_whitespace(content: list[c2ast.Node], beginning: bool = True, end: bool = True):
@@ -64,20 +70,23 @@ def mk_comma(node: c2ast.Node):
     )
 
 
-def wrap_newlines(content: t.Iterable[c2ast.Node]):
+def wrap_newlines(content: t.Iterable[c2ast.Node], first=True):
     """
     Discard existing whitespace Nodes from @content and ensure there's a newline
-    before and after each other Node.
+    before and after each other Node. If @first is False, the initial newline
+    will be omitted.
     """
-    first = True
+    inline_prev = False
     for node in content:
         if first:
             yield mk_whitespace(node, '\n')
             first = False
-        if not isinstance(node, c2ast.WhitespaceToken):
+        if not isinstance(node, c2ast.WhitespaceToken) or inline_prev:
             yield node
             if isinstance(node, LineNodes):
                 yield mk_whitespace(node, '\n')
+            elif isinstance(node, InlineNodes):
+                inline_prev = True
 
 
 def find_selector_start(index: int, content: list[c2ast.Node]):
@@ -279,8 +288,14 @@ def flatten_all(nodes: t.Iterable[c2ast.Node]):
     """
     Parse and de-nest a series of Nodes.
     """
-    for node in nodes:
-        yield from wrap_newlines(flatten_one(node))
+    for inode in nodes:
+        yield from wrap_newlines(
+            (
+                onode for onode in flatten_one(inode)
+                if (not isinstance(onode, Rule)
+                    or any(not isinstance(c, c2ast.WhitespaceToken) for c in onode.content))
+            ), first=False
+        )
 
 
 def process(code: str):
