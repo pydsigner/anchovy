@@ -70,12 +70,12 @@ def mk_comma(node: c2ast.Node):
     )
 
 
-def wrap_newlines(content: t.Iterable[c2ast.Node]):
+def wrap_newlines(content: t.Iterable[c2ast.Node], first=True):
     """
     Discard existing whitespace Nodes from @content and ensure there's a newline
-    before and after each other Node.
+    before and after each other Node. If @first is False, the initial newline
+    will be omitted.
     """
-    first = True
     inline_prev = False
     for node in content:
         if first:
@@ -289,11 +289,13 @@ def flatten_all(nodes: t.Iterable[c2ast.Node]):
     Parse and de-nest a series of Nodes.
     """
     for inode in nodes:
-        for onode in wrap_newlines(flatten_one(inode)):
-            # Discard any empty rules.
-            if (not isinstance(onode, Rule)
-                or any(not isinstance(c, c2ast.WhitespaceToken) for c in onode.content)):
-                yield onode
+        yield from wrap_newlines(
+            (
+                onode for onode in flatten_one(inode)
+                if (not isinstance(onode, Rule)
+                    or any(not isinstance(c, c2ast.WhitespaceToken) for c in onode.content))
+            ), first=False
+        )
 
 
 def process(code: str):
