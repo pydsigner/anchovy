@@ -288,8 +288,12 @@ def flatten_all(nodes: t.Iterable[c2ast.Node]):
     """
     Parse and de-nest a series of Nodes.
     """
-    for node in nodes:
-        yield from wrap_newlines(flatten_one(node))
+    for inode in nodes:
+        for onode in wrap_newlines(flatten_one(inode)):
+            # Discard any empty rules.
+            if (not isinstance(onode, Rule)
+                or any(not isinstance(c, c2ast.WhitespaceToken) for c in onode.content)):
+                yield onode
 
 
 def process(code: str):
