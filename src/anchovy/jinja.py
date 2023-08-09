@@ -19,6 +19,7 @@ class JinjaRenderStep(Step):
     """
     Abstract base class for Steps using Jinja rendering.
     """
+    encoding = 'utf-8'
     env: Environment
 
     @classmethod
@@ -62,7 +63,7 @@ class JinjaRenderStep(Step):
         template = self.env.get_template(template_name)
         for path in output_paths:
             path.parent.mkdir(parents=True, exist_ok=True)
-        template.stream(**meta).dump(str(output_paths[0]), encoding='utf-8')
+        template.stream(**meta).dump(str(output_paths[0]), encoding=self.encoding)
         for path in output_paths[1:]:
             shutil.copy(output_paths[0], path)
 
@@ -72,8 +73,6 @@ class JinjaMarkdownStep(JinjaRenderStep):
     A Step for rendering Markdown using Jinja templates. Parses according to
     CommonMark and Renders to HTML by default.
     """
-    encoding = 'utf-8'
-
     @classmethod
     def _build_markdownit(cls):
         import markdown_it
