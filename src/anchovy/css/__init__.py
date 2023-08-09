@@ -10,6 +10,8 @@ class AnchovyCSSStep(Step):
     """
     Simple Step to preprocess an Anchovy CSS file into compliant CSS.
     """
+    encoding = 'utf-8'
+
     @classmethod
     def get_dependencies(cls) -> set[Dependency]:
         return super().get_dependencies() | {
@@ -20,7 +22,7 @@ class AnchovyCSSStep(Step):
         if not output_paths:
             return
         from .parser import process
-        processed = process(path.read_text('utf-8'))
+        processed = process(path.read_text(self.encoding))
         for target_path in output_paths:
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            target_path.write_text(processed, 'utf-8')
+            target_path.write_text(processed, self.encoding)
