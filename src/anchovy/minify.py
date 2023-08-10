@@ -14,8 +14,8 @@ class ResourcePackerStep(Step):
     def __call__(self, path: Path, output_paths: list[Path]):
         parent_dir = self.context[self.source_dir]
         data = '\n\n'.join(
-            (parent_dir / filename.strip()).read_text(self.encoding)
-            for filename in path.open() if filename
+            (parent_dir / f).read_text(self.encoding)
+            for filename in path.open() if (f := filename.strip()) and not f.startswith('#')
         )
 
         for o_path in output_paths:
