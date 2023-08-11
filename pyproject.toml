@@ -37,7 +37,7 @@ markdown = ["anchovy[jinja]", "markdown_it_py>=3.0.0"]
 css = ["tinycss2>=1.1.1"]
 pretty = ["rich>=12.5.1"]
 pillow = ["Pillow>=9.2.0"]
-minify = ["csscompressor>=0.9.5", "minify-html-onepass>=0.11.1"]
+minify = ["lightningcss>=0.1.1,<1.0", "minify-html-onepass>=0.11.1"]
 web = ["anchovy[markdown]", "anchovy[css]", "anchovy[pillow]", "anchovy[minify]"]
 base = ["anchovy[web]", "anchovy[pretty]"]
 # Currently, [all] is the same as [base]; this will change in the future if
