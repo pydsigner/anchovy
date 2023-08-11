@@ -45,16 +45,30 @@ class CSSMinifierStep(Step):
 
 class HTMLMinifierStep(Step):
     encoding = 'utf-8'
+    minify_css = False
+    minify_js = False
 
     @classmethod
     def get_dependencies(cls):
         return {
-            pip_dependency('minify-html-onepass', check_name='minify_html_onepass'),
+            (
+                pip_dependency('minify-html-onepass', check_name='minify_html_onepass')
+                | pip_dependency('minify-html', check_name='minify_html')
+            ),
         }
 
     def __call__(self, path: Path, output_paths: list[Path]):
-        import minify_html_onepass
-        data = minify_html_onepass.minify(path.read_text(self.encoding))
+        params = {'minify_css': self.minify_css, 'minify_js': self.minify_js}
+        try:
+            from minify_html_onepass import minify
+        except ImportError:
+            from minify_html import minify
+            params |= {
+                'do_not_minify_doctype': True,
+                'ensure_spec_compliant_unquoted_attribute_values': True,
+                'keep_spaces_between_attributes': True,
+            }
+        data = minify(path.read_text(self.encoding), **params)
         for o_path in output_paths:
             o_path.parent.mkdir(parents=True, exist_ok=True)
         output_paths[0].write_text(data, self.encoding)
