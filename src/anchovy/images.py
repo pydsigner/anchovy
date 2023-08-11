@@ -114,15 +114,20 @@ class PillowStep(Step):
     def __call__(self, path: Path, output_paths: list[Path]):
         from PIL import Image
 
+        groups = {}
+        for target_path in output_paths:
+            groups.setdefault(target_path.suffix, []).append(target_path)
+
         with Image.open(path) as img:
             if self.thumbnail:
                 img.thumbnail(self.thumbnail)
-            output_paths[0].parent.mkdir(parents=True, exist_ok=True)
-            img.save(output_paths[0])
 
-        for target_path in output_paths[1:]:
-            target_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(output_paths[0], target_path)
+            for first, *remainder in groups.values():
+                first.parent.mkdir(parents=True, exist_ok=True)
+                img.save(first)
+                for dup in remainder:
+                    dup.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(first, dup)
 
 
 class OptipngStep(BaseCommandStep):
