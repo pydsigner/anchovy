@@ -13,16 +13,21 @@ class ResourcePackerStep(Step):
 
     def __call__(self, path: Path, output_paths: list[Path]):
         parent_dir = self.context[self.source_dir]
-        data = '\n\n'.join(
-            (parent_dir / f).read_text(self.encoding)
-            for filename in path.open() if (f := filename.strip()) and not f.startswith('#')
-        )
+        input_paths = [
+            (parent_dir / f)
+            for filename in path.open()
+            if (f := filename.strip()) and not f.startswith('#')
+        ]
+        data = '\n\n'.join(f.read_text(self.encoding) for f in input_paths)
 
         for o_path in output_paths:
             o_path.parent.mkdir(parents=True, exist_ok=True)
         output_paths[0].write_text(data, self.encoding)
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)
+
+        input_paths.insert(0, path)
+        return input_paths, output_paths
 
 
 class CSSMinifierStep(Step):

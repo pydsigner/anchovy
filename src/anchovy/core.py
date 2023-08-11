@@ -128,7 +128,17 @@ class Context:
         further_processing: list[Path] = []
         for step, path, output_paths in track_progress(flattened, 'Processing...'):
             print(f'{path} ⇒ {", ".join(str(p) for p in output_paths)}')
-            step(path, output_paths)
+            explicit_chain = step(path, output_paths)
+            if explicit_chain:
+                source_paths, output_paths = explicit_chain
+                print(
+                    '• explicit custody: {\n\t',
+                    ',\n\t'.join(str(p) for p in source_paths),
+                    '\n} ⇒ {\n\t',
+                    ',\n\t'.join(str(p) for p in output_paths),
+                    '\n}',
+                    sep=''
+                )
             further_processing.extend(
                 p for p in output_paths
                 if p.is_relative_to(self['working_dir'])
@@ -259,7 +269,11 @@ class Step(abc.ABC):
         self.context = context
 
     @abc.abstractmethod
-    def __call__(self, path: Path, output_paths: list[Path]):
+    def __call__(
+        self,
+        path: Path,
+        output_paths: list[Path]
+    ) -> None | tuple[list[Path], list[Path]]:
         ...
 
 
