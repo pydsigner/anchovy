@@ -176,9 +176,9 @@ def main():
         context: Context | None = namespace.get('CONTEXT')
     else:
         label: str = f'-m {args.module.__name__}'
-        settings: InputBuildSettings | None = getattr(args.module, 'SETTINGS')
-        rules: list[Rule] | None = getattr(args.module, 'RULES')
-        context: Context | None = getattr(args.module, 'CONTEXT')
+        settings: InputBuildSettings | None = getattr(args.module, 'SETTINGS', None)
+        rules: list[Rule] | None = getattr(args.module, 'RULES', None)
+        context: Context | None = getattr(args.module, 'CONTEXT', None)
 
     if args.audit_steps:
         audit_rules = context.rules if context else rules
