@@ -67,6 +67,8 @@ class JinjaRenderStep(Step):
         for path in output_paths[1:]:
             shutil.copy(output_paths[0], path)
 
+        return template.filename
+
 
 class JinjaMarkdownStep(JinjaRenderStep):
     """
@@ -155,11 +157,13 @@ class JinjaMarkdownStep(JinjaRenderStep):
         meta, content = self.extract_metadata(path.read_text(self.encoding))
         meta |= {'rendered_markdown': self.md_processor(content.strip()).strip()}
 
-        self.render_template(
+        template_path = self.render_template(
             meta.get('template', self.default_template),
             meta,
             output_paths
         )
+        if template_path:
+            return [path, Path(template_path)], output_paths
 
     def extract_metadata(self, text: str):
         """
