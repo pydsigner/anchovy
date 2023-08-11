@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..core import Step
-from ..dependencies import Dependency, import_install_check
+from ..dependencies import pip_dependency
 
 
 class AnchovyCSSStep(Step):
@@ -13,9 +13,9 @@ class AnchovyCSSStep(Step):
     encoding = 'utf-8'
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
-        return super().get_dependencies() | {
-            Dependency('tinycss2', 'pip', import_install_check),
+    def get_dependencies(cls):
+        return {
+            pip_dependency('tinycss2'),
         }
 
     def __call__(self, path: Path, output_paths: list[Path]):
