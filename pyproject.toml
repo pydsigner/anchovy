@@ -32,6 +32,7 @@ dynamic = ["version"]
 Source = "https://github.com/pydsigner/anchovy"
 
 [project.optional-dependencies]
+toml = ['tomli >= 2.0.1; python_version < "3.11"']
 jinja = ["Jinja2>=3.1.2"]
 markdown = ["anchovy[jinja]", "markdown_it_py>=3.0.0"]
 css = ["tinycss2>=1.1.1"]
@@ -39,7 +40,8 @@ pretty = ["rich>=12.5.1"]
 pillow = ["Pillow>=9.2.0"]
 minify = ["lightningcss>=0.1.1,<1.0", "minify-html-onepass>=0.11.1"]
 web = ["anchovy[markdown]", "anchovy[css]", "anchovy[pillow]", "anchovy[minify]"]
-base = ["anchovy[web]", "anchovy[pretty]"]
+include = ["requests>=2.31.0", "anchovy[toml]"]
+base = ["anchovy[web]", "anchovy[include]", "anchovy[pretty]"]
 # Currently, [all] is the same as [base]; this will change in the future if
 # heavy dependencies for non-core Steps are added.
 all = ["anchovy[base]"]
