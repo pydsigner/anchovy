@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+import sys
 import typing as t
 from functools import reduce
 from pathlib import Path
@@ -9,10 +10,17 @@ from .core import Step
 from .dependencies import pip_dependency, Dependency
 
 if t.TYPE_CHECKING:
+    from collections.abc import Sequence
     from jinja2 import Environment
-
+    from markdown_it.renderer import RendererHTML
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
 MDProcessor = t.Callable[[str], str]
+MDContainerRenderer =  t.Callable[
+    ['RendererHTML', 'Sequence[Token]', int, 'OptionsDict', 'EnvType'],
+    str
+]
 
 
 class JinjaRenderStep(Step):
@@ -181,3 +189,135 @@ class JinjaMarkdownStep(JinjaRenderStep):
             i += 1
 
         return meta, '\n'.join(lines[i:])
+
+
+class JinjaExtendedMarkdownStep(JinjaRenderStep):
+    encoding = 'utf-8'
+
+    @classmethod
+    def get_dependencies(cls):
+        deps = super().get_dependencies() | {
+            pip_dependency('markdown-it-py', check_name='markdown_it'),
+            pip_dependency('mdit_py_plugins'),
+            pip_dependency('Pygments', check_name='pygments'),
+        }
+        if sys.version_info < (3, 11):
+            deps.add(pip_dependency('tomli'))
+        return deps
+
+    def __init__(self,
+                 default_template: str | None = None,
+                 jinja_env: Environment | None = None,
+                 jinja_globals: dict[str, t.Any] | None = None,
+                 *,
+                 container_types: list[tuple[str | None, list[str]]] | None = None,
+                 container_renderers: dict[str, MDContainerRenderer] | None = None,
+                 substitutions: dict[str, str] | None = None,
+                 auto_anchors: bool = False,
+                 auto_typography: bool = True,
+                 code_highlighting: bool = True,
+                 pygments_params: dict[str, t.Any] | None = None,
+                 wordcount: bool = False):
+        super().__init__(jinja_env, jinja_globals)
+        self.default_template = default_template
+        self.container_types = container_types or []
+        self.container_renderers = container_renderers or {}
+        self.substitutions = substitutions or {}
+        self.auto_anchors = auto_anchors
+        self.auto_typography = auto_typography
+        self.code_highlighting = code_highlighting
+        self.pygments_params = pygments_params or {}
+        self.wordcount = wordcount
+        self._md_processor: t.Callable[[str], tuple[str, dict[str, t.Any]]] | None = None
+
+    def __call__(self, path: Path, output_paths: list[Path]):
+        md, meta = self.md_processor(
+            self.apply_substitutions(
+                path.read_text(self.encoding).strip()
+            )
+        )
+
+        meta['rendered_markdown'] = md
+
+        template_path = self.render_template(
+            meta.get('template', self.default_template),
+            meta,
+            output_paths
+        )
+        if template_path:
+            return [path, Path(template_path)], output_paths
+
+    @property
+    def md_processor(self):
+        if not self._md_processor:
+            self._md_processor = self._build_processor()
+        return self._md_processor
+
+    def apply_substitutions(self, text: str):
+        for sub, value in self.substitutions.items():
+            text = text.replace('${{ ' + sub + ' }}', value)
+        return text
+
+    def highlight_code(self, code: str, lang: str, lang_attrs: str):
+        from pygments import highlight
+        from pygments.formatters import HtmlFormatter
+        from pygments.lexers import get_lexer_by_name, guess_lexer
+        from pygments.util import ClassNotFound
+        try:
+            lexer = get_lexer_by_name(lang)
+        except ClassNotFound:
+            try:
+                lexer = guess_lexer(code)
+            except ClassNotFound:
+                return ''
+
+        return highlight(code, lexer, HtmlFormatter(**self.pygments_params))
+
+    def _build_processor(self):
+        import markdown_it
+        # TODO Need for pyright suppression will be eliminated in the next
+        # release of mdit_py_plugins:
+        #  https://github.com/executablebooks/mdit-py-plugins/pull/91
+        from mdit_py_plugins.anchors import anchors_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.container import container_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.front_matter import front_matter_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.wordcount import wordcount_plugin  # type: ignore[reportPrivateImportUsage]
+        from .components import md_rendering
+
+        processor = markdown_it.MarkdownIt(
+            'commonmark',
+            {
+                'typographer': self.auto_typography,
+                'highlight': self.highlight_code if self.code_highlighting else None,
+            },
+            renderer_cls=md_rendering.AnchovyRendererHTML
+        )
+        processor.enable(['strikethrough', 'table'])
+        if self.auto_typography:
+            processor.enable(['smartquotes', 'replacements'])
+        if self.auto_anchors:
+            anchors_plugin(processor)
+        attrs_plugin(processor)
+        attrs_block_plugin(processor)
+        front_matter_plugin(processor)
+        if self.wordcount:
+            wordcount_plugin(processor)
+
+        for tag, names in self.container_types:
+            for name in names:
+                renderer = (
+                    self.container_renderers.get(name)
+                    or (md_rendering.get_container_renderer(name, tag) if tag else None)
+                )
+                container_plugin(processor, name, render=renderer)
+
+        def convert(md_string: str):
+            env = {'anchovy_meta': dict[str, t.Any]()}
+            md: str = processor.render(md_string, env=env)
+            meta = env['anchovy_meta']
+            if self.wordcount:
+                meta['wordcount'] = env['wordcount']
+            return md, meta
+
+        return convert
