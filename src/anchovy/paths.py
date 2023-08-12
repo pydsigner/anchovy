@@ -34,7 +34,7 @@ def _to_dir_inner(dest: Path,
         rel = transform(rel)
     new_path = dest / rel
 
-    if ext:
+    if ext is not None:
         new_path = new_path.with_suffix(ext)
 
     return new_path

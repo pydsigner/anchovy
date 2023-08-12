@@ -130,10 +130,10 @@ class Context:
             print(f'{path} ⇒ {", ".join(str(p) for p in output_paths)}')
             explicit_chain = step(path, output_paths)
             if explicit_chain:
-                source_paths, output_paths = explicit_chain
+                sources, output_paths = explicit_chain
                 print(
                     '• explicit custody: {\n\t',
-                    ',\n\t'.join(str(p) for p in source_paths),
+                    ',\n\t'.join(str(s) for s in sources),
                     '\n} ⇒ {\n\t',
                     ',\n\t'.join(str(p) for p in output_paths),
                     '\n}',
@@ -273,7 +273,7 @@ class Step(abc.ABC):
         self,
         path: Path,
         output_paths: list[Path]
-    ) -> None | tuple[list[Path], list[Path]]:
+    ) -> None | tuple[list[Path | str], list[Path]]:
         ...
 
 
