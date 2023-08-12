@@ -34,7 +34,15 @@ Source = "https://github.com/pydsigner/anchovy"
 [project.optional-dependencies]
 toml = ['tomli >= 2.0.1; python_version < "3.11"']
 jinja = ["Jinja2>=3.1.2"]
-markdown = ["anchovy[jinja]", "markdown_it_py>=3.0.0"]
+markdown = [
+    "anchovy[jinja]",
+    "anchovy[toml]",
+    "markdown_it_py>=3.0.0",
+    "mdit_py_plugins>=0.4.0",
+    # Pygments is a fairly large dependency and perhaps not critical; but we
+    # include as part of [base] via rich anyways.
+    "Pygments>=2.12.0",
+]
 css = ["tinycss2>=1.1.1"]
 pretty = ["rich>=12.5.1"]
 pillow = ["Pillow>=9.2.0"]
