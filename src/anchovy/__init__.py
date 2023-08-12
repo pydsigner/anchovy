@@ -8,6 +8,7 @@ from .dependencies import (
     which_install_check,
 )
 from .images import CWebPStep, ImageMagickStep, IMThumbnailStep, PillowStep, OptipngStep
+from .include import RequestsFetchStep, UnpackArchiveStep, URLLibFetchStep
 from .jinja import JinjaMarkdownStep, JinjaRenderStep
 from .minify import CSSMinifierStep, HTMLMinifierStep, ResourcePackerStep
 from .paths import DirPathCalc, OutputDirPathCalc, REMatcher, WorkingDirPathCalc
