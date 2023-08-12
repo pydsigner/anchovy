@@ -5,7 +5,7 @@ import typing as t
 from functools import reduce
 from pathlib import Path
 
-from .core import Context, Step
+from .core import Step
 from .dependencies import pip_dependency, Dependency
 
 if t.TYPE_CHECKING:
@@ -20,7 +20,6 @@ class JinjaRenderStep(Step):
     Abstract base class for Steps using Jinja rendering.
     """
     encoding = 'utf-8'
-    env: Environment
 
     @classmethod
     def get_dependencies(cls):
@@ -31,26 +30,24 @@ class JinjaRenderStep(Step):
     def __init__(self,
                  env: Environment | None = None,
                  extra_globals: dict[str, t.Any] | None = None):
-        self._temporary_env = env
+        if env and extra_globals:
+            env.globals.update(extra_globals)
+        self._env = env
         self._extra_globals = extra_globals
 
-    def bind(self, context: Context):
-        """
-        Bind this Step to a specific context. Also initializes a Jinja
-        environment if none is set up already.
-        """
-        super().bind(context)
+    @property
+    def env(self):
+        if self._env:
+            return self._env
 
-        if self._temporary_env:
-            self.env = self._temporary_env
-        else:
-            from jinja2 import Environment, FileSystemLoader, select_autoescape
-            self.env = Environment(
-                loader=FileSystemLoader(context['input_dir']),
-                autoescape=select_autoescape()
-            )
+        from jinja2 import Environment, FileSystemLoader, select_autoescape
+        self._env = Environment(
+            loader=FileSystemLoader(self.context['input_dir']),
+            autoescape=select_autoescape()
+        )
         if self._extra_globals:
-            self.env.globals.update(self._extra_globals)
+            self._env.globals.update(self._extra_globals)
+        return self._env
 
     def render_template(self, template_name: str, meta: dict[str, t.Any], output_paths: list[Path]):
         """
