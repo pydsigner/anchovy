@@ -7,7 +7,7 @@ from functools import reduce
 from pathlib import Path
 
 from .core import Step
-from .dependencies import pip_dependency, Dependency
+from .dependencies import PipDependency, Dependency
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -32,7 +32,7 @@ class JinjaRenderStep(Step):
     @classmethod
     def get_dependencies(cls):
         return {
-            pip_dependency('jinja2'),
+            PipDependency('jinja2'),
         }
 
     def __init__(self,
@@ -124,10 +124,10 @@ class JinjaMarkdownStep(JinjaRenderStep):
     @classmethod
     def get_options(cls):
         return [
-            (pip_dependency('markdown-it-py', None, 'markdown_it'), cls._build_markdownit),
-            (pip_dependency('mistletoe'), cls._build_mistletoe),
-            (pip_dependency('markdown'), cls._build_markdown),
-            (pip_dependency('commonmark'), cls._build_commonmark),
+            (PipDependency('markdown-it-py', check_name='markdown_it'), cls._build_markdownit),
+            (PipDependency('mistletoe'), cls._build_mistletoe),
+            (PipDependency('markdown'), cls._build_markdown),
+            (PipDependency('commonmark'), cls._build_commonmark),
         ]
 
     @classmethod
@@ -197,12 +197,12 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
     @classmethod
     def get_dependencies(cls):
         deps = super().get_dependencies() | {
-            pip_dependency('markdown-it-py', check_name='markdown_it'),
-            pip_dependency('mdit_py_plugins'),
-            pip_dependency('Pygments', check_name='pygments'),
+            PipDependency('markdown-it-py', check_name='markdown_it'),
+            PipDependency('mdit_py_plugins'),
+            PipDependency('Pygments', check_name='pygments'),
         }
         if sys.version_info < (3, 11):
-            deps.add(pip_dependency('tomli'))
+            deps.add(PipDependency('tomli'))
         return deps
 
     def __init__(self,

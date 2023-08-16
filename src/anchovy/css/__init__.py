@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ..core import Step
-from ..dependencies import pip_dependency
+from ..dependencies import PipDependency
 
 
 class AnchovyCSSStep(Step):
@@ -15,7 +15,7 @@ class AnchovyCSSStep(Step):
     @classmethod
     def get_dependencies(cls):
         return {
-            pip_dependency('tinycss2'),
+            PipDependency('tinycss2'),
         }
 
     def __call__(self, path: Path, output_paths: list[Path]):

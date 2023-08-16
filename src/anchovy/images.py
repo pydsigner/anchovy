@@ -5,7 +5,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Step
-from .dependencies import pip_dependency, web_exec_dependency
+from .dependencies import PipDependency, WebExecDependency
 from .simple import BaseCommandStep
 
 if t.TYPE_CHECKING:
@@ -34,8 +34,8 @@ class CWebPStep(BaseCommandStep):
 
     @classmethod
     def get_dependencies(cls):
-        return super().get_dependencies() | {
-            web_exec_dependency('cwebp', 'https://developers.google.com/speed/webp/download'),
+        return {
+            WebExecDependency('cwebp', 'https://developers.google.com/speed/webp/download'),
         }
 
     def get_command(self, input_path: Path, output_path: Path) -> list[StrOrBytesPath]:
@@ -56,8 +56,8 @@ class ImageMagickStep(BaseCommandStep):
 
     @classmethod
     def get_dependencies(cls):
-        return super().get_dependencies() | {
-            web_exec_dependency(
+        return {
+            WebExecDependency(
                 'imagemagick',
                 'https://imagemagick.org/script/download.php',
                 'magick'
@@ -104,11 +104,8 @@ class PillowStep(Step):
 
     @classmethod
     def get_dependencies(cls):
-        return super().get_dependencies() | {
-            pip_dependency(
-                'Pillow',
-                check_name='PIL'
-            ),
+        return {
+            PipDependency('Pillow', check_name='PIL'),
         }
 
     def __call__(self, path: Path, output_paths: list[Path]):
@@ -146,8 +143,8 @@ class OptipngStep(BaseCommandStep):
 
     @classmethod
     def get_dependencies(cls):
-        return super().get_dependencies() | {
-            web_exec_dependency('optipng', 'http://optipng.sourceforge.net'),
+        return {
+            WebExecDependency('optipng', 'http://optipng.sourceforge.net'),
         }
 
     def get_command(self, input_path: Path, output_path: Path) -> list[StrOrBytesPath]:

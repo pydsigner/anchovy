@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 from .core import ContextDir, Step
-from .dependencies import pip_dependency
+from .dependencies import PipDependency
 
 
 class ResourcePackerStep(Step):
@@ -36,7 +36,7 @@ class CSSMinifierStep(Step):
     @classmethod
     def get_dependencies(cls):
         return {
-            pip_dependency('lightningcss')
+            PipDependency('lightningcss')
         }
 
     def __init__(self,
@@ -79,8 +79,8 @@ class HTMLMinifierStep(Step):
     def get_dependencies(cls):
         return {
             (
-                pip_dependency('minify-html-onepass', check_name='minify_html_onepass')
-                | pip_dependency('minify-html', check_name='minify_html')
+                PipDependency('minify-html-onepass', check_name='minify_html_onepass')
+                | PipDependency('minify-html', check_name='minify_html')
             ),
         }
 
