@@ -8,8 +8,8 @@ except ImportError:
 try:
     import rich.console
     _rich_consoles = {
-        sys.stdout: rich.console.Console(file=sys.stdout),
-        sys.stderr: rich.console.Console(file=sys.stderr),
+        'stdout': rich.console.Console(file=sys.stdout),
+        'stderr': rich.console.Console(file=sys.stderr),
     }
 except ImportError:
     _rich_consoles = {}
@@ -36,7 +36,7 @@ def track_progress(iterable: t.Iterable[T], desc: str) -> t.Iterable[T]:
         yield from iterable
 
 
-def print_with_style(*args, sep=' ', end='\n', file=sys.stdout, style=None):
+def print_with_style(*args, sep=' ', end='\n', file: str = 'stdout', style=None):
     """
     Enhanced print() function which supports rich console styles and gracefully
     devolves to standard print().
@@ -44,4 +44,4 @@ def print_with_style(*args, sep=' ', end='\n', file=sys.stdout, style=None):
     if file in _rich_consoles:
         _rich_consoles[file].print(*args, sep=sep, end=end, style=style)
     else:
-        print(*args, sep=sep, end=end, file=file)
+        print(*args, sep=sep, end=end, file=getattr(sys, file))

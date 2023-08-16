@@ -121,7 +121,7 @@ def pprint_missing_deps(step: Step):
     """
     print_with_style(
         f'{step} is unavailable due to missing dependencies!',
-        file=sys.stderr,
+        file='stderr',
         style='red'
     )
     for dep in step.get_dependencies():
@@ -213,7 +213,7 @@ def main():
     else:
         print_with_style(
             'Anchovy config files must have a RULES or CONTEXT attribute!',
-            file=sys.stderr,
+            file='stderr',
             style='red'
         )
         sys.exit(1)
