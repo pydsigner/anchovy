@@ -6,7 +6,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, Step
-from .dependencies import pip_dependency, Dependency
+from .dependencies import PipDependency, Dependency
 
 
 class RequestsFetchStep(Step):
@@ -18,10 +18,10 @@ class RequestsFetchStep(Step):
     @classmethod
     def get_dependencies(cls):
         deps = {
-            pip_dependency('requests'),
+            PipDependency('requests'),
         }
         if sys.version_info < (3, 11):
-            deps.add(pip_dependency('tomli'))
+            deps.add(PipDependency('tomli'))
         return deps
 
     def __call__(self, path: Path, output_paths: list[Path]):
@@ -67,7 +67,7 @@ class URLLibFetchStep(Step):
     """
     @classmethod
     def get_dependencies(cls):
-        return {pip_dependency('tomli')} if sys.version_info < (3, 11) else {}
+        return {PipDependency('tomli')} if sys.version_info < (3, 11) else {}
 
     def __call__(self, path: Path, output_paths: list[Path]):
         if not output_paths:

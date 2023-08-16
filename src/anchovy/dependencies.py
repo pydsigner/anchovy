@@ -1,64 +1,14 @@
 from __future__ import annotations
 
+import abc
 import importlib
 import shutil
 import typing as t
 
 
-# TODO: I'm not a huge fan of this system. Might be better to have a
-# DependencyType class that uses __init_subclass__ to register its children.
-DEPENDENCY_TYPES: dict[str, tuple[str, t.Callable[[], bool]]] = {
-    'pip': (
-        'pip install {source}',
-        lambda: True
-    ),
-    'web': (
-        '{source}',
-        lambda: True
-    ),
-    'npm': (
-        'npm install -g {source}',
-        lambda: True
-    ),
-}
-
-
-def import_install_check(dependency: Dependency):
+class Dependency(abc.ABC):
     """
-    An install checker which tries to import a Python module.
-    """
-    try:
-        importlib.import_module(dependency.check_name)
-    except ImportError:
-        return False
-    return True
-
-
-def which_install_check(dependency: Dependency):
-    """
-    An install checker using `shutil.which()` to look for an executable.
-    """
-    return bool(shutil.which(dependency.check_name))
-
-
-def pip_dependency(name: str, source: str | None = None, check_name: str | None = None):
-    """
-    A shortcut function for creating typical pip-based Dependencys.
-    """
-    return Dependency(name, 'pip', import_install_check, source, check_name)
-
-
-def web_exec_dependency(name: str, source: str | None = None, check_name: str | None = None):
-    """
-    A shortcut function for creating typical Dependencys for general
-    internet-sourced executables.
-    """
-    return Dependency(name, 'web', which_install_check, source, check_name)
-
-
-class Dependency:
-    """
-    A class for tracking and evaluating dependencies.
+    A base class for trackable, evaluable, composable dependencies.
     """
     def __init__(self,
                  name: str,
@@ -73,28 +23,28 @@ class Dependency:
         self.check_name = check_name or name
 
     @property
-    def satisfied(self):
+    @abc.abstractmethod
+    def satisfied(self) -> bool:
         """
-        A bool indicating if this dependency is met.
+        A bool indicating whether this dependency is met.
         """
-        return self.install_check(self)
 
     @property
-    def needed(self):
+    def needed(self) -> bool:
         """
-        A bool indicating if this dependency is needed on the current platform.
+        A bool indicating whether this dependency is needed on the current platform.
         """
-        return DEPENDENCY_TYPES[self.type][1]()
+        return True
 
     @property
-    def install_hint(self):
+    @abc.abstractmethod
+    def install_hint(self) -> str:
         """
         A string giving help on how to install this dependency.
         """
-        return DEPENDENCY_TYPES[self.type][0].format(name=self.name, source=self.source)
 
     def __repr__(self):
-        return f'Dependency(name={self.name}, needed={self.needed}, satisfied={self.satisfied})'
+        return f'{self.__class__.__name__}({self}, needed={self.needed}, satisfied={self.satisfied})'
 
     def __str__(self):
         return self.name
@@ -112,10 +62,10 @@ class _OrDependency(Dependency):
         self.right = right
 
     def __repr__(self):
-        return f'{self.left} | {self.right}'
+        return f'({self.left!r} | {self.right!r})'
 
     def __str__(self):
-        return repr(self)
+        return f'({self.left} | {self.right})'
 
     @property
     def satisfied(self):
@@ -150,10 +100,10 @@ class _AndDependency(Dependency):
         self.right = right
 
     def __repr__(self):
-        return f'{self.left} & {self.right}'
+        return f'({self.left!r} & {self.right!r})'
 
     def __str__(self):
-        return repr(self)
+        return f'({self.left} & {self.right})'
 
     @property
     def satisfied(self):
@@ -178,3 +128,67 @@ class _AndDependency(Dependency):
         needed.
         """
         return '; '.join(d.install_hint for d in [self.left, self.right] if d.needed)
+
+
+class PipDependency(Dependency):
+    """
+    A Dependency on a pip-installable package.
+    """
+    def __init__(self,
+                 name: str,
+                 source: str | None = None,
+                 check_name: str | None = None):
+        self.name = name
+        self.source = source or name
+        self.check_name = check_name or name
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def satisfied(self):
+        """
+        A bool indicating whether this dependency is met.
+        """
+        try:
+            importlib.import_module(self.check_name)
+        except ImportError:
+            return False
+        return True
+
+    @property
+    def install_hint(self):
+        """
+        A string giving help on how to install this dependency.
+        """
+        return f'pip install {self.source}'
+
+
+class WebExecDependency(Dependency):
+    """
+    A Dependency on a general internet-sourced executable.
+    """
+    def __init__(self,
+                 name: str,
+                 source: str | None = None,
+                 check_name: str | None = None):
+        self.name = name
+        self.source = source or name
+        self.check_name = check_name or name
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def satisfied(self):
+        """
+        A bool indicating whether this dependency is met.
+        """
+        return bool(shutil.which(self.check_name))
+
+    @property
+    def install_hint(self):
+        """
+        A string giving help on how to install this dependency.
+        """
+        return self.source
