@@ -43,7 +43,7 @@ markdown = [
     # include as part of [base] via rich anyways.
     "Pygments>=2.12.0",
 ]
-css = ["tinycss2>=1.1.1"]
+css = ["anchovy_css>=0.1.1"]
 pretty = ["rich>=12.5.1"]
 pillow = ["Pillow>=9.2.0"]
 minify = ["lightningcss>=0.1.1,<1.0", "minify-html-onepass>=0.11.1"]
