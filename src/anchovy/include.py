@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import shutil
 import sys
-import typing as t
 from pathlib import Path
 
-from .core import Context, Step
-from .dependencies import PipDependency, Dependency
+from .core import Step
+from .custody import CustodyEntry
+from .dependencies import PipDependency
 
 
 class RequestsFetchStep(Step):
@@ -57,7 +57,8 @@ class RequestsFetchStep(Step):
             for o_path in output_paths[1:]:
                 shutil.copy(output_paths[0], o_path)
 
-        return [path, url], output_paths
+        centry = CustodyEntry('requests', url, {'etag': response.headers['ETag']})
+        return [path, centry], output_paths
 
 
 class URLLibFetchStep(Step):
@@ -85,12 +86,13 @@ class URLLibFetchStep(Step):
             config = tomllib.load(f)
         url: str = config.pop('url')
 
-        urllib.request.urlretrieve(url, output_paths[0], **config)
+        _path, msg = urllib.request.urlretrieve(url, output_paths[0], **config)
 
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)
 
-        return [path, url], output_paths
+        centry = CustodyEntry('urllib', url, {'etag': msg['ETag']})
+        return [path, centry], output_paths
 
 
 class UnpackArchiveStep(Step):

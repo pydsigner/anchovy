@@ -5,6 +5,7 @@ import shutil
 import typing as t
 from pathlib import Path
 
+from .custody import CustodyEntry
 from .dependencies import Dependency
 from .pretty_utils import track_progress
 
@@ -273,7 +274,7 @@ class Step(abc.ABC):
         self,
         path: Path,
         output_paths: list[Path]
-    ) -> None | tuple[list[Path | str], list[Path]]:
+    ) -> None | tuple[list[Path | CustodyEntry], list[Path]]:
         ...
 
 
