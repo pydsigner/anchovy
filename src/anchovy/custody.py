@@ -14,6 +14,8 @@ if t.TYPE_CHECKING:
 
 
 def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
+    if path.is_dir():
+        return ''
     digest = hashlib.new(hashname)
 
     buf = bytearray(_bufsize)
