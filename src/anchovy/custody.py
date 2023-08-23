@@ -13,7 +13,7 @@ if t.TYPE_CHECKING:
     from .core import Context, ContextDir
 
 
-_JsonSerializable: t.TypeAlias = 'str | int | float | bool | None | dict[str, _JsonSerializable] | Sequence[_JsonSerializable]'
+_JsonSerializable: t.TypeAlias = 'str | int | float | bool | None | _JsonDict | Sequence[_JsonSerializable]'
 _JsonDict = dict[str, _JsonSerializable]
 
 
