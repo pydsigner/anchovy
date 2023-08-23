@@ -219,14 +219,14 @@ class Custodian:
 
     def refresh_needed(self, source: Path, outputs: list[Path]):
         if self.stale_parameters:
-            return 'Stale parameters'
+            return True, 'Stale parameters'
         for path in outputs:
             if not path.exists():
-                return f'Missing output ({path})'
+                return True, f'Missing output ({path})'
         upstreams = self.find_upstream(outputs)
         if self.genericize_path(source) not in upstreams:
-            return f'Missing upstream record ({source})'
-        for up in upstreams:
-            if not self.check_prior(up):
-                return f'Stale upstream ({up})'
-        return ''
+            return True, f'Missing upstream record ({source})'
+        for up_key in upstreams:
+            if not self.check_prior(up_key):
+                return True, f'Stale upstream ({up_key})'
+        return False, 'Up to date'
