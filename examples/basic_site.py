@@ -13,7 +13,9 @@ from anchovy import (
 # Optional, and can be overridden with CLI arguments.
 SETTINGS = InputBuildSettings(
     input_dir=Path(__file__).parent / 'basic_site',
+    working_dir=Path('working/basic_site'),
     output_dir=Path('output/basic_site'),
+    custody_cache=Path('output/basic_site.json'),
 )
 RULES = [
     # Ignore dotfiles found in either the input_dir or the working dir.
