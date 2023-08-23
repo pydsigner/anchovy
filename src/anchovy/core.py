@@ -155,14 +155,14 @@ class Context:
 
         further_processing: list[Path] = []
         for step, path, output_paths in track_progress(flattened, 'Processing...'):
-            stale_msg = self.custodian.refresh_needed(path, output_paths)
-            if stale_msg:
+            stale, msg = self.custodian.refresh_needed(path, output_paths)
+            if stale:
                 explicit_chain = step(path, output_paths)
                 if explicit_chain:
                     sources, output_paths = explicit_chain
                 else:
                     sources = [path]
-                self.custodian.add_step(sources, output_paths, stale_msg)
+                self.custodian.add_step(sources, output_paths, msg)
             else:
                 output_paths = self.custodian.skip_step(path, output_paths)
 
