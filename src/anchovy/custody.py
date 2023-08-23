@@ -13,6 +13,10 @@ if t.TYPE_CHECKING:
     from .core import Context, ContextDir
 
 
+_JsonSerializable: t.TypeAlias = 'str | int | float | bool | None | dict[str, _JsonSerializable] | Sequence[_JsonSerializable]'
+_JsonDict = dict[str, _JsonSerializable]
+
+
 def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
     if path.is_dir():
         return ''
@@ -54,14 +58,14 @@ class Custodian:
     context: 'Context'
 
     def __init__(self,
-                 parameters: dict[str, str] | None = None,
+                 parameters: _JsonDict | None = None,
                  info: dict[str, str] | None = None):
         self.checkers: dict[str, t.Callable[[CustodyEntry], bool]] = {'path': self.check_path}
 
-        self.parameters = {'anchovy_version': version('anchovy')}
+        self.parameters: _JsonDict = {'anchovy_version': version('anchovy')}
         if parameters:
             self.parameters.update(parameters)
-        self.prior_parameters: dict[str, t.Any] = {}
+        self.prior_parameters: _JsonDict = {}
         self.stale_parameters = True
 
         self.info = info or {}
@@ -71,8 +75,8 @@ class Custodian:
         self.prior_graph: dict[str, dict[str, list[str]]] = {}
 
         # key: (type, meta) (i.e. the parts of a CustodyEntry)
-        self.meta: dict[str, tuple[str, dict]] = {}
-        self.prior_meta: dict[str, tuple[str, dict]] = {}
+        self.meta: dict[str, tuple[str, _JsonDict]] = {}
+        self.prior_meta: dict[str, tuple[str, _JsonDict]] = {}
 
     def bind(self, context: 'Context'):
         self.context = context
