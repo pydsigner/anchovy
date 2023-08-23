@@ -5,14 +5,15 @@ import shutil
 import typing as t
 from pathlib import Path
 
+from .custody import CustodyEntry, Custodian
 from .dependencies import Dependency
 from .pretty_utils import track_progress
 
 
 T = t.TypeVar('T')
 T2 = t.TypeVar('T2')
-BuildSettingsKey = t.Literal['input_dir', 'output_dir', 'working_dir', 'purge_dirs']
 ContextDir = t.Literal['input_dir', 'output_dir', 'working_dir']
+BuildSettingsKey = t.Literal[ContextDir, 'custody_cache', 'purge_dirs']
 
 
 class InputBuildSettings(t.TypedDict, total=False):
@@ -22,7 +23,8 @@ class InputBuildSettings(t.TypedDict, total=False):
     input_dir: Path
     output_dir: Path
     working_dir: Path | None
-    purge_dirs: bool
+    custody_cache: Path | None
+    purge_dirs: bool | None
 
 class BuildSettings(t.TypedDict):
     """
@@ -31,7 +33,8 @@ class BuildSettings(t.TypedDict):
     input_dir: Path
     output_dir: Path
     working_dir: Path
-    purge_dirs: bool
+    custody_cache: Path | None
+    purge_dirs: bool | None
 
 
 def _rm_children(path: Path):
@@ -44,14 +47,35 @@ def _rm_children(path: Path):
             child.unlink()
 
 
+def _rm_orphans(path: Path, exclude: set[Path]):
+    if not path.exists():
+        return False
+    removed_all = True
+    for child in path.iterdir():
+        if child in exclude:
+            removed_all = False
+            continue
+        if child.is_dir():
+            if _rm_orphans(child, exclude):
+                child.rmdir()
+            else:
+                removed_all = False
+        else:
+            child.unlink()
+    return removed_all
+
+
 class Context:
     """
     A context and configuration class for building Anchovy projects.
     """
     def __init__(self,
                  settings: BuildSettings,
-                 rules: list[Rule]):
+                 rules: list[Rule],
+                 custodian: Custodian | None = None):
         self.settings = settings
+        # Rules may need access to the Custodian
+        self.custodian = custodian or Custodian()
         self.rules: list[Rule] = []
         for rule in rules:
             self.rules.append(rule)
@@ -60,7 +84,9 @@ class Context:
     @t.overload
     def __getitem__(self, key: ContextDir) -> Path: ...
     @t.overload
-    def __getitem__(self, key: t.Literal['purge_dirs']) -> bool: ...
+    def __getitem__(self, key: t.Literal['custody_cache']) -> Path | None: ...
+    @t.overload
+    def __getitem__(self, key: t.Literal['purge_dirs']) -> bool | None: ...
     def __getitem__(self, key):
         return self.settings[key]
 
@@ -127,18 +153,17 @@ class Context:
 
         further_processing: list[Path] = []
         for step, path, output_paths in track_progress(flattened, 'Processing...'):
-            print(f'{path} ⇒ {", ".join(str(p) for p in output_paths)}')
-            explicit_chain = step(path, output_paths)
-            if explicit_chain:
-                sources, output_paths = explicit_chain
-                print(
-                    '• explicit custody: {\n\t',
-                    ',\n\t'.join(str(s) for s in sources),
-                    '\n} ⇒ {\n\t',
-                    ',\n\t'.join(str(p) for p in output_paths),
-                    '\n}',
-                    sep=''
-                )
+            stale_msg = self.custodian.refresh_needed(path, output_paths)
+            if stale_msg:
+                explicit_chain = step(path, output_paths)
+                if explicit_chain:
+                    sources, output_paths = explicit_chain
+                else:
+                    sources = [path]
+                self.custodian.add_step(sources, output_paths, stale_msg)
+            else:
+                output_paths = self.custodian.skip_step(path, output_paths)
+
             further_processing.extend(
                 p for p in output_paths
                 if p.is_relative_to(self['working_dir'])
@@ -156,7 +181,16 @@ class Context:
         if self['purge_dirs']:
             _rm_children(self['output_dir'])
             _rm_children(self['working_dir'])
+        self.custodian.bind(self)
+        if cache_file := self['custody_cache']:
+            self.custodian.load_file(cache_file)
         self.process(input_paths)
+        if cache_file:
+            self.custodian.dump_file(cache_file)
+            if self['purge_dirs'] is None:
+                touched = set(self.custodian.get_all_paths())
+                _rm_orphans(self['output_dir'], touched)
+                _rm_orphans(self['working_dir'], touched)
 
 
 class Matcher(t.Generic[T], abc.ABC):
@@ -273,7 +307,7 @@ class Step(abc.ABC):
         self,
         path: Path,
         output_paths: list[Path]
-    ) -> None | tuple[list[Path | str], list[Path]]:
+    ) -> None | tuple[list[Path | CustodyEntry], list[Path]]:
         ...
 
 

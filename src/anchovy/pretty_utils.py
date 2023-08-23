@@ -28,7 +28,7 @@ def track_progress(iterable: t.Iterable[T], desc: str) -> t.Iterable[T]:
     devolves to no progress tracking.
     """
     if _rich_progress:
-        yield from _rich_progress.track(iterable, desc)
+        yield from _rich_progress.track(iterable, desc, console=_rich_consoles['stdout'])
     elif _tqdm:
         yield from _tqdm.tqdm(iterable, desc)
     else:

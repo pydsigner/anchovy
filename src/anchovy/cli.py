@@ -20,7 +20,8 @@ class BuildNamespace:
     input_dir: Path
     output_dir: Path
     working_dir: Path | None
-    purge_dirs: bool
+    custody_cache: Path | None
+    purge_dirs: bool | None
 
     def __init__(self, settings: InputBuildSettings | None = None):
         if settings:
@@ -28,11 +29,15 @@ class BuildNamespace:
 
     # FIXME: Gross :(
     def to_build_settings(self, working_dir: Path):
+        purge_dirs = self.purge_dirs
+        if purge_dirs is None and self.custody_cache is None:
+            purge_dirs = True
         return BuildSettings(
             input_dir=self.input_dir,
             output_dir=self.output_dir,
             working_dir=working_dir,
-            purge_dirs=self.purge_dirs
+            custody_cache=self.custody_cache,
+            purge_dirs=purge_dirs
         )
 
 
@@ -76,11 +81,15 @@ def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[s
                        dest='working_dir',
                        const=None)
 
+    parser.add_argument('--custody-cache',
+                        help='path to a cache file for chain of custody and change detection',
+                        type=Path,
+                        default=None)
     parser.add_argument('--purge',
                         help='purge the output directory before building',
                         action=argparse.BooleanOptionalAction,
                         dest='purge_dirs',
-                        default=True)
+                        default=None)
 
     return parser.parse_args(argv, namespace=namespace)
 
