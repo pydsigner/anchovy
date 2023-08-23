@@ -45,6 +45,9 @@ markdown = [
 ]
 css = ["anchovy_css>=0.1.1"]
 pretty = ["rich>=12.5.1"]
+# Our most expensive dependency, and not leveraged to its full extent in our
+# standard set of Steps, but significantly valuable to the [web] audience for
+# thumbnailing and .webp conversion.
 pillow = ["Pillow>=9.2.0"]
 minify = ["lightningcss>=0.1.1,<1.0", "minify-html-onepass>=0.11.1"]
 web = ["anchovy[markdown]", "anchovy[css]", "anchovy[pillow]", "anchovy[minify]"]
