@@ -4,6 +4,8 @@ import shutil
 import sys
 from pathlib import Path
 
+from anchovy.core import Context
+
 from .core import Step
 from .custody import CustodyEntry
 from .dependencies import PipDependency
@@ -23,6 +25,18 @@ class RequestsFetchStep(Step):
         if sys.version_info < (3, 11):
             deps.add(PipDependency('tomli'))
         return deps
+
+    def bind(self, context: Context):
+        super().bind(context)
+        @context.custodian.register_checker('requests', override=False)
+        def requests_resource_stale(entry: CustodyEntry):
+            import requests
+            response = requests.head(
+                entry.key,
+                allow_redirects=True,
+                headers={'If-None-Match': entry.meta['etag']}
+            )
+            return response.status_code == 304
 
     def __call__(self, path: Path, output_paths: list[Path]):
         if not output_paths:
@@ -62,6 +76,24 @@ class URLLibFetchStep(Step):
     @classmethod
     def get_dependencies(cls):
         return {PipDependency('tomli')} if sys.version_info < (3, 11) else {}
+
+    def bind(self, context: Context):
+        super().bind(context)
+        @context.custodian.register_checker('urllib', override=False)
+        def urllib_resource_stale(entry: CustodyEntry):
+            import urllib.request
+            request = urllib.request.Request(
+                entry.key,
+                headers={'If-None-Match': entry.meta['etag']},
+                method='HEAD'
+            )
+            try:
+                response = urllib.request.urlopen(request)
+            except urllib.request.HTTPError as e:
+                if e.code == 304:
+                    return True
+                raise
+            return False
 
     def __call__(self, path: Path, output_paths: list[Path]):
         if not output_paths:
