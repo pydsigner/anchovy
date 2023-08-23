@@ -93,10 +93,9 @@ class JinjaMarkdownStep(JinjaRenderStep):
     @classmethod
     def _build_mistletoe(cls):
         import mistletoe
-        processor = mistletoe.HTMLRenderer()
 
         def convert(md_string: str) -> str:
-            return processor.render(mistletoe.Document(md_string))
+            return mistletoe.markdown(md_string)
 
         return convert
 
