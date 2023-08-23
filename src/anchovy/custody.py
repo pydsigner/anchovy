@@ -160,7 +160,7 @@ class Custodian:
                  sources: Sequence[Path | CustodyEntry],
                  outputs: Sequence[Path],
                  stale_msg: str):
-        self.log_step(sources, outputs, stale_msg)
+        self.log_step(sources, outputs, stale=True, stale_msg=stale_msg)
 
         keys = []
         for o_entry in map(self.ensure_entry, outputs):
@@ -177,7 +177,7 @@ class Custodian:
         g_output = self.genericize_path(outputs[0])
         prior_outputs = [self.degenericize_path(p) for p in self.prior_graph[g_output][i_entry.key]]
 
-        self.log_step([source], prior_outputs)
+        self.log_step([source], prior_outputs, stale=False)
 
         self.update_meta(i_entry)
         for o_entry in map(self.entry_from_path, prior_outputs):
@@ -190,6 +190,8 @@ class Custodian:
     def log_step(self,
                  sources: Sequence[Path | CustodyEntry],
                  outputs: Sequence[Path],
+                 *,
+                 stale: bool = True,
                  stale_msg: str = ''):
         if len(sources) == 1:
             msg = f'{sources[0]} ⇒ {", ".join(str(p) for p in outputs)}'
@@ -201,7 +203,7 @@ class Custodian:
                 ',\n\t'.join(str(p) for p in outputs),
                 '\n}',
             ])
-        if stale_msg:
+        if stale:
             print_with_style(f'{stale_msg}...\n{msg}')
         else:
             print_with_style('Skipped', msg, style='yellow')
