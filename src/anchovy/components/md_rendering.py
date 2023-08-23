@@ -1,3 +1,6 @@
+"""
+An extended commonmark renderer based on markdown-it-py.
+"""
 from __future__ import annotations
 
 import sys

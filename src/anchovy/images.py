@@ -1,3 +1,6 @@
+"""
+Steps for image optimization, conversion, and transformation.
+"""
 from __future__ import annotations
 
 import shutil

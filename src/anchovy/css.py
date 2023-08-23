@@ -1,3 +1,6 @@
+"""
+Steps for pre-processing the Anchovy CSS format.
+"""
 from __future__ import annotations
 
 from pathlib import Path

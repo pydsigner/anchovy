@@ -1,3 +1,6 @@
+"""
+Core classes and types for the Anchovy processing pipeline.
+"""
 from __future__ import annotations
 
 import abc

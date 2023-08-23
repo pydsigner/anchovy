@@ -1,3 +1,7 @@
+"""
+Anchovy is a minimal, unopinionated file-processing framework equipped with a
+complete static website generation toolkit.
+"""
 from .core import Context, InputBuildSettings, Matcher, PathCalc, Rule, Step
 from .css import AnchovyCSSStep
 from .dependencies import Dependency, PipDependency, WebExecDependency

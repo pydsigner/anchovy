@@ -1,3 +1,6 @@
+"""
+Steps to add files from network resources and archives into an Anchovy build.
+"""
 from __future__ import annotations
 
 import shutil

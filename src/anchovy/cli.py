@@ -1,3 +1,7 @@
+"""
+This is the toolkit for Anchovy's own CLI, but offers an accessible API for
+building project-specific CLIs.
+"""
 from __future__ import annotations
 
 import argparse

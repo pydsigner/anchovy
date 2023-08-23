@@ -1,3 +1,7 @@
+"""
+Steps for working with Jinja templates, especially rendering Markdown into
+Jinja templates.
+"""
 from __future__ import annotations
 
 import shutil

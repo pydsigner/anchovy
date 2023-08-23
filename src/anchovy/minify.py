@@ -1,3 +1,7 @@
+"""
+Steps for reducing the load cost of webpages by combining and minifying
+resources.
+"""
 import shutil
 from pathlib import Path
 from collections.abc import Sequence

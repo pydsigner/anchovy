@@ -1,3 +1,6 @@
+"""
+Practical implementations of Matchers and PathCalcs.
+"""
 import re
 import typing as t
 from pathlib import Path

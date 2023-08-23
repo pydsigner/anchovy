@@ -1,3 +1,6 @@
+"""
+Dependency management for Anchovy Steps.
+"""
 from __future__ import annotations
 
 import abc
