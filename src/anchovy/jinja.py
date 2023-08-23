@@ -237,13 +237,13 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
         self._md_processor: t.Callable[[str], tuple[str, dict[str, t.Any]]] | None = None
 
     def __call__(self, path: Path, output_paths: list[Path]):
-        md, meta = self.md_processor(
+        rendered_md, meta = self.md_processor(
             self.apply_substitutions(
                 path.read_text(self.encoding).strip()
             )
         )
 
-        meta['rendered_markdown'] = md
+        meta['rendered_markdown'] = rendered_md
 
         template_path = self.render_template(
             meta.get('template', self.default_template),
@@ -264,9 +264,9 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
             text = text.replace('${{ ' + sub + ' }}', value)
         return text
 
-    def highlight_code(self, code: str, lang: str, lang_attrs: str):
+    def highlight_code(self, code: str, lang: str, _lang_attrs: str):
         from pygments import highlight
-        from pygments.formatters import HtmlFormatter
+        from pygments.formatters.html import HtmlFormatter
         from pygments.lexers import get_lexer_by_name, guess_lexer
         from pygments.util import ClassNotFound
         try:
@@ -320,10 +320,10 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
 
         def convert(md_string: str):
             env = {'anchovy_meta': dict[str, t.Any]()}
-            md: str = processor.render(md_string, env=env)
+            rendered_md: str = processor.render(md_string, env=env)
             meta = env['anchovy_meta']
             if self.wordcount:
                 meta['wordcount'] = env['wordcount']
-            return md, meta
+            return rendered_md, meta
 
         return convert

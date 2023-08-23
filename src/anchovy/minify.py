@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from collections.abc import Sequence
 
 from .core import ContextDir, Step
 from .dependencies import PipDependency
@@ -18,9 +19,9 @@ class ResourcePackerStep(Step):
     def __call__(self, path: Path, output_paths: list[Path]):
         parent_dir = self.context[self.source_dir]
         input_paths = [
-            (parent_dir / f)
+            (parent_dir / cleaned)
             for filename in path.open()
-            if (f := filename.strip()) and not f.startswith('#')
+            if (cleaned := filename.strip()) and not cleaned.startswith('#')
         ]
         data = '\n\n'.join(f.read_text(self.encoding) for f in input_paths)
 
@@ -51,13 +52,13 @@ class CSSMinifierStep(Step):
                  error_recovery: bool = False,
                  parser_flags: dict[str, bool] | None = None,
                  unused_symbols: set[str] | None = None,
-                 browsers_list: list[str] | None = ['defaults'],
+                 browsers_list: Sequence[str] | None = ('defaults',),
                  minify: bool = True):
 
         self.error_recovery = error_recovery
         self.parser_flags = parser_flags or {}
         self.unused_symbols = unused_symbols
-        self.browsers_list = browsers_list
+        self.browsers_list = list(browsers_list) if browsers_list else None
         self.minify = minify
 
     def __call__(self, path: Path, output_paths: list[Path]):

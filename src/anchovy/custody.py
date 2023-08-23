@@ -38,13 +38,13 @@ class CustodyEntry:
     """
     Class holding custody info for a single input or output path.
     """
-    def __init__(self, type: str, key: str, meta: dict | None = None):
-        self.type = type
+    def __init__(self, entry_type: str, key: str, meta: dict | None = None):
+        self.entry_type = entry_type
         self.key = key
         self.meta = meta or {}
 
     def __str__(self):
-        return f'{self.type}:{self.key}'
+        return f'{self.entry_type}:{self.key}'
 
     def __getitem__(self, key):
         return self.meta[key]
@@ -121,14 +121,14 @@ class Custodian:
             return record
         return self.entry_from_path(record)
 
-    def register_checker(self, type: str, override: bool = True):
+    def register_checker(self, entry_type: str, override: bool = True):
         """
         Decorator for registering a staleness checker for a specific type of
         `CustodyEntry`.
         """
         def register(func: t.Callable[[CustodyEntry], bool]):
-            if override or type not in self.checkers:
-                self.checkers[type] = func
+            if override or entry_type not in self.checkers:
+                self.checkers[entry_type] = func
         return register
 
     def load_file(self, path: Path):
@@ -151,7 +151,7 @@ class Custodian:
             json.dump(data, file, indent=2)
 
     def update_meta(self, entry: CustodyEntry):
-        self.meta[entry.key] = (entry.type, entry.meta)
+        self.meta[entry.key] = (entry.entry_type, entry.meta)
 
     def add_step(self,
                  sources: Sequence[Path | CustodyEntry],
@@ -232,7 +232,7 @@ class Custodian:
         upstreams = self.find_upstream(outputs)
         if self.genericize_path(source) not in upstreams:
             return f'Missing upstream record ({source})'
-        for up in upstreams:
-            if not self.check_prior(up):
-                return f'Stale upstream ({up})'
+        for up_key in upstreams:
+            if not self.check_prior(up_key):
+                return f'Stale upstream ({up_key})'
         return ''
