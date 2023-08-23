@@ -49,6 +49,10 @@ class JinjaRenderStep(Step):
 
     @property
     def env(self):
+        """
+        Returns the Jinja `Environment` for this Step, creating and caching it
+        if necessary.
+        """
         if self._env:
             return self._env
 
@@ -63,8 +67,12 @@ class JinjaRenderStep(Step):
 
     def render_template(self, template_name: str, meta: dict[str, t.Any], output_paths: list[Path]):
         """
-        Look up a Jinja template by name and render it with @meta as
-        parameters, then save the result to each of the provided @output_paths.
+        Render a Jinja template.
+
+        :param template_name: The name of the template to render.
+        :param meta: Any parameters to be passed to the template.
+        :param output_paths: A list of Paths the rendered template will be
+            written to.
         """
         if not output_paths:
             return
@@ -126,6 +134,10 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
     @classmethod
     def get_options(cls):
+        """
+        Helper method returning a list of tuples of dependencies and markdown
+        renderer factories for those dependencies.
+        """
         return [
             (PipDependency('markdown-it-py', check_name='markdown_it'), cls._build_markdownit),
             (PipDependency('mistletoe'), cls._build_mistletoe),
@@ -151,6 +163,9 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
     @property
     def md_processor(self):
+        """
+        Returns the markdown processor for this Step, creating it if necessary.
+        """
         if not self._md_processor:
             for dep, factory in self.get_options():
                 if dep.satisfied:
@@ -228,6 +243,35 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
                  code_highlighting: bool = True,
                  pygments_params: dict[str, t.Any] | None = None,
                  wordcount: bool = False):
+        """
+        :param default_template: The name of a Jinja template to use with
+            markdown files that do not specify a template in their frontmatter.
+        :param jinja_env: A custom Jinja2 `Environment`. A reasonable default
+            will be provided if not specified.
+        :param jinja_globals: Any parameters to be passed to the Jinja template.
+            Additionally, all frontmatter keys will be included, rendered
+            markdown will be added as `'rendered_markdown'`, and wordcount data
+            will be added as a `'wordcount'` dict if enabled.
+        :param container_types: A list of tuples pairing a HTML tag or None
+            with a list of container names that should render to that HTML tag.
+            If the HTML tag is none, the default raw `<div>` renderer from
+            `mdit_py_plugins.container` will be used.
+        :param container_renderers: A dictionary with container name as keys and
+            container renderer functions as values, when additional processing
+            is needed beyond the default options.
+        :param substitutions: A dictionary of variable names and values to
+            substitute into markdown before it is rendered. See
+            `JinjaExtendedMarkdownStep.apply_substitutions()` for more details.
+        :param auto_anchors: Whether to enable the `mdit_py_plugins.anchors`
+            plugin.
+        :param auto_typography: Whether to enable smartquotes and replacement
+            functionalities in markdown-it-py.
+        :param code_highlighting: Whether to enable code highlighting.
+        :param pygments_params: Parameters to supply to
+            `pygments.formatters.html.HtmlFormatter`.
+        :param wordcount: Whether to enable the `mdit_py_plugins.wordcount`
+            plugin.
+        """
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
         self.container_types = container_types or []
@@ -259,16 +303,28 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
 
     @property
     def md_processor(self):
+        """
+        Returns the markdown processor for this Step, creating it if necessary.
+        """
         if not self._md_processor:
             self._md_processor = self._build_processor()
         return self._md_processor
 
     def apply_substitutions(self, text: str):
+        """
+        Apply variable substitutions to a markdown string.
+
+        Looks for `${{ var_name }}`.
+        """
         for sub, value in self.substitutions.items():
             text = text.replace('${{ ' + sub + ' }}', value)
         return text
 
     def highlight_code(self, code: str, lang: str, _lang_attrs: str):
+        """
+        Apply pygments syntax highlighting to the provided code, returning as
+        HTML markup.
+        """
         from pygments import highlight
         from pygments.formatters.html import HtmlFormatter
         from pygments.lexers import get_lexer_by_name, guess_lexer

@@ -20,7 +20,16 @@ if t.TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-def get_container_renderer(container_name, html_tag):
+def get_container_renderer(container_name: str, html_tag: str):
+    """
+    Factory function for markdown container renderers.
+
+    Unnecessary internal `<p>` wrapper tags will be eliminated.
+
+    :param container_name: The name of the container. Will be included as a
+        `class` in the output HTML container.
+    :param html_tag: The HTML tag for the container.
+    """
     def render(
         self: RendererHTML,
         tokens: Sequence[Token],
@@ -53,6 +62,10 @@ class AnchovyRendererHTML(RendererHTML):
     """
     # https://github.com/executablebooks/markdown-it-py/issues/256
     def fence(self, tokens: Sequence[Token], idx: int, options: OptionsDict, _env: EnvType):
+        """
+        Handles rendering a markdown code fence, with optional syntax
+        highlighting.
+        """
         token = tokens[idx]
         info = unescapeAll(token.info).strip() if token.info else ''
         lang_name = info.split(maxsplit=1)[0] if info else ''
@@ -64,6 +77,9 @@ class AnchovyRendererHTML(RendererHTML):
         )
 
     def front_matter(self, tokens: Sequence[Token], idx: int, _options: OptionsDict, env: EnvType):
+        """
+        Handles parsing markdown frontmatter using TOML.
+        """
         parsed = tomllib.loads(tokens[idx].content)
         env['anchovy_meta'].update(parsed)
         return ''

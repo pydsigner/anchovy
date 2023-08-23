@@ -33,6 +33,10 @@ class BuildNamespace:
             self.__dict__.update(settings)
 
     def to_build_settings(self, resolved_working_dir: Path):
+        """
+        Convert this argparse-oriented namespace into a Context-ready
+        BuildSettings.
+        """
         purge_dirs = self.purge_dirs
         if purge_dirs is None and self.custody_cache is None:
             purge_dirs = True

@@ -21,6 +21,9 @@ _JsonDict = dict[str, _JsonSerializable]
 
 
 def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
+    """
+    Calculate a checksum for a `Path`. Directories result in empty checksums.
+    """
     if path.is_dir():
         return ''
     digest = hashlib.new(hashname)
@@ -82,6 +85,10 @@ class Custodian:
         self.prior_meta: dict[str, tuple[str, _JsonDict]] = {}
 
     def bind(self, context: 'Context'):
+        """
+        Bind this `Custodian` to a `Context` and update info using the
+        `Context`'s settings.
+        """
         self.context = context
         for key in context.settings:
             if key not in self.info:
@@ -90,6 +97,10 @@ class Custodian:
     # Default behaviors for Paths
 
     def genericize_path(self, path: Path):
+        """
+        Genericize a path, removing run-specific folder references and
+        converting to a key.
+        """
         for dir_key in ('input_dir', 'output_dir', 'working_dir'):
             parent = self.context[dir_key]
             if path.is_relative_to(parent):
@@ -98,6 +109,9 @@ class Custodian:
         return path.as_posix()
 
     def degenericize_path(self, key: str):
+        """
+        Undo `genericize_path()` to turn a key back into a Path.
+        """
         path = Path(key)
         # -2 because path.parents walks upward (parents[0] is the same as
         # path.parent) and -1 is the root (in our case, '.')
@@ -105,9 +119,16 @@ class Custodian:
         return self.context[dir_key] / path.relative_to(dir_key)
 
     def get_all_paths(self):
+        """
+        Generator of every output key in the graph as a Path.
+        """
         return (self.degenericize_path(key) for key in self.graph)
 
     def entry_from_path(self, path: Path):
+        """
+        Create a `CustodyEntry` for a path. Provides a sha1 checksum along with
+        stat modified time and size for path checkers.
+        """
         # The default checker only looks at a checksum, but it's not much added
         # cost to also stat, and doing so means that an end user can switch to
         # m_time testing by registering a new checker and does not need to
@@ -117,9 +138,16 @@ class Custodian:
         return CustodyEntry('path', self.genericize_path(path), meta)
 
     def check_path(self, entry: CustodyEntry) -> bool:
+        """
+        Default sha1-based checker for path staleness.
+        """
         return entry['sha1'] == checksum(self.degenericize_path(entry.key))
 
     def ensure_entry(self, record: Path | CustodyEntry):
+        """
+        Create a `CustodyEntry` if the parameter is a Path, otherwise just
+        return the existing `CustodyEntry`.
+        """
         if isinstance(record, CustodyEntry):
             return record
         return self.entry_from_path(record)
@@ -135,6 +163,10 @@ class Custodian:
         return register
 
     def load_file(self, path: Path):
+        """
+        Load prior custody data and metadata from a JSON file and evaluate
+        parameter staleness.
+        """
         if not path.exists():
             return
         data = json.loads(path.read_text(self.encoding))
@@ -144,6 +176,10 @@ class Custodian:
         self.prior_meta = data['meta']
 
     def dump_file(self, path: Path):
+        """
+        Dump all custody data and metadata from the current run into a JSON
+        file.
+        """
         data = {
             'info': self.info,
             'parameters': self.parameters,
@@ -154,12 +190,18 @@ class Custodian:
             json.dump(data, file, indent=2)
 
     def update_meta(self, entry: CustodyEntry):
+        """
+        Store a `CustodyEntry` in serializable form.
+        """
         self.meta[entry.key] = (entry.entry_type, entry.meta)
 
     def add_step(self,
                  sources: Sequence[Path | CustodyEntry],
                  outputs: Sequence[Path],
                  stale_msg: str):
+        """
+        Mark a Step as run, updating custody data and logging accordingly.
+        """
         self.log_step(sources, outputs, stale=True, stale_msg=stale_msg)
 
         keys = []
@@ -173,6 +215,9 @@ class Custodian:
                 self.graph.setdefault(o_key, {})[i_entry.key] = keys
 
     def skip_step(self, source: Path, outputs: list[Path]):
+        """
+        Mark a Step as skipped, updating custody data and logging accordingly.
+        """
         i_entry = self.entry_from_path(source)
         g_output = self.genericize_path(outputs[0])
         prior_outputs = [self.degenericize_path(p) for p in self.prior_graph[g_output][i_entry.key]]
@@ -193,6 +238,9 @@ class Custodian:
                  *,
                  stale: bool = True,
                  stale_msg: str = ''):
+        """
+        Log custody information for a step according to its staleness.
+        """
         if len(sources) == 1:
             msg = f'{sources[0]} ⇒ {", ".join(str(p) for p in outputs)}'
         else:
@@ -209,6 +257,12 @@ class Custodian:
             print_with_style('Skipped', msg, style='yellow')
 
     def check_prior(self, key: str):
+        """
+        Check whether the current resource corresponding to the given key
+        matches its historical fingerprint.
+
+        :param key: A `CustodyEntry.key`.
+        """
         try:
             ptype, pmeta = self.prior_meta[key]
         except KeyError:
@@ -222,6 +276,13 @@ class Custodian:
         return checker(CustodyEntry(ptype, key, pmeta))
 
     def find_upstream(self, paths: list[Path]):
+        """
+        Find all input paths one step upstream of any of the specified paths.
+
+        Relies only on historical data; combine with the
+        `Custodian.stale_parameters` attribute and the `Custodian.check_prior()`
+        method to ensure the historical data is still accurate.
+        """
         return {
             s
             for p in paths
@@ -229,6 +290,13 @@ class Custodian:
         }
 
     def refresh_needed(self, source: Path, outputs: list[Path]):
+        """
+        Determines whether a refresh is needed for the result of processing a
+        pair of Step parameters.
+
+        :return: Whether the step should be rerun and a message explaining why
+            or why not.
+        """
         if self.stale_parameters:
             return True, 'Stale parameters'
         for path in outputs:
