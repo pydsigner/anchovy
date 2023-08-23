@@ -121,6 +121,9 @@ class URLLibFetchStep(Step):
 
 
 class UnpackArchiveStep(Step):
+    """
+    A step for extracting files from an archive.
+    """
     def __init__(self, format: str | None = None):
         self.format = format
     def __call__(self, path: Path, output_paths: list[Path]):

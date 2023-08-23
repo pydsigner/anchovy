@@ -6,6 +6,10 @@ from .dependencies import PipDependency
 
 
 class ResourcePackerStep(Step):
+    """
+    A simple resource packing Step, using a config file with a list of files to
+    join into one.
+    """
     encoding = 'utf-8'
 
     def __init__(self, source_dir: ContextDir = 'input_dir'):
@@ -31,6 +35,10 @@ class ResourcePackerStep(Step):
 
 
 class CSSMinifierStep(Step):
+    """
+    A powerful CSS minification Step, using lightningcss to offer intelligent
+    CSS reduction based on browsers supported and unused styles.
+    """
     encoding = 'utf-8'
 
     @classmethod
@@ -71,6 +79,9 @@ class CSSMinifierStep(Step):
 
 
 class HTMLMinifierStep(Step):
+    """
+    A simple but fast HTML minification Step.
+    """
     encoding = 'utf-8'
     minify_css = False
     minify_js = False

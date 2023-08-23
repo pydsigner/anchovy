@@ -31,6 +31,9 @@ def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
 
 
 class CustodyEntry:
+    """
+    Class holding custody info for a single input or output path.
+    """
     def __init__(self, type: str, key: str, meta: dict | None = None):
         self.type = type
         self.key = key
@@ -44,6 +47,9 @@ class CustodyEntry:
 
 
 class Custodian:
+    """
+    Class for managing custody info and intelligent rebuilds.
+    """
     encoding = 'utf-8'
     context: 'Context'
 

@@ -78,7 +78,7 @@ class JinjaRenderStep(Step):
 class JinjaMarkdownStep(JinjaRenderStep):
     """
     A Step for rendering Markdown using Jinja templates. Parses according to
-    CommonMark and Renders to HTML by default.
+    CommonMark and renders to HTML by default.
     """
     @classmethod
     def _build_markdownit(cls):
@@ -191,6 +191,13 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
 
 class JinjaExtendedMarkdownStep(JinjaRenderStep):
+    """
+    A Step for extended Markdown rendering.
+
+    Goes beyond the default functionality of markdown-it-py to offer toml
+    frontmatter, pygments syntax highlighting for code blocks, containers,
+    variable substitutions, wordcounts, anchors, and typography.
+    """
     encoding = 'utf-8'
 
     @classmethod

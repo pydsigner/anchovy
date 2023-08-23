@@ -92,8 +92,7 @@ class Context:
 
     def bind(self, step: Step | None):
         """
-        Bind a Step to this Context. Calls the `bind()` method on class Steps,
-        and creates a partial for function Steps.
+        Bind a Step to this Context, checking to ensure its availability.
         """
         if step:
             if not step.is_available():
@@ -228,6 +227,10 @@ class _AndMatcher(Matcher[T | T2]):
 
 
 class PathCalc(t.Generic[T], abc.ABC):
+    """
+    Abstract base class for path calculators which use `Matcher` match data to
+    determine output paths from input paths.
+    """
     @abc.abstractmethod
     def __call__(self, context: Context, path: Path, match: T) -> Path:
         ...
@@ -312,6 +315,10 @@ class Step(abc.ABC):
 
 
 class StepUnavailableException(Exception):
+    """
+    Exception raised with a step to be used is unavailable due to missing
+    dependencies.
+    """
     def __init__(self, step: Step, *args: t.Any):
         self.step = step
         super().__init__(*args)
