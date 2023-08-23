@@ -9,6 +9,7 @@ import typing as t
 from pathlib import Path
 
 from .core import BuildSettings, Context, InputBuildSettings, Rule, Step, StepUnavailableException
+from .custody import Custodian
 from .pretty_utils import print_with_style
 
 
@@ -96,15 +97,17 @@ def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[s
 
 def run_from_rules(settings: InputBuildSettings | None,
                    rules: list[Rule],
+                   custodian: Custodian | None = None,
                    context_cls: t.Type[Context] = Context,
                    **kw):
     """
     Build a new Context from Settings, Rules, and command line arguments. Then,
-    execute a build using the new Context.
+    execute a build using the new Context. A Custodian and a custom Context
+    class may be additionally supplied.
     """
     final_settings = parse_settings_args(settings, **kw)
     with _wrap_temp(final_settings.working_dir) as working_dir:
-        context = context_cls(final_settings.to_build_settings(working_dir), rules)
+        context = context_cls(final_settings.to_build_settings(working_dir), rules, custodian)
         context.run()
 
 
@@ -182,11 +185,13 @@ def main():
 
         settings: InputBuildSettings | None = namespace.get('SETTINGS')
         rules: list[Rule] | None = namespace.get('RULES')
+        custodian: Custodian | None = namespace.get('CUSTODIAN')
         context: Context | None = namespace.get('CONTEXT')
     else:
         label: str = f'-m {args.module.__name__}'
         settings: InputBuildSettings | None = getattr(args.module, 'SETTINGS', None)
         rules: list[Rule] | None = getattr(args.module, 'RULES', None)
+        custodian: Custodian | None = getattr(args.module, 'CUSTODIAN', None)
         context: Context | None = getattr(args.module, 'CONTEXT', None)
 
     if args.audit_steps:
@@ -214,7 +219,7 @@ def main():
             if context:
                 context.run()
             elif rules:
-                run_from_rules(settings, rules, argv=remaining, prog=f'anchovy {label}')
+                run_from_rules(settings, rules, custodian, argv=remaining, prog=f'anchovy {label}')
         except StepUnavailableException as e:
             pprint_missing_deps(e.step)
             sys.exit(1)
