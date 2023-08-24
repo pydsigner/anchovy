@@ -1,26 +1,17 @@
+"""
+Dependency management for Anchovy Steps.
+"""
 from __future__ import annotations
 
 import abc
 import importlib
 import shutil
-import typing as t
 
 
 class Dependency(abc.ABC):
     """
     A base class for trackable, evaluable, composable dependencies.
     """
-    def __init__(self,
-                 name: str,
-                 type: str,
-                 install_check: t.Callable[[Dependency], bool],
-                 source: str | None = None,
-                 check_name: str | None = None):
-        self.name = name
-        self.type = type
-        self.install_check = install_check
-        self.source = source or name
-        self.check_name = check_name or name
 
     @property
     @abc.abstractmethod
@@ -45,9 +36,6 @@ class Dependency(abc.ABC):
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self}, needed={self.needed}, satisfied={self.satisfied})'
-
-    def __str__(self):
-        return self.name
 
     def __or__(self, other: Dependency):
         return _OrDependency(self, other)

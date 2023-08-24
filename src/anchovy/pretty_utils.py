@@ -1,3 +1,6 @@
+"""
+Internal utilities for progress bars and pretty printing.
+"""
 import sys
 import typing as t
 

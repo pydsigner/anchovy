@@ -1,3 +1,7 @@
+"""
+This is the toolkit for Anchovy's own CLI, but offers an accessible API for
+building project-specific CLIs.
+"""
 from __future__ import annotations
 
 import argparse
@@ -28,15 +32,18 @@ class BuildNamespace:
         if settings:
             self.__dict__.update(settings)
 
-    # FIXME: Gross :(
-    def to_build_settings(self, working_dir: Path):
+    def to_build_settings(self, resolved_working_dir: Path):
+        """
+        Convert this argparse-oriented namespace into a Context-ready
+        BuildSettings.
+        """
         purge_dirs = self.purge_dirs
         if purge_dirs is None and self.custody_cache is None:
             purge_dirs = True
         return BuildSettings(
             input_dir=self.input_dir,
             output_dir=self.output_dir,
-            working_dir=working_dir,
+            working_dir=resolved_working_dir,
             custody_cache=self.custody_cache,
             purge_dirs=purge_dirs
         )
@@ -178,7 +185,7 @@ def main():
         label: str = str(args.config_file)
 
         namespace: dict[str, t.Any] = {'__file__': label}
-        with open(args.config_file) as file:
+        with open(args.config_file, encoding='utf-8') as file:
             # We're basically emulating the python command line here.
             # pylint: disable=exec-used
             exec(file.read(), namespace)

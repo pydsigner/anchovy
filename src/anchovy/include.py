@@ -1,3 +1,6 @@
+"""
+Steps to add files from network resources and archives into an Anchovy build.
+"""
 from __future__ import annotations
 
 import shutil
@@ -17,6 +20,8 @@ class RequestsFetchStep(Step):
     the build.
     """
     chunk_size = 8192
+    timeout = 300
+
     @classmethod
     def get_dependencies(cls):
         deps = {
@@ -34,15 +39,16 @@ class RequestsFetchStep(Step):
             response = requests.head(
                 entry.key,
                 allow_redirects=True,
-                headers={'If-None-Match': entry.meta['etag']}
+                headers={'If-None-Match': entry['etag']},
+                timeout=self.timeout
             )
             return response.status_code == 304
 
     def __call__(self, path: Path, output_paths: list[Path]):
         if not output_paths:
             return
-        for p in output_paths:
-            p.parent.mkdir(parents=True, exist_ok=True)
+        for o_path in output_paths:
+            o_path.parent.mkdir(parents=True, exist_ok=True)
 
         import requests
         if sys.version_info < (3, 11):
@@ -50,17 +56,18 @@ class RequestsFetchStep(Step):
         else:
             import tomllib
 
-        with path.open('rb') as f:
-            config = tomllib.load(f)
+        with path.open('rb') as file:
+            config = tomllib.load(file)
         url: str = config.pop('url')
         config.setdefault('stream', True)
+        config.setdefault('timeout', self.timeout)
 
         response = requests.get(url, **config)
         if not response:
             response.raise_for_status()
-        with output_paths[0].open('wb') as f:
+        with output_paths[0].open('wb') as file:
             for chunk in response.iter_content(self.chunk_size):
-                f.write(chunk)
+                file.write(chunk)
             for o_path in output_paths[1:]:
                 shutil.copy(output_paths[0], o_path)
 
@@ -84,22 +91,22 @@ class URLLibFetchStep(Step):
             import urllib.request
             request = urllib.request.Request(
                 entry.key,
-                headers={'If-None-Match': entry.meta['etag']},
+                headers={'If-None-Match': entry['etag']},
                 method='HEAD'
             )
             try:
-                response = urllib.request.urlopen(request)
+                with urllib.request.urlopen(request):
+                    return False
             except urllib.request.HTTPError as e:
                 if e.code == 304:
                     return True
                 raise
-            return False
 
     def __call__(self, path: Path, output_paths: list[Path]):
         if not output_paths:
             return
-        for p in output_paths:
-            p.parent.mkdir(parents=True, exist_ok=True)
+        for o_path in output_paths:
+            o_path.mkdir(parents=True, exist_ok=True)
 
         import urllib.request
         if sys.version_info < (3, 11):
@@ -107,8 +114,8 @@ class URLLibFetchStep(Step):
         else:
             import tomllib
 
-        with path.open('rb') as f:
-            config = tomllib.load(f)
+        with path.open('rb') as file:
+            config = tomllib.load(file)
         url: str = config.pop('url')
 
         _path, msg = urllib.request.urlretrieve(url, output_paths[0], **config)
@@ -121,20 +128,23 @@ class URLLibFetchStep(Step):
 
 
 class UnpackArchiveStep(Step):
-    def __init__(self, format: str | None = None):
-        self.format = format
+    """
+    A step for extracting files from an archive.
+    """
+    def __init__(self, archive_format: str | None = None):
+        self.archive_format = archive_format
     def __call__(self, path: Path, output_paths: list[Path]):
         if not output_paths:
             return
-        for p in output_paths:
-            p.mkdir(parents=True, exist_ok=True)
+        for o_path in output_paths:
+            o_path.mkdir(parents=True, exist_ok=True)
 
         first = output_paths[0]
-        shutil.unpack_archive(path, first, format=self.format)
+        shutil.unpack_archive(path, first, format=self.archive_format)
         all_outputs = [first]
         all_outputs.extend(self.context.find_inputs(first))
-        for p in output_paths[1:]:
-            shutil.copytree(first, p, dirs_exist_ok=True)
-            all_outputs.append(p)
-            all_outputs.extend(self.context.find_inputs(p))
+        for o_path in output_paths[1:]:
+            shutil.copytree(first, o_path, dirs_exist_ok=True)
+            all_outputs.append(o_path)
+            all_outputs.extend(self.context.find_inputs(o_path))
         return [path], all_outputs

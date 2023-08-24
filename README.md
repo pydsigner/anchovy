@@ -5,13 +5,12 @@
 
 # Anchovy
 
-Anchovy is a minimal, unopinionated file processing engine intended for static
-website generation.
+Anchovy is a minimal, unopinionated file-processing framework equipped with a
+complete static website generation toolkit.
 
-* **Minimal:** Anchovy's core code is just a few hundred lines of code and has
-  no mandatory dependencies. Plus, Anchovy can be used for real projects without
-  bringing in dependencies on external executables or languages, even if you
-  want to preprocess CSS.
+* **Minimal:** Anchovy's core is around a thousand lines of code and has no
+  mandatory dependencies. Plus, Anchovy can be used for real projects with just
+  a few pip-installable extras, even if you want to preprocess CSS.
 
 * **Unopinionated:** Anchovy offers a set of components which can be easily
   configured to your site's exact requirements, without tediously ripping out
@@ -21,14 +20,24 @@ website generation.
   it's simple to integrate tools like imagemagick, dart-sass, or less.js if you
   need them.
 
+* **Complete:** Anchovy comes with a dependency auditing system, allowing you
+  to grab any component you want without installing anything but Anchovy and
+  find out what you *will* need to run your build. Choose from a wealth of
+  Steps, Anchovy's modular file processors, for everything from rendering Jinja
+  templates and minifying CSS to unpacking archives and thumbnailing images.
+  Plus, add a few extra parameters or lines of configuration to get automatic
+  intelligent minimum builds based on input checksums, and get a reproducible
+  run artifact to boot— even if you want to fetch HTTP resources or write your
+  own Steps.
+
 ## Installation
 
 Anchovy has no essential prerequisites and can be installed with
 `pip install anchovy` to get just the framework and a few built-in components,
 but for typical usage `pip install anchovy[base]` is recommended. This will
-pull in support for Jinja2 templating, markdown, and Anchovy's CSS preprocessor.
-A full list of available extras may be found in the [pyproject.toml](./pyproject.toml)
-file.
+pull in support for Jinja2 templating, markdown, minification, and Anchovy's
+CSS preprocessor. A full list of available extras may be found in the
+[pyproject.toml](./pyproject.toml) file.
 
 Alternatively, Anchovy may be installed directly from source with
 `pip install git+https://github.com/pydsigner/anchovy` or the corresponding
@@ -58,7 +67,9 @@ from anchovy import (
 # Optional, and can be overridden with CLI arguments.
 SETTINGS = InputBuildSettings(
     input_dir=Path('site'),
+    working_dir=Path('working'),
     output_dir=Path('build'),
+    custody_cache=Path('build-cache.json'),
 )
 RULES = [
     # Ignore dotfiles found in either the input_dir or the working dir.

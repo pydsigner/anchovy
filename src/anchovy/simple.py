@@ -1,3 +1,6 @@
+"""
+Simple Steps and a base class for Steps that invoke external commandline tools.
+"""
 from __future__ import annotations
 
 import abc
