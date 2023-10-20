@@ -9,6 +9,6 @@ from .dependencies import Dependency, PipDependency, WebExecDependency
 from .images import CWebPStep, ImageMagickStep, IMThumbnailStep, PillowStep, OptipngStep
 from .include import RequestsFetchStep, UnpackArchiveStep, URLLibFetchStep
 from .jinja import JinjaExtendedMarkdownStep, JinjaMarkdownStep, JinjaRenderStep
-from .minify import CSSMinifierStep, HTMLMinifierStep, ResourcePackerStep
+from .minify import AssetMinifierStep, CSSMinifierStep, HTMLMinifierStep, ResourcePackerStep
 from .paths import DirPathCalc, OutputDirPathCalc, REMatcher, WorkingDirPathCalc
 from .simple import DirectCopyStep
