@@ -121,6 +121,12 @@ class HTMLMinifierStep(Step):
 
 
 class AssetMinifierStep(Step):
+    """
+    A fast and powerful web minifier supporting CSS, HTML, JS, JSON, SVG, and
+    XML. Uses MIME type detection to determine which minifier to use.
+
+    NOTE: Not supported on macOS.
+    """
     @classmethod
     def get_dependencies(cls):
         return {
