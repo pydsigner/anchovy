@@ -2,6 +2,7 @@
 Steps for reducing the load cost of webpages by combining and minifying
 resources.
 """
+import mimetypes
 import shutil
 from pathlib import Path
 from collections.abc import Sequence
@@ -115,5 +116,44 @@ class HTMLMinifierStep(Step):
         for o_path in output_paths:
             o_path.parent.mkdir(parents=True, exist_ok=True)
         output_paths[0].write_text(data, self.encoding)
+        for o_path in output_paths[1:]:
+            shutil.copy(output_paths[0], o_path)
+
+
+class AssetMinifierStep(Step):
+    """
+    A fast and powerful web minifier supporting CSS, HTML, JS, JSON, SVG, and
+    XML. Uses MIME type detection to determine which minifier to use.
+
+    NOTE: Not supported on macOS.
+    """
+    @classmethod
+    def get_dependencies(cls):
+        return {
+            PipDependency('tdewolff-minify', check_name='minify')
+        }
+
+    def __init__(self, mimetype: str | None = None):
+        """
+        @mimetype is an optional MIME type string to override MIME type
+        detection.
+        """
+        self.mimetype = mimetype
+
+    def detect_mime(self, path: Path):
+        """
+        Detect the MIME type of the specified path.
+        """
+        return mimetypes.guess_type(path)[0]
+
+    def __call__(self, path: Path, output_paths: list[Path]):
+        import minify
+
+        if not (mime := self.mimetype or self.detect_mime(path)):
+            raise ValueError(f'Could not detect MIME type for {path}!')
+
+        for o_path in output_paths:
+            o_path.parent.mkdir(parents=True, exist_ok=True)
+        minify.file(mime, str(path), str(output_paths[0]))
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)

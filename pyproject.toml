@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Pre-processors",
     "Topic :: Text Processing :: Markup",
@@ -49,8 +50,17 @@ pretty = ["rich>=12.5.1"]
 # standard set of Steps, but significantly valuable to the [web] audience for
 # thumbnailing and .webp conversion.
 pillow = ["Pillow>=9.2.0"]
-minify = ["lightningcss>=0.1.1,<1.0", "minify-html-onepass>=0.11.1"]
-web = ["anchovy[markdown]", "anchovy[css]", "anchovy[pillow]", "anchovy[minify]"]
+minify = [
+    "lightningcss>=0.1.1,<1.0",
+    "minify-html-onepass>=0.11.1",
+    "tdewolff-minify>=2.20.6; sys_platform != 'darwin'"
+]
+web = [
+    "anchovy[markdown]",
+    "anchovy[css]",
+    "anchovy[pillow]",
+    "anchovy[minify]"
+]
 include = ["requests>=2.31.0", "anchovy[toml]"]
 base = ["anchovy[web]", "anchovy[include]", "anchovy[pretty]"]
 # Currently, [all] is the same as [base]; this will change in the future if
