@@ -146,6 +146,8 @@ class AssetMinifierStep(Step):
         if not (mime := self.mimetype or self.detect_mime(path)):
             raise ValueError(f'Could not detect MIME type for {path}!')
 
+        for o_path in output_paths:
+            o_path.parent.mkdir(parents=True, exist_ok=True)
         minify.file(mime, str(path), str(output_paths[0]))
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)
