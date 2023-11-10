@@ -31,21 +31,18 @@ def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path):
 
 
 def compare_artifacts(old: dict, new: dict):
-    def compare_one(key: str, new=new, old=old):
+    assert new['graph'] == old['graph']
+    assert new['meta'].keys() == old['meta'].keys()
+    for key in new['meta']:
         n_type, n_dict = new['meta'][key]
         o_type, o_dict = old['meta'][key]
+        print(f'{key}:\n new={n_dict}\n old={o_dict}')
         assert n_type == o_type
         if n_type == 'path':
             assert n_dict['sha1'] == o_dict['sha1']
             assert n_dict['size'] == o_dict['size']
         else:
             assert n_dict.keys() == o_dict.keys()
-    misses = []
-    assert new['graph'] == old['graph']
-    assert new['meta'].keys() == old['meta'].keys()
-    for resource_key in new['meta']:
-        compare_one(resource_key)
-
 
 
 @pytest.mark.parametrize('name', [
