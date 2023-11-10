@@ -5,6 +5,7 @@ venv/
 .vscode/
 dist/
 build/
+working/
 output/
 *.egg-info/
 .pypirc
