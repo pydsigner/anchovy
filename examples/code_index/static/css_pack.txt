@@ -1,0 +1,2 @@
+static/core.css
+static/pygments.css

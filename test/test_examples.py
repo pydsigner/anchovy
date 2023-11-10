@@ -48,6 +48,7 @@ def compare_artifacts(old: dict, new: dict):
 @pytest.mark.parametrize('name', [
     'basic_site',
     'gallery',
+    'code_index',
 ])
 def test_example(name, tmp_path):
     module_items = load_example(name)

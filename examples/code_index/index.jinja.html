@@ -1,0 +1,10 @@
+{% set footnote = "An index of Anchovy example configuration code." %}
+{% extends "base.jinja.html" %}
+{% block content %}
+<main>
+    <h1>Examples</h1>
+    {% for source, target in leaves %}
+    <a href="{{target.as_posix()}}"><h2>{{ source.name }}</h2></a>
+    {% endfor %}
+</main>
+{% endblock %}
