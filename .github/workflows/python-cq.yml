@@ -33,7 +33,7 @@ jobs:
     - name: Typecheck with pyright
       run: pyright src/anchovy
     - name: Test with pytest
-      run: pytest --cov=anchovy_css
+      run: pytest --cov=anchovy
     - name: Upload coverage report
       uses: codecov/codecov-action@v3
       env:
