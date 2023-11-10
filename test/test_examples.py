@@ -30,8 +30,18 @@ def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path):
     return artifact_path
 
 
+def canonicalize_graph(graph: dict):
+    for key, val in graph.items():
+        if isinstance(val, list):
+            val.sort()
+        elif isinstance(val, dict):
+            canonicalize_graph(val)
+
+    return graph
+
+
 def compare_artifacts(old: dict, new: dict):
-    assert new['graph'] == old['graph']
+    assert canonicalize_graph(new['graph']) == canonicalize_graph(old['graph'])
     assert new['meta'].keys() == old['meta'].keys()
     for key in new['meta']:
         n_type, n_dict = new['meta'][key]
