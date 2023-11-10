@@ -31,10 +31,7 @@ def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path):
 
 
 def compare_artifacts(old: dict, new: dict):
-    misses = []
-    assert new['graph'] == old['graph']
-    assert new['meta'].keys() == old['meta'].keys()
-    for key in new['meta']:
+    def compare_one(key: str):
         n_type, n_dict = new['meta'][key]
         o_type, o_dict = old['meta'][key]
         assert n_type == o_type
@@ -43,6 +40,12 @@ def compare_artifacts(old: dict, new: dict):
             assert n_dict['size'] == o_dict['size']
         else:
             assert n_dict.keys() == o_dict.keys()
+    misses = []
+    assert new['graph'] == old['graph']
+    assert new['meta'].keys() == old['meta'].keys()
+    for resource_key in new['meta']:
+        compare_one(resource_key)
+
 
 
 @pytest.mark.parametrize('name', [
