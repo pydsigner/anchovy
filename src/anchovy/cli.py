@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import importlib
+import runpy
 import sys
 import tempfile
 import typing as t
@@ -183,12 +184,7 @@ def main():
 
     if args.config_file:
         label: str = str(args.config_file)
-
-        namespace: dict[str, t.Any] = {'__file__': label}
-        with open(args.config_file, encoding='utf-8') as file:
-            # We're basically emulating the python command line here.
-            # pylint: disable=exec-used
-            exec(file.read(), namespace)
+        namespace = runpy.run_path(args.config_file)
 
         settings: InputBuildSettings | None = namespace.get('SETTINGS')
         rules: list[Rule] | None = namespace.get('RULES')
