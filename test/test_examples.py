@@ -31,7 +31,7 @@ def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path):
 
 
 def compare_artifacts(old: dict, new: dict):
-    def compare_one(key: str):
+    def compare_one(key: str, new=new, old=old):
         n_type, n_dict = new['meta'][key]
         o_type, o_dict = old['meta'][key]
         assert n_type == o_type
