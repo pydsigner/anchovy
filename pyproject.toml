@@ -90,6 +90,11 @@ addopts = [
     "--import-mode=importlib",
 ]
 
+[tool.coverage.report]
+exclude_also = [
+    "if \\S*TYPE_CHECKING:",
+]
+
 [tool.pylint.main]
 # Return non-zero exit code if any of these messages/categories are detected,
 # even if score is above --fail-under value. Syntax same as enable. Messages
