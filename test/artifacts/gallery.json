@@ -4,7 +4,7 @@
     "output_dir": "output\\gallery",
     "working_dir": "working\\gallery",
     "custody_cache": "output\\gallery.json",
-    "purge_dirs": "None"
+    "purge_dirs": "True"
   },
   "parameters": {
     "anchovy_version": "0.12.1.dev3+g0b211d8.d20230817"
@@ -75,20 +75,20 @@
     }
   },
   "meta": {
+    "output_dir/index.html": [
+      "path",
+      {
+        "sha1": "7b11b095c506ba8a19c592948259f2a73537bbe9",
+        "m_time": 1699578767.5029309,
+        "size": 889
+      }
+    ],
     "input_dir/index.md": [
       "path",
       {
         "sha1": "29db4c76d5bef9fc7f61ee1f7484335bf14fc20f",
         "m_time": 1661323407.0481968,
         "size": 673
-      }
-    ],
-    "output_dir/index.html": [
-      "path",
-      {
-        "sha1": "016eb24c0a0e76219552d3a94c7316f4691e57bb",
-        "m_time": 1699577624.4062655,
-        "size": 894
       }
     ],
     "input_dir/base.jinja.html": [
@@ -99,6 +99,14 @@
         "size": 294
       }
     ],
+    "output_dir/static/images/anchovy-nypl.webp": [
+      "path",
+      {
+        "sha1": "b83692b7ecefc8f7258e668b3809c698b58215ad",
+        "m_time": 1699578767.6600535,
+        "size": 130280
+      }
+    ],
     "input_dir/static/images/anchovy-nypl.jpg": [
       "path",
       {
@@ -107,12 +115,12 @@
         "size": 890709
       }
     ],
-    "output_dir/static/images/anchovy-nypl.webp": [
+    "output_dir/static/images/home-sweet-home-cdk.webp": [
       "path",
       {
-        "sha1": "b83692b7ecefc8f7258e668b3809c698b58215ad",
-        "m_time": 1699567807.9076307,
-        "size": 130280
+        "sha1": "f68028822c70dd10050e31fd94dddd118130367c",
+        "m_time": 1699578767.9197133,
+        "size": 486084
       }
     ],
     "input_dir/static/images/home-sweet-home-cdk.jpg": [
@@ -123,12 +131,12 @@
         "size": 706821
       }
     ],
-    "output_dir/static/images/home-sweet-home-cdk.webp": [
+    "output_dir/static/images/nice-wheels-cdk.webp": [
       "path",
       {
-        "sha1": "f68028822c70dd10050e31fd94dddd118130367c",
-        "m_time": 1699567808.1672177,
-        "size": 486084
+        "sha1": "5487a4719f9444eb3dea1def8559a01d3987646d",
+        "m_time": 1699578768.1572168,
+        "size": 384794
       }
     ],
     "input_dir/static/images/nice-wheels-cdk.jpg": [
@@ -139,12 +147,12 @@
         "size": 679302
       }
     ],
-    "output_dir/static/images/nice-wheels-cdk.webp": [
+    "output_dir/static/images/quayside-newcastle.webp": [
       "path",
       {
-        "sha1": "5487a4719f9444eb3dea1def8559a01d3987646d",
-        "m_time": 1699567808.4265673,
-        "size": 384794
+        "sha1": "9d8d12085d4fe45bf991ef213d6ec9d687f1aea0",
+        "m_time": 1699578768.2448063,
+        "size": 112870
       }
     ],
     "input_dir/static/images/quayside-newcastle.jpg": [
@@ -155,12 +163,12 @@
         "size": 482152
       }
     ],
-    "output_dir/static/images/quayside-newcastle.webp": [
+    "output_dir/static/images/stormy-cdk.webp": [
       "path",
       {
-        "sha1": "9d8d12085d4fe45bf991ef213d6ec9d687f1aea0",
-        "m_time": 1699567808.5041032,
-        "size": 112870
+        "sha1": "ec990618526da22c865fbbbef1709e0248a6db3c",
+        "m_time": 1699578768.455766,
+        "size": 213976
       }
     ],
     "input_dir/static/images/stormy-cdk.jpg": [
@@ -171,19 +179,11 @@
         "size": 447542
       }
     ],
-    "output_dir/static/images/stormy-cdk.webp": [
-      "path",
-      {
-        "sha1": "ec990618526da22c865fbbbef1709e0248a6db3c",
-        "m_time": 1699567808.7199223,
-        "size": 213976
-      }
-    ],
     "output_dir/static/images/anchovy-nypl.thumb.webp": [
       "path",
       {
         "sha1": "cdc071ac8c1df352d311cc5f2953323d63f1d11f",
-        "m_time": 1699577735.6160464,
+        "m_time": 1699578768.4787853,
         "size": 3290
       }
     ],
@@ -191,7 +191,7 @@
       "path",
       {
         "sha1": "5b0050327c24463e8c40dd5f719143395f83ed6c",
-        "m_time": 1699577735.634166,
+        "m_time": 1699578768.4987743,
         "size": 12328
       }
     ],
@@ -199,7 +199,7 @@
       "path",
       {
         "sha1": "14a1a1a9bd5efa32ea61ce0bd21ec05a76222a4f",
-        "m_time": 1699577735.681116,
+        "m_time": 1699578768.5273488,
         "size": 13700
       }
     ],
@@ -207,7 +207,7 @@
       "path",
       {
         "sha1": "5c778a19692593bca5ddadb2fd0c97adca38451a",
-        "m_time": 1699577735.7078936,
+        "m_time": 1699578768.5503502,
         "size": 11854
       }
     ],
@@ -215,8 +215,16 @@
       "path",
       {
         "sha1": "813bcb7b2d5e97b6d432e18a0bc531f3f3fdf166",
-        "m_time": 1699577735.750148,
+        "m_time": 1699578768.5884063,
         "size": 6042
+      }
+    ],
+    "output_dir/static/core.css": [
+      "path",
+      {
+        "sha1": "8a1e53893dea46843e962949774273166a4608f1",
+        "m_time": 1699578768.594344,
+        "size": 526
       }
     ],
     "input_dir/static/core.css": [
@@ -224,14 +232,6 @@
       {
         "sha1": "8a1e53893dea46843e962949774273166a4608f1",
         "m_time": 1661323407.0501904,
-        "size": 526
-      }
-    ],
-    "output_dir/static/core.css": [
-      "path",
-      {
-        "sha1": "8a1e53893dea46843e962949774273166a4608f1",
-        "m_time": 1699567808.9005904,
         "size": 526
       }
     ]
