@@ -4,12 +4,10 @@ from anchovy import (
     DirectCopyStep,
     InputBuildSettings,
     JinjaMarkdownStep,
-    OptipngStep,
     OutputDirPathCalc,
     PillowStep,
     REMatcher,
     Rule,
-    WorkingDirPathCalc,
 )
 
 
@@ -41,17 +39,11 @@ RULES = [
         [OutputDirPathCalc('.webp')],
         PillowStep()
     ),
-    # ...thumbnail them as PNGs, and stop processing them.
+    # ...thumbnail them, and stop processing them.
     Rule(
         REMatcher(r'.*\.jpg'),
-        [WorkingDirPathCalc('.thumb.png'), None],
+        [OutputDirPathCalc('.thumb.webp'), None],
         PillowStep(thumbnail=(300, 300))
-    ),
-    # Optimize PNG files, then stop processing them.
-    Rule(
-        REMatcher(r'.*\.png'),
-        [OutputDirPathCalc(), None],
-        OptipngStep()
     ),
     # Copy everything else in static/ directories through.
     Rule(
