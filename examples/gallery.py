@@ -16,7 +16,9 @@ from anchovy import (
 # Optional, and can be overridden with CLI arguments.
 SETTINGS = InputBuildSettings(
     input_dir=Path(__file__).parent / 'gallery',
+    working_dir=Path('working/gallery'),
     output_dir=Path('output/gallery'),
+    custody_cache=Path('output/gallery.json'),
 )
 RULES = [
     # Ignore dotfiles found in either the input_dir or the working dir.
