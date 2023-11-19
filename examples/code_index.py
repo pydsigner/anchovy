@@ -90,7 +90,7 @@ class CodeIndexStep(JinjaRenderStep):
 
         self.render_template(
             path.relative_to(self.context['working_dir']).as_posix(),
-            {'leaves': leaves},
+            {'leaves': sorted(leaves)},
             output_paths
         )
         centry = CustodyEntry(
