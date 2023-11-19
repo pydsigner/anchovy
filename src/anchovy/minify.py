@@ -17,6 +17,7 @@ class ResourcePackerStep(Step):
     join into one.
     """
     encoding = 'utf-8'
+    newline = '\n'
 
     def __init__(self, source_dir: ContextDir = 'input_dir'):
         self.source_dir: ContextDir = source_dir
@@ -32,7 +33,7 @@ class ResourcePackerStep(Step):
 
         for o_path in output_paths:
             o_path.parent.mkdir(parents=True, exist_ok=True)
-        output_paths[0].write_text(data, self.encoding)
+        output_paths[0].write_text(data, self.encoding, newline=self.newline)
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)
 
@@ -46,6 +47,7 @@ class CSSMinifierStep(Step):
     CSS reduction based on browsers supported and unused styles.
     """
     encoding = 'utf-8'
+    newline = '\n'
 
     @classmethod
     def get_dependencies(cls):
@@ -79,7 +81,7 @@ class CSSMinifierStep(Step):
         )
         for o_path in output_paths:
             o_path.parent.mkdir(parents=True, exist_ok=True)
-        output_paths[0].write_text(data, self.encoding)
+        output_paths[0].write_text(data, self.encoding, newline=self.newline)
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)
 
@@ -89,6 +91,7 @@ class HTMLMinifierStep(Step):
     A simple but fast HTML minification Step.
     """
     encoding = 'utf-8'
+    newline = '\n'
     minify_css = False
     minify_js = False
 
@@ -115,7 +118,7 @@ class HTMLMinifierStep(Step):
         data = minify(path.read_text(self.encoding), **params)
         for o_path in output_paths:
             o_path.parent.mkdir(parents=True, exist_ok=True)
-        output_paths[0].write_text(data, self.encoding)
+        output_paths[0].write_text(data, self.encoding, newline=self.newline)
         for o_path in output_paths[1:]:
             shutil.copy(output_paths[0], o_path)
 
