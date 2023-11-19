@@ -5,7 +5,9 @@ venv/
 .vscode/
 dist/
 build/
+working/
 output/
 *.egg-info/
 .pypirc
 .mypy_cache/
+.coverage

@@ -1,0 +1,174 @@
+{
+  "info": {
+    "input_dir": "examples\\basic_site",
+    "output_dir": "output\\basic_site",
+    "working_dir": "working\\basic_site",
+    "custody_cache": "output\\basic_site.json",
+    "purge_dirs": "True"
+  },
+  "parameters": {
+    "anchovy_version": "0.12.1.dev3+g0b211d8.d20230817"
+  },
+  "graph": {
+    "output_dir/index.html": {
+      "input_dir/index.md": [
+        "output_dir/index.html"
+      ],
+      "input_dir/base.jinja.html": [
+        "output_dir/index.html"
+      ]
+    },
+    "output_dir/static/core.css": {
+      "input_dir/static/core.css": [
+        "output_dir/static/core.css"
+      ]
+    },
+    "output_dir/static/images/anchovy-nypl.jpg": {
+      "input_dir/static/images/anchovy-nypl.jpg": [
+        "output_dir/static/images/anchovy-nypl.jpg"
+      ]
+    },
+    "output_dir/static/images/home-sweet-home-cdk.jpg": {
+      "input_dir/static/images/home-sweet-home-cdk.jpg": [
+        "output_dir/static/images/home-sweet-home-cdk.jpg"
+      ]
+    },
+    "output_dir/static/images/nice-wheels-cdk.jpg": {
+      "input_dir/static/images/nice-wheels-cdk.jpg": [
+        "output_dir/static/images/nice-wheels-cdk.jpg"
+      ]
+    },
+    "output_dir/static/images/quayside-newcastle.jpg": {
+      "input_dir/static/images/quayside-newcastle.jpg": [
+        "output_dir/static/images/quayside-newcastle.jpg"
+      ]
+    },
+    "output_dir/static/images/stormy-cdk.jpg": {
+      "input_dir/static/images/stormy-cdk.jpg": [
+        "output_dir/static/images/stormy-cdk.jpg"
+      ]
+    }
+  },
+  "meta": {
+    "output_dir/index.html": [
+      "path",
+      {
+        "sha1": "27af3f5e9e6ac0b151b0a0d96d8eb3138b635936",
+        "m_time": 1699578787.7054338,
+        "size": 504
+      }
+    ],
+    "input_dir/index.md": [
+      "path",
+      {
+        "sha1": "c6b6b467c17c30975295d688e3939ae961b998f2",
+        "m_time": 1699576567.772161,
+        "size": 259
+      }
+    ],
+    "input_dir/base.jinja.html": [
+      "path",
+      {
+        "sha1": "2fad43a9e064d556cfac55d19509f4ce7a328870",
+        "m_time": 1659640383.2404134,
+        "size": 294
+      }
+    ],
+    "output_dir/static/core.css": [
+      "path",
+      {
+        "sha1": "013e15a825ed0690e6cd9ad479f4185566d020f8",
+        "m_time": 1699578787.7107008,
+        "size": 276
+      }
+    ],
+    "input_dir/static/core.css": [
+      "path",
+      {
+        "sha1": "013e15a825ed0690e6cd9ad479f4185566d020f8",
+        "m_time": 1661323407.044208,
+        "size": 276
+      }
+    ],
+    "output_dir/static/images/anchovy-nypl.jpg": [
+      "path",
+      {
+        "sha1": "203990dbc21656099ebf8e06339897ff59b1e569",
+        "m_time": 1699578787.7146976,
+        "size": 890709
+      }
+    ],
+    "input_dir/static/images/anchovy-nypl.jpg": [
+      "path",
+      {
+        "sha1": "203990dbc21656099ebf8e06339897ff59b1e569",
+        "m_time": 1661323407.0136852,
+        "size": 890709
+      }
+    ],
+    "output_dir/static/images/home-sweet-home-cdk.jpg": [
+      "path",
+      {
+        "sha1": "9548f6b06d5a74ecc70a02ec1d6ee024396dc912",
+        "m_time": 1699578787.727761,
+        "size": 706821
+      }
+    ],
+    "input_dir/static/images/home-sweet-home-cdk.jpg": [
+      "path",
+      {
+        "sha1": "9548f6b06d5a74ecc70a02ec1d6ee024396dc912",
+        "m_time": 1661323407.0189798,
+        "size": 706821
+      }
+    ],
+    "output_dir/static/images/nice-wheels-cdk.jpg": [
+      "path",
+      {
+        "sha1": "3b94e6a05cfb68faf1d4e15f82760ec306990295",
+        "m_time": 1699578787.747878,
+        "size": 679302
+      }
+    ],
+    "input_dir/static/images/nice-wheels-cdk.jpg": [
+      "path",
+      {
+        "sha1": "3b94e6a05cfb68faf1d4e15f82760ec306990295",
+        "m_time": 1661323407.025743,
+        "size": 679302
+      }
+    ],
+    "output_dir/static/images/quayside-newcastle.jpg": [
+      "path",
+      {
+        "sha1": "d2b3364f1f5be5153295518a5b1ee61bd52cffe3",
+        "m_time": 1699578787.7578835,
+        "size": 482152
+      }
+    ],
+    "input_dir/static/images/quayside-newcastle.jpg": [
+      "path",
+      {
+        "sha1": "d2b3364f1f5be5153295518a5b1ee61bd52cffe3",
+        "m_time": 1661323407.0307305,
+        "size": 482152
+      }
+    ],
+    "output_dir/static/images/stormy-cdk.jpg": [
+      "path",
+      {
+        "sha1": "23e6ad2efc9cb2ec65a010b43032f7569afab574",
+        "m_time": 1699578787.7658877,
+        "size": 447542
+      }
+    ],
+    "input_dir/static/images/stormy-cdk.jpg": [
+      "path",
+      {
+        "sha1": "23e6ad2efc9cb2ec65a010b43032f7569afab574",
+        "m_time": 1661323407.034723,
+        "size": 447542
+      }
+    ]
+  }
+}

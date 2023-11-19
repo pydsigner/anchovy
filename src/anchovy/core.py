@@ -77,7 +77,8 @@ class Context:
                  rules: list[Rule],
                  custodian: Custodian | None = None):
         self.settings = settings
-        # Rules may need access to the Custodian
+        # Must set up the Custodian before the Rules so the Rules can install
+        # checkers when they're bound.
         self.custodian = custodian or Custodian()
         self.rules: list[Rule] = []
         for rule in rules:

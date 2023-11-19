@@ -74,12 +74,26 @@ cq = [
     "commonmark>=0.9.1", "markdown>=3.4.3", "mistletoe>=1.1.0",
     "tqdm>=4.65.0",
     "minify-html>=0.11.1",
+    "pylint",
+    "pyright",
+    "pytest",
+    "pytest-cov",
 ]
 
 [project.scripts]
 anchovy = "anchovy.cli:main"
 
 [tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if \\S*TYPE_CHECKING:",
+]
 
 [tool.pylint.main]
 # Return non-zero exit code if any of these messages/categories are detected,

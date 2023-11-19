@@ -1,0 +1,80 @@
+import json
+import pathlib
+import runpy
+import typing as t
+
+import pytest
+
+from anchovy.core import BuildSettings, Context, Rule
+
+
+def load_example(name: str):
+    path = (pathlib.Path(__file__).parent.parent / 'examples/' / f'{name}').with_suffix('.py')
+    return runpy.run_path(str(path))
+
+
+def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path):
+    input_dir: pathlib.Path = module_items['SETTINGS']['input_dir']
+    artifact_path = tmp_dir / 'artifact.json'
+
+    rules: list[Rule] = module_items['RULES']
+    settings = BuildSettings(
+        input_dir=input_dir,
+        output_dir=tmp_dir / 'output',
+        working_dir=tmp_dir / 'working',
+        custody_cache=artifact_path,
+        purge_dirs=False
+    )
+    context = Context(settings, rules)
+    context.run()
+    return context
+
+
+def canonicalize_graph(graph: dict):
+    for key, val in graph.items():
+        if isinstance(val, list):
+            val.sort()
+        elif isinstance(val, dict):
+            canonicalize_graph(val)
+
+    return graph
+
+
+def compare_artifacts(old: dict, new: dict, context: Context):
+    assert canonicalize_graph(new['graph']) == canonicalize_graph(old['graph'])
+    assert new['meta'].keys() == old['meta'].keys()
+    for key in new['meta']:
+        n_type, n_dict = new['meta'][key]
+        o_type, o_dict = old['meta'][key]
+        print(f'{key}:\n new={n_dict}\n old={o_dict}')
+        assert n_type == o_type
+        if n_type == 'path':
+            path = context.custodian.degenericize_path(key)
+            if path.is_dir():
+                continue
+            try:
+                assert n_dict['sha1'] == o_dict['sha1']
+                assert n_dict['size'] == o_dict['size']
+            except AssertionError:
+                print(path.read_bytes())
+                raise
+        else:
+            assert n_dict.keys() == o_dict.keys()
+
+
+@pytest.mark.parametrize('name', [
+    'basic_site',
+    'gallery',
+    'code_index',
+])
+def test_example(name, tmp_path):
+    module_items = load_example(name)
+    old_artifact_path = (pathlib.Path(__file__).parent / 'artifacts' / name).with_suffix('.json')
+    with open(old_artifact_path) as file:
+        old_artifact = json.load(file)
+    context = run_example(module_items, tmp_path)
+    if not (new_artifact_path := context['custody_cache']):
+        raise RuntimeError(f'No custody artifact generated for {name}')
+    with open(new_artifact_path) as file:
+        new_artifact = json.load(file)
+    compare_artifacts(old_artifact, new_artifact, context)

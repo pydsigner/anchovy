@@ -4,19 +4,19 @@ from anchovy import (
     DirectCopyStep,
     InputBuildSettings,
     JinjaMarkdownStep,
-    OptipngStep,
     OutputDirPathCalc,
     PillowStep,
     REMatcher,
     Rule,
-    WorkingDirPathCalc,
 )
 
 
 # Optional, and can be overridden with CLI arguments.
 SETTINGS = InputBuildSettings(
     input_dir=Path(__file__).parent / 'gallery',
+    working_dir=Path('working/gallery'),
     output_dir=Path('output/gallery'),
+    custody_cache=Path('output/gallery.json'),
 )
 RULES = [
     # Ignore dotfiles found in either the input_dir or the working dir.
@@ -39,17 +39,11 @@ RULES = [
         [OutputDirPathCalc('.webp')],
         PillowStep()
     ),
-    # ...thumbnail them as PNGs, and stop processing them.
+    # ...thumbnail them, and stop processing them.
     Rule(
         REMatcher(r'.*\.jpg'),
-        [WorkingDirPathCalc('.thumb.png'), None],
+        [OutputDirPathCalc('.thumb.webp'), None],
         PillowStep(thumbnail=(300, 300))
-    ),
-    # Optimize PNG files, then stop processing them.
-    Rule(
-        REMatcher(r'.*\.png'),
-        [OutputDirPathCalc(), None],
-        OptipngStep()
     ),
     # Copy everything else in static/ directories through.
     Rule(
