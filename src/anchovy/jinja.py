@@ -4,7 +4,6 @@ Jinja templates.
 """
 from __future__ import annotations
 
-import shutil
 import sys
 import typing as t
 from functools import reduce
