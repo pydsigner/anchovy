@@ -7,18 +7,16 @@ import shutil
 from pathlib import Path
 from collections.abc import Sequence
 
-from .core import ContextDir, Step
+from .core import ContextDir
 from .dependencies import PipDependency
+from .simple import BaseStandardStep
 
 
-class ResourcePackerStep(Step):
+class ResourcePackerStep(BaseStandardStep):
     """
     A simple resource packing Step, using a config file with a list of files to
     join into one.
     """
-    encoding = 'utf-8'
-    newline = '\n'
-
     def __init__(self, source_dir: ContextDir = 'input_dir'):
         self.source_dir: ContextDir = source_dir
 
@@ -31,24 +29,18 @@ class ResourcePackerStep(Step):
         ]
         data = '\n\n'.join(f.read_text(self.encoding) for f in input_paths)
 
-        for o_path in output_paths:
-            o_path.parent.mkdir(parents=True, exist_ok=True)
-        output_paths[0].write_text(data, self.encoding, newline=self.newline)
-        for o_path in output_paths[1:]:
-            shutil.copy(output_paths[0], o_path)
+        with self.ensure_outputs(output_paths):
+            output_paths[0].write_text(data, self.encoding, newline=self.newline)
 
         input_paths.insert(0, path)
         return input_paths, output_paths
 
 
-class CSSMinifierStep(Step):
+class CSSMinifierStep(BaseStandardStep):
     """
     A powerful CSS minification Step, using lightningcss to offer intelligent
     CSS reduction based on browsers supported and unused styles.
     """
-    encoding = 'utf-8'
-    newline = '\n'
-
     @classmethod
     def get_dependencies(cls):
         return {
@@ -79,19 +71,14 @@ class CSSMinifierStep(Step):
             browsers_list=self.browsers_list,
             minify=self.minify
         )
-        for o_path in output_paths:
-            o_path.parent.mkdir(parents=True, exist_ok=True)
-        output_paths[0].write_text(data, self.encoding, newline=self.newline)
-        for o_path in output_paths[1:]:
-            shutil.copy(output_paths[0], o_path)
+        with self.ensure_outputs(output_paths):
+            output_paths[0].write_text(data, self.encoding, newline=self.newline)
 
 
-class HTMLMinifierStep(Step):
+class HTMLMinifierStep(BaseStandardStep):
     """
     A simple but fast HTML minification Step.
     """
-    encoding = 'utf-8'
-    newline = '\n'
     minify_css = False
     minify_js = False
 
@@ -116,14 +103,11 @@ class HTMLMinifierStep(Step):
                 'keep_spaces_between_attributes': True,
             }
         data = minify(path.read_text(self.encoding), **params)
-        for o_path in output_paths:
-            o_path.parent.mkdir(parents=True, exist_ok=True)
-        output_paths[0].write_text(data, self.encoding, newline=self.newline)
-        for o_path in output_paths[1:]:
-            shutil.copy(output_paths[0], o_path)
+        with self.ensure_outputs(output_paths):
+            output_paths[0].write_text(data, self.encoding, newline=self.newline)
 
 
-class AssetMinifierStep(Step):
+class AssetMinifierStep(BaseStandardStep):
     """
     A fast and powerful web minifier supporting CSS, HTML, JS, JSON, SVG, and
     XML. Uses MIME type detection to determine which minifier to use.
@@ -155,8 +139,5 @@ class AssetMinifierStep(Step):
         if not (mime := self.mimetype or self.detect_mime(path)):
             raise ValueError(f'Could not detect MIME type for {path}!')
 
-        for o_path in output_paths:
-            o_path.parent.mkdir(parents=True, exist_ok=True)
-        minify.file(mime, str(path), str(output_paths[0]))
-        for o_path in output_paths[1:]:
-            shutil.copy(output_paths[0], o_path)
+        with self.ensure_outputs(output_paths):
+            minify.file(mime, str(path), str(output_paths[0]))

@@ -9,12 +9,13 @@ from pathlib import Path
 
 from anchovy.core import Context
 
-from .core import Step
+from .core import Context
 from .custody import CustodyEntry
 from .dependencies import PipDependency
+from .simple import BaseStandardStep
 
 
-class RequestsFetchStep(Step):
+class RequestsFetchStep(BaseStandardStep):
     """
     A step using requests to fetch a resource from a URL in a config file into
     the build.
@@ -45,11 +46,6 @@ class RequestsFetchStep(Step):
             return response.status_code == 304
 
     def __call__(self, path: Path, output_paths: list[Path]):
-        if not output_paths:
-            return
-        for o_path in output_paths:
-            o_path.parent.mkdir(parents=True, exist_ok=True)
-
         import requests
         if sys.version_info < (3, 11):
             import tomli as tomllib
@@ -65,17 +61,15 @@ class RequestsFetchStep(Step):
         response = requests.get(url, **config)
         if not response:
             response.raise_for_status()
-        with output_paths[0].open('wb') as file:
+        with self.ensure_outputs(output_paths), output_paths[0].open('wb') as file:
             for chunk in response.iter_content(self.chunk_size):
                 file.write(chunk)
-            for o_path in output_paths[1:]:
-                shutil.copy(output_paths[0], o_path)
 
         centry = CustodyEntry('requests', url, {'etag': response.headers['ETag']})
         return [path, centry], output_paths
 
 
-class URLLibFetchStep(Step):
+class URLLibFetchStep(BaseStandardStep):
     """
     A step using urllib to fetch a resource from a URL in a config file into
     the build.
@@ -103,11 +97,6 @@ class URLLibFetchStep(Step):
                 raise
 
     def __call__(self, path: Path, output_paths: list[Path]):
-        if not output_paths:
-            return
-        for o_path in output_paths:
-            o_path.mkdir(parents=True, exist_ok=True)
-
         import urllib.request
         if sys.version_info < (3, 11):
             import tomli as tomllib
@@ -118,27 +107,21 @@ class URLLibFetchStep(Step):
             config = tomllib.load(file)
         url: str = config.pop('url')
 
-        _path, msg = urllib.request.urlretrieve(url, output_paths[0], **config)
-
-        for o_path in output_paths[1:]:
-            shutil.copy(output_paths[0], o_path)
+        with self.ensure_outputs(output_paths):
+            _path, msg = urllib.request.urlretrieve(url, output_paths[0], **config)
 
         centry = CustodyEntry('urllib', url, {'etag': msg['ETag']})
         return [path, centry], output_paths
 
 
-class UnpackArchiveStep(Step):
+class UnpackArchiveStep(BaseStandardStep):
     """
     A step for extracting files from an archive.
     """
     def __init__(self, archive_format: str | None = None):
         self.archive_format = archive_format
     def __call__(self, path: Path, output_paths: list[Path]):
-        if not output_paths:
-            return
-        for o_path in output_paths:
-            o_path.mkdir(parents=True, exist_ok=True)
-
+        self.ensure_output_dirs(output_paths)
         first = output_paths[0]
         shutil.unpack_archive(path, first, format=self.archive_format)
         all_outputs = [first]

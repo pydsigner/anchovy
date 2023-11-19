@@ -6,6 +6,7 @@ import typing as t
 from anchovy import (
     AnchovyCSSStep,
     AssetMinifierStep,
+    BaseStandardStep,
     CSSMinifierStep,
     Context,
     CustodyEntry,
@@ -18,7 +19,6 @@ from anchovy import (
     REMatcher,
     ResourcePackerStep,
     Rule,
-    Step,
     UnpackArchiveStep,
     WorkingDirPathCalc,
 )
@@ -39,9 +39,7 @@ footnote = "Generated from {path} by Anchovy."
 """
 
 
-class Code2MarkdownStep(Step):
-    encoding = 'utf-8'
-    newline = '\n'
+class Code2MarkdownStep(BaseStandardStep):
     template = MARKDOWN_TEMPLATE
     def __call__(self, path: Path, output_paths: list[Path]):
         code = path.read_text(self.encoding)
@@ -52,8 +50,6 @@ class Code2MarkdownStep(Step):
 
 
 class CodeIndexStep(JinjaRenderStep):
-    encoding = 'utf-8'
-
     def __init__(self,
                  leaf_glob: str,
                  leaf_calc: PathCalc[None],
