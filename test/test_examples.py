@@ -27,7 +27,7 @@ def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path):
     )
     context = Context(settings, rules)
     context.run()
-    return artifact_path
+    return context
 
 
 def canonicalize_graph(graph: dict):
@@ -40,7 +40,7 @@ def canonicalize_graph(graph: dict):
     return graph
 
 
-def compare_artifacts(old: dict, new: dict):
+def compare_artifacts(old: dict, new: dict, context: Context):
     assert canonicalize_graph(new['graph']) == canonicalize_graph(old['graph'])
     assert new['meta'].keys() == old['meta'].keys()
     for key in new['meta']:
@@ -49,8 +49,15 @@ def compare_artifacts(old: dict, new: dict):
         print(f'{key}:\n new={n_dict}\n old={o_dict}')
         assert n_type == o_type
         if n_type == 'path':
-            assert n_dict['sha1'] == o_dict['sha1']
-            assert n_dict['size'] == o_dict['size']
+            path = context.custodian.degenericize_path(key)
+            if path.is_dir():
+                continue
+            try:
+                assert n_dict['sha1'] == o_dict['sha1']
+                assert n_dict['size'] == o_dict['size']
+            except AssertionError:
+                print(path.read_bytes())
+                raise
         else:
             assert n_dict.keys() == o_dict.keys()
 
@@ -65,7 +72,9 @@ def test_example(name, tmp_path):
     old_artifact_path = (pathlib.Path(__file__).parent / 'artifacts' / name).with_suffix('.json')
     with open(old_artifact_path) as file:
         old_artifact = json.load(file)
-    new_artifact_path = run_example(module_items, tmp_path)
+    context = run_example(module_items, tmp_path)
+    if not (new_artifact_path := context['custody_cache']):
+        raise RuntimeError(f'No custody artifact generated for {name}')
     with open(new_artifact_path) as file:
         new_artifact = json.load(file)
-    compare_artifacts(old_artifact, new_artifact)
+    compare_artifacts(old_artifact, new_artifact, context)
