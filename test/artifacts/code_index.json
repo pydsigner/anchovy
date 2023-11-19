@@ -10,14 +10,23 @@
     "anchovy_version": "0.12.1.dev3+g0b211d8.d20230817"
   },
   "graph": {
+    "working_dir": {
+      "input_dir/code.zip": [
+        "working_dir",
+        "working_dir/basic_site.py",
+        "working_dir/gallery.py"
+      ]
+    },
     "working_dir/basic_site.py": {
       "input_dir/code.zip": [
+        "working_dir",
         "working_dir/basic_site.py",
         "working_dir/gallery.py"
       ]
     },
     "working_dir/gallery.py": {
       "input_dir/code.zip": [
+        "working_dir",
         "working_dir/basic_site.py",
         "working_dir/gallery.py"
       ]
@@ -54,6 +63,9 @@
     },
     "working_dir/index.html": {
       "working_dir/index.jinja.html": [
+        "working_dir/index.html"
+      ],
+      "working_dir:*.py": [
         "working_dir/index.html"
       ],
       "working_dir/basic_site.py": [
@@ -112,11 +124,19 @@
     }
   },
   "meta": {
+    "working_dir": [
+      "path",
+      {
+        "sha1": "",
+        "m_time": 1700426777.5101142,
+        "size": 4096
+      }
+    ],
     "working_dir/basic_site.py": [
       "path",
       {
         "sha1": "c4983436e017a238d94796250a749d74cbc76835",
-        "m_time": 1699590586.2190921,
+        "m_time": 1700426777.5101142,
         "size": 1071
       }
     ],
@@ -124,7 +144,7 @@
       "path",
       {
         "sha1": "3cdd5e3cc41664211b63f98b94a0791282f1ea4d",
-        "m_time": 1699590586.2200894,
+        "m_time": 1700426777.5101142,
         "size": 1407
       }
     ],
@@ -132,7 +152,7 @@
       "path",
       {
         "sha1": "212d13b73c1b6579519c38b019eae828358cc98d",
-        "m_time": 1699583562.867972,
+        "m_time": 1700426608.6074305,
         "size": 1233
       }
     ],
@@ -140,7 +160,7 @@
       "path",
       {
         "sha1": "c361ccf60628e76f571f8229d9c896603f7042ab",
-        "m_time": 1699590586.232628,
+        "m_time": 1700426777.5234816,
         "size": 298
       }
     ],
@@ -148,39 +168,39 @@
       "path",
       {
         "sha1": "c361ccf60628e76f571f8229d9c896603f7042ab",
-        "m_time": 1699590558.3379586,
+        "m_time": 1700426608.6083837,
         "size": 298
       }
     ],
     "working_dir/static/core.css": [
       "path",
       {
-        "sha1": "23b855543fd50b49b743413cc221e1bee266c6c9",
-        "m_time": 1699590586.2366588,
-        "size": 306
+        "sha1": "2d67bb81ab73033b6d3af88f09593783e23b7861",
+        "m_time": 1700426777.5274796,
+        "size": 330
       }
     ],
     "input_dir/static/core.anchovy.css": [
       "path",
       {
         "sha1": "0c537d96df6aa891be2ba27af58975eb8fff9e2b",
-        "m_time": 1699588391.7623892,
+        "m_time": 1700426608.6083837,
         "size": 369
       }
     ],
     "working_dir/static/pygments.css": [
       "path",
       {
-        "sha1": "16d39823b42dfc58eb0b12d04cc54c233575f398",
-        "m_time": 1699590586.241645,
-        "size": 5551
+        "sha1": "76fe91b01b43efb29abf7ead6d38b0ba3a354d10",
+        "m_time": 1700426777.5363226,
+        "size": 5888
       }
     ],
     "input_dir/static/pygments.anchovy.css": [
       "path",
       {
         "sha1": "e81fa6d29a89ef0f69f06e235b0ce9b9e1f593be",
-        "m_time": 1699584264.714627,
+        "m_time": 1700426608.6093805,
         "size": 4606
       }
     ],
@@ -188,7 +208,7 @@
       "path",
       {
         "sha1": "0cc6ab8a6e988e4f3ff88a30dca17f4b8087a37b",
-        "m_time": 1699590586.2446487,
+        "m_time": 1700426777.5393293,
         "size": 36
       }
     ],
@@ -196,7 +216,7 @@
       "path",
       {
         "sha1": "0cc6ab8a6e988e4f3ff88a30dca17f4b8087a37b",
-        "m_time": 1699587279.0891676,
+        "m_time": 1700426608.6093805,
         "size": 36
       }
     ],
@@ -204,7 +224,7 @@
       "path",
       {
         "sha1": "016d62d4ad6398e04173910a39c330fbcf4f7e9e",
-        "m_time": 1699590586.2566335,
+        "m_time": 1700426777.5513358,
         "size": 1190
       }
     ],
@@ -212,7 +232,7 @@
       "path",
       {
         "sha1": "de520a2e79c3312bbcbbc746f6f1aabdc9dce919",
-        "m_time": 1699590586.2696455,
+        "m_time": 1700426777.5573144,
         "size": 1520
       }
     ],
@@ -220,23 +240,32 @@
       "path",
       {
         "sha1": "e653663027dfc58550559eaa9d2ba816dd94b8e0",
-        "m_time": 1699590586.2947295,
+        "m_time": 1700426777.566312,
         "size": 427
+      }
+    ],
+    "working_dir:*.py": [
+      "glob_manifest",
+      {
+        "files": [
+          "working_dir/basic_site.py",
+          "working_dir/gallery.py"
+        ]
       }
     ],
     "working_dir/static/css_pack.css": [
       "path",
       {
-        "sha1": "5620127ab0d2261762dac0c30d1fe79e86dcac03",
-        "m_time": 1699590586.3048718,
-        "size": 5859
+        "sha1": "c367eea9138e4da2bdaf0239cf0451eb109ea477",
+        "m_time": 1700426777.5754025,
+        "size": 6222
       }
     ],
     "working_dir/basic_site.html": [
       "path",
       {
         "sha1": "ffe41a786d2d6e21e277aa1db53db621384aa76f",
-        "m_time": 1699590586.3675473,
+        "m_time": 1700426777.639905,
         "size": 4852
       }
     ],
@@ -244,7 +273,7 @@
       "path",
       {
         "sha1": "cd1fad850af896b28d5cd43b64837e1360a9b0a9",
-        "m_time": 1699587994.624042,
+        "m_time": 1700426608.6074305,
         "size": 349
       }
     ],
@@ -252,7 +281,7 @@
       "path",
       {
         "sha1": "607b78c4b55e9b7598d74c7dae26847536932758",
-        "m_time": 1699590586.3774774,
+        "m_time": 1700426777.6469483,
         "size": 6386
       }
     ],
@@ -260,7 +289,7 @@
       "path",
       {
         "sha1": "a8253d222c06b0cf4391d9b95471bc67d4033663",
-        "m_time": 1699590586.3884788,
+        "m_time": 1700426777.6558938,
         "size": 2794
       }
     ],
@@ -268,7 +297,7 @@
       "path",
       {
         "sha1": "239ba6c1e7802f77005bcef7ce3eae4ef59df4ae",
-        "m_time": 1699590586.421747,
+        "m_time": 1700426777.688449,
         "size": 263
       }
     ],
@@ -276,7 +305,7 @@
       "path",
       {
         "sha1": "f217f536a707d91b90b6d50ab94fb5e9c310a5f2",
-        "m_time": 1699590586.451815,
+        "m_time": 1700426777.7262075,
         "size": 4439
       }
     ],
@@ -284,7 +313,7 @@
       "path",
       {
         "sha1": "ddac506b836ee7fffaed7f1dad18967bd11acf0e",
-        "m_time": 1699590586.4674623,
+        "m_time": 1700426777.7343867,
         "size": 5887
       }
     ]
