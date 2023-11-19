@@ -141,8 +141,10 @@ class UnpackArchiveStep(Step):
 
         first = output_paths[0]
         shutil.unpack_archive(path, first, format=self.archive_format)
-        all_outputs = list(self.context.find_inputs(first))
+        all_outputs = [first]
+        all_outputs.extend(self.context.find_inputs(first))
         for o_path in output_paths[1:]:
             shutil.copytree(first, o_path, dirs_exist_ok=True)
+            all_outputs.append(o_path)
             all_outputs.extend(self.context.find_inputs(o_path))
         return [path], all_outputs
