@@ -4,6 +4,7 @@ Simple Steps and a base class for Steps that invoke external commandline tools.
 from __future__ import annotations
 
 import abc
+import contextlib
 import shutil
 import subprocess
 import typing as t
@@ -24,6 +25,29 @@ class DirectCopyStep(Step):
         for target_path in output_paths:
             target_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(path, target_path)
+
+
+class BaseStandardStep(Step):
+    """
+    A base class providing helper behaviors for typical steps creating one file
+    and copying to others.
+    """
+    encoding = 'utf-8'
+    newline = '\n'
+
+    def ensure_output_dirs(self, output_paths: list[Path]):
+        for o_path in output_paths:
+            o_path.parent.mkdir(parents=True, exist_ok=True)
+
+    def duplicate_output_paths(self, output_paths: list[Path]):
+        for o_path in output_paths[1:]:
+            shutil.copy(output_paths[0], o_path)
+
+    @contextlib.contextmanager
+    def ensure_outputs(self, output_paths: list[Path]):
+        self.ensure_output_dirs(output_paths)
+        yield
+        self.duplicate_output_paths(output_paths)
 
 
 class BaseCommandStep(Step):

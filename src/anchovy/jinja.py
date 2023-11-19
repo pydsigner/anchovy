@@ -4,14 +4,13 @@ Jinja templates.
 """
 from __future__ import annotations
 
-import shutil
 import sys
 import typing as t
 from functools import reduce
 from pathlib import Path
 
-from .core import Step
 from .dependencies import PipDependency, Dependency
+from .simple import BaseStandardStep
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -27,12 +26,10 @@ MDContainerRenderer =  t.Callable[
 ]
 
 
-class JinjaRenderStep(Step):
+class JinjaRenderStep(BaseStandardStep):
     """
     Abstract base class for Steps using Jinja rendering.
     """
-    encoding = 'utf-8'
-
     @classmethod
     def get_dependencies(cls):
         return {
@@ -74,16 +71,9 @@ class JinjaRenderStep(Step):
         :param output_paths: A list of Paths the rendered template will be
             written to.
         """
-        if not output_paths:
-            return
-
         template = self.env.get_template(template_name)
-        for path in output_paths:
-            path.parent.mkdir(parents=True, exist_ok=True)
-        template.stream(**meta).dump(str(output_paths[0]), encoding=self.encoding)
-        for path in output_paths[1:]:
-            shutil.copy(output_paths[0], path)
-
+        with self.ensure_outputs(output_paths):
+            template.stream(**meta).dump(str(output_paths[0]), encoding=self.encoding)
         return template.filename
 
 
@@ -217,8 +207,6 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
     frontmatter, pygments syntax highlighting for code blocks, containers,
     variable substitutions, wordcounts, anchors, and typography.
     """
-    encoding = 'utf-8'
-
     @classmethod
     def get_dependencies(cls):
         deps = super().get_dependencies() | {
