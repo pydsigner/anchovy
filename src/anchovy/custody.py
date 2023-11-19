@@ -19,6 +19,8 @@ if t.TYPE_CHECKING:
 _JsonSerializable: t.TypeAlias = 'str | int | float | bool | None | _JsonDict | Sequence[_JsonSerializable]'
 _JsonDict = dict[str, _JsonSerializable]
 
+CONTEXT_DIR_KEYS: set[ContextDir] = {'input_dir', 'output_dir', 'working_dir'}
+
 
 def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
     """
@@ -101,7 +103,7 @@ class Custodian:
         Genericize a path, removing run-specific folder references and
         converting to a key.
         """
-        for dir_key in ('input_dir', 'output_dir', 'working_dir'):
+        for dir_key in CONTEXT_DIR_KEYS:
             parent = self.context[dir_key]
             if path.is_relative_to(parent):
                 path = dir_key / path.relative_to(parent)
@@ -112,6 +114,10 @@ class Custodian:
         """
         Undo `genericize_path()` to turn a key back into a Path.
         """
+        # https://github.com/pydsigner/anchovy/issues/66
+        if key in CONTEXT_DIR_KEYS:
+            return self.context[key]
+
         path = Path(key)
         # -2 because path.parents walks upward (parents[0] is the same as
         # path.parent) and -1 is the root (in our case, '.')
