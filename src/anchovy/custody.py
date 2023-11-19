@@ -147,7 +147,8 @@ class Custodian:
         """
         Default sha1-based checker for path staleness.
         """
-        return entry['sha1'] == checksum(self.degenericize_path(entry.key))
+        path = self.degenericize_path(entry.key)
+        return path.exists() and entry['sha1'] == checksum(path)
 
     def ensure_entry(self, record: Path | CustodyEntry):
         """
@@ -224,13 +225,11 @@ class Custodian:
         """
         Mark a Step as skipped, updating custody data and logging accordingly.
         """
-        i_entry = self.entry_from_path(source)
-        g_output = self.genericize_path(outputs[0])
-        prior_outputs = [self.degenericize_path(p) for p in self.prior_graph[g_output][i_entry.key]]
+        prior_outputs = [self.degenericize_path(p) for p in self.find_downstream(source, outputs)]
 
         self.log_step([source], prior_outputs, stale=False)
 
-        self.update_meta(i_entry)
+        self.update_meta(self.entry_from_path(source))
         for o_entry in map(self.entry_from_path, prior_outputs):
             self.update_meta(o_entry)
             self.graph.setdefault(o_entry.key, {}).update(self.prior_graph[o_entry.key])
@@ -295,6 +294,19 @@ class Custodian:
             for s in self.prior_graph.get(self.genericize_path(p), ())
         }
 
+    def find_downstream(self, source: Path, outputs: list[Path]):
+        """
+        Find all output paths one step downstream of the specified source path
+        and output path combination.
+
+        Relies only on historical data; combine with the
+        `Custodian.stale_parameters` attribute and the `Custodian.check_prior()`
+        method to ensure the historical data is still accurate.
+        """
+        g_source = self.genericize_path(source)
+        g_output = self.genericize_path(outputs[0])
+        return iter(self.prior_graph[g_output][g_source])
+
     def refresh_needed(self, source: Path, outputs: list[Path]):
         """
         Determines whether a refresh is needed for the result of processing a
@@ -305,13 +317,21 @@ class Custodian:
         """
         if self.stale_parameters:
             return True, 'Stale parameters'
+
         for path in outputs:
             if not path.exists():
                 return True, f'Missing output ({path})'
+
         upstreams = self.find_upstream(outputs)
         if self.genericize_path(source) not in upstreams:
             return True, f'Missing upstream record ({source})'
+
         for up_key in upstreams:
             if not self.check_prior(up_key):
                 return True, f'Stale upstream ({up_key})'
+
+        for down_key in self.find_downstream(source, outputs):
+            if not self.check_prior(down_key):
+                return True, f'Stale downstream ({down_key})'
+
         return False, 'Up to date'
