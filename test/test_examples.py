@@ -5,6 +5,7 @@ import typing as t
 
 import pytest
 
+import anchovy.cli
 from anchovy.core import BuildSettings, Context, ContextDir, Rule
 from anchovy.custody import CONTEXT_DIR_KEYS
 
@@ -26,12 +27,16 @@ def get_context_dir(context: Context, key: str):
     return t.cast('ContextDir', str(path.parents[-2]))
 
 
+def get_example_path(name: str):
+    return (pathlib.Path(__file__).parent.parent / 'examples/' / f'{name}').with_suffix('.py')
+
+
 def load_example(name: str):
-    path = (pathlib.Path(__file__).parent.parent / 'examples/' / f'{name}').with_suffix('.py')
-    return runpy.run_path(str(path))
+    return runpy.run_path(str(get_example_path(name)))
 
 
-def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path, purge_dirs: bool = False):
+def load_context(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
+    module_items = load_example(name)
     input_dir: pathlib.Path = module_items['SETTINGS']['input_dir']
     artifact_path = tmp_dir / 'artifact.json'
 
@@ -43,8 +48,28 @@ def run_example(module_items: dict[str, t.Any], tmp_dir: pathlib.Path, purge_dir
         custody_cache=artifact_path,
         purge_dirs=purge_dirs,
     )
-    context = Context(settings, rules)
+    return Context(settings, rules)
+
+
+def run_example(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
+    context = load_context(name, tmp_dir, purge_dirs)
     context.run()
+    return context
+
+
+def run_example_cli(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
+    context = load_context(name, tmp_dir, purge_dirs)
+    context.custodian.bind(context)
+
+    arguments = [
+        str(get_example_path(name)),
+        '--custody-cache', str(context['custody_cache'])
+    ]
+    if purge_dirs:
+        arguments.append('--purge')
+
+    anchovy.cli.main(arguments)
+
     return context
 
 
@@ -86,12 +111,11 @@ def compare_artifacts(old: dict, new: dict, context: Context, mtime_mode=MTIME_M
 
 
 @pytest.mark.parametrize('name', EXAMPLE_LIST)
-def test_example(name, tmp_path):
-    module_items = load_example(name)
+def test_example(name: str, tmp_path: pathlib.Path):
     old_artifact_path = (pathlib.Path(__file__).parent / 'artifacts' / name).with_suffix('.json')
     with open(old_artifact_path) as file:
         old_artifact = json.load(file)
-    context = run_example(module_items, tmp_path)
+    context = run_example(name, tmp_path)
     if not (new_artifact_path := context['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name}')
     with open(new_artifact_path) as file:
@@ -100,18 +124,17 @@ def test_example(name, tmp_path):
 
 
 @pytest.mark.parametrize('name', EXAMPLE_LIST)
-def test_example_rerun(name, tmp_path):
+def test_example_rerun(name: str, tmp_path: pathlib.Path):
     """
     Run an example twice without purging, and check that the runs have
     identical output and unchanged mtimes.
     """
-    module_items = load_example(name)
-    context_one = run_example(module_items, tmp_path)
+    context_one = run_example(name, tmp_path)
     if not (first_artifact_path := context_one['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #1')
     with open(first_artifact_path) as file:
         first_artifact = json.load(file)
-    context_two = run_example(module_items, tmp_path)
+    context_two = run_example(name, tmp_path)
     if not (second_artifact_path := context_two['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #2')
     with open(second_artifact_path) as file:
@@ -120,22 +143,37 @@ def test_example_rerun(name, tmp_path):
 
 
 @pytest.mark.parametrize('name', EXAMPLE_LIST)
-def test_example_purge(name, tmp_path):
+def test_example_purge(name: str, tmp_path: pathlib.Path):
     """
     Run an example twice while purging, and check that the runs have
     identical output and different mtimes.
     """
-    module_items = load_example(name)
-
-    context_one = run_example(module_items, tmp_path, purge_dirs=True)
+    context_one = run_example(name, tmp_path, purge_dirs=True)
     if not (first_artifact_path := context_one['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #1')
     with open(first_artifact_path) as file:
         first_artifact = json.load(file)
 
-    context_two = run_example(module_items, tmp_path, purge_dirs=True)
+    context_two = run_example(name, tmp_path, purge_dirs=True)
     if not (second_artifact_path := context_two['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #2')
     with open(second_artifact_path) as file:
         second_artifact = json.load(file)
     compare_artifacts(first_artifact, second_artifact, context_two, mtime_mode=MTIME_MODE_NE)
+
+
+@pytest.mark.parametrize('name', EXAMPLE_LIST)
+def test_example_cli(name, tmp_path):
+    """
+    Run an example using the CLI, and check that run has the expected output.
+    """
+    old_artifact_path = (pathlib.Path(__file__).parent / 'artifacts' / name).with_suffix('.json')
+    with open(old_artifact_path) as file:
+        old_artifact = json.load(file)
+    # TODO: Figure out why code_index doesn't work with purge_dirs=False.
+    context = run_example_cli(name, tmp_path, purge_dirs=True)
+    if not (new_artifact_path := context['custody_cache']):
+        raise RuntimeError(f'No custody artifact generated for {name}')
+    with open(new_artifact_path) as file:
+        new_artifact = json.load(file)
+    compare_artifacts(old_artifact, new_artifact, context)
