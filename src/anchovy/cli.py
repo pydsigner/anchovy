@@ -158,7 +158,7 @@ def pprint_missing_deps(step: Step):
         print_with_style(text, style=style)
 
 
-def main():
+def main(arguments: list[str] | None = None):
     """
     Anchovy main function. Finds or creates a Context using an Anchovy config
     file and command line arguments, then executes a build using it.
@@ -180,7 +180,7 @@ def main():
                        type=Path,
                        default=None)
 
-    args, remaining = parser.parse_known_args()
+    args, remaining = parser.parse_known_args(arguments)
 
     if args.config_file:
         label: str = str(args.config_file)
