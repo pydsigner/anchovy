@@ -184,7 +184,7 @@ def main(arguments: list[str] | None = None):
 
     if args.config_file:
         label: str = str(args.config_file)
-        namespace = runpy.run_path(args.config_file)
+        namespace = runpy.run_path(label)
 
         settings: InputBuildSettings | None = namespace.get('SETTINGS')
         rules: list[Rule] | None = namespace.get('RULES')
