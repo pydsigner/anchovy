@@ -22,10 +22,10 @@ class ThreadedHTTPServer(http.server.ThreadingHTTPServer):
     """
     RequestHandlerClass: typing.Type[http.server.SimpleHTTPRequestHandler]
     def __init__(self,
-                  server_address: _AfInetAddress,
-                  RequestHandlerClass: typing.Type[http.server.SimpleHTTPRequestHandler],
-                  directory: str | pathlib.Path = '.',
-                  bind_and_activate: bool = True) -> None:
+                 server_address: _AfInetAddress,
+                 RequestHandlerClass: typing.Type[http.server.SimpleHTTPRequestHandler],
+                 directory: str | pathlib.Path = '.',
+                 bind_and_activate: bool = True) -> None:
         super().__init__(server_address, RequestHandlerClass, bind_and_activate)
         self.directory = str(directory)
 
