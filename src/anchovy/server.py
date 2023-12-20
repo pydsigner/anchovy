@@ -18,19 +18,17 @@ DEFAULT_MIME_TYPE = 'application/octet-stream'
 
 class ThreadedHTTPServer(http.server.ThreadingHTTPServer):
     """
-    A simple HTTP server that handles each request in a separate thread.
+    A simple threaded HTTP server with a more powerful handler.
     """
-    RequestHandlerClass: typing.Type[http.server.SimpleHTTPRequestHandler]
     def __init__(self,
                  server_address: _AfInetAddress,
-                 RequestHandlerClass: typing.Type[http.server.SimpleHTTPRequestHandler],
                  directory: str | pathlib.Path = '.',
                  bind_and_activate: bool = True) -> None:
-        super().__init__(server_address, RequestHandlerClass, bind_and_activate)
+        super().__init__(server_address, Handler, bind_and_activate)
         self.directory = str(directory)
 
     def finish_request(self, request, client_address) -> None:
-        self.RequestHandlerClass(request, client_address, self, directory=self.directory)
+        Handler(request, client_address, self, directory=self.directory)
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -83,7 +81,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 def serve(port: int, directory: str | pathlib.Path, host: str = 'localhost'):
-    with ThreadedHTTPServer((host, port), Handler, directory=directory) as httpd:
+    with ThreadedHTTPServer((host, port), directory=directory) as httpd:
         print(f'Serving at http://localhost:{port}')
         httpd.serve_forever()
 
