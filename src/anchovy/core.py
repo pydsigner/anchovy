@@ -317,7 +317,7 @@ class Step(abc.ABC):
         self,
         path: Path,
         output_paths: list[Path]
-    ) -> None | tuple[Sequence[Path | CustodyEntry], Sequence[Path]]:
+    ) -> None | tuple[Sequence[Path | CustodyEntry], list[Path]]:
         ...
 
 
