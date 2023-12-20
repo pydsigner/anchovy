@@ -31,7 +31,7 @@ class JinjaRenderStep(BaseStandardStep):
     Abstract base class for Steps using Jinja rendering.
     """
     @classmethod
-    def get_dependencies(cls):
+    def get_dependencies(cls) -> set[Dependency]:
         return {
             PipDependency('jinja2'),
         }

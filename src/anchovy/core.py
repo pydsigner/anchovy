@@ -12,6 +12,9 @@ from .custody import CustodyEntry, Custodian
 from .dependencies import Dependency
 from .pretty_utils import track_progress
 
+if t.TYPE_CHECKING:
+    from collections.abc import Sequence, Set
+
 
 T = t.TypeVar('T')
 T2 = t.TypeVar('T2')
@@ -297,7 +300,7 @@ class Step(abc.ABC):
         return all(d.satisfied for d in cls.get_dependencies())
 
     @classmethod
-    def get_dependencies(cls) -> set[Dependency]:
+    def get_dependencies(cls) -> Set[Dependency]:
         """
         Return the requirements for this Step.
         """
@@ -314,7 +317,7 @@ class Step(abc.ABC):
         self,
         path: Path,
         output_paths: list[Path]
-    ) -> None | tuple[list[Path | CustodyEntry], list[Path]]:
+    ) -> None | tuple[Sequence[Path | CustodyEntry], Sequence[Path]]:
         ...
 
 
