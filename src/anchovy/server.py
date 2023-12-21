@@ -86,7 +86,7 @@ def serve(port: int, directory: str | pathlib.Path, host: str = 'localhost'):
         httpd.serve_forever()
 
 
-def main():
+def main(arguments: list[str] | None = None):
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--port',
                         help='port to serve from',
@@ -96,7 +96,7 @@ def main():
                         help='directory to serve',
                         type=pathlib.Path,
                         default='.')
-    args = parser.parse_args()
+    args = parser.parse_args(arguments)
     serve(args.port, args.directory)
 
 

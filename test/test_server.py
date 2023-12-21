@@ -1,14 +1,12 @@
 import contextlib
 import pathlib
 import socket
-import subprocess
-import sys
 import threading
 
 import pytest
 import requests
 
-from anchovy.server import ThreadedHTTPServer
+from anchovy.server import main, ThreadedHTTPServer
 from anchovy.test_harness import run_example
 
 
@@ -36,14 +34,12 @@ def run_server(directory: pathlib.Path, port: int):
 @contextlib.contextmanager
 def run_server_cli(directory: pathlib.Path, port: int):
     args = [
-        sys.executable, '-m', 'anchovy.server',
         '--port', str(port),
         '--directory', str(directory)
     ]
-    with subprocess.Popen(args) as proc:
-        yield
-        proc.terminate()
-
+    thread = threading.Thread(target=main, args=(args,), daemon=True)
+    thread.start()
+    yield
 
 
 @pytest.fixture(scope='module', params=[False, True])
