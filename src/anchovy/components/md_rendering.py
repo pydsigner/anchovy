@@ -3,16 +3,12 @@ An extended commonmark renderer based on markdown-it-py.
 """
 from __future__ import annotations
 
-import sys
 import typing as t
 
 from markdown_it.common.utils import escapeHtml, unescapeAll
 from markdown_it.renderer import RendererHTML
 
-if sys.version_info < (3, 11):
-    import tomli as tomllib
-else:
-    import tomllib
+from .md_frontmatter import simple_frontmatter_parser, FrontMatterParser
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -60,6 +56,10 @@ class AnchovyRendererHTML(RendererHTML):
     A customized markdown-it-py HTML renderer, with hooks for better pygments
     integration and toml frontmatter support.
     """
+    def __init__(self, parser: t.Any = None):
+        super().__init__(parser)
+        self.front_matter_parser: FrontMatterParser = simple_frontmatter_parser
+
     # https://github.com/executablebooks/markdown-it-py/issues/256
     def fence(self, tokens: Sequence[Token], idx: int, options: OptionsDict, env: EnvType):
         """
@@ -76,10 +76,13 @@ class AnchovyRendererHTML(RendererHTML):
             or escapeHtml(token.content)
         )
 
+    def set_front_matter_parser(self, parser: FrontMatterParser):
+        self.front_matter_parser = parser
+
     def front_matter(self, tokens: Sequence[Token], idx: int, _options: OptionsDict, env: EnvType):
         """
         Handles parsing markdown frontmatter using TOML.
         """
-        parsed = tomllib.loads(tokens[idx].content)
+        parsed = self.front_matter_parser(tokens[idx].content)
         env['anchovy_meta'].update(parsed)
         return ''
