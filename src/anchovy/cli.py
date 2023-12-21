@@ -179,6 +179,13 @@ def main(arguments: list[str] | None = None):
                        help='file path to a config file to build',
                        type=Path,
                        default=None)
+    parser.add_argument('-s', '--serve',
+                       help='serve the output directory over HTTP after building',
+                       action='store_true')
+    parser.add_argument('-p', '--port',
+                       help='port to serve from',
+                       type=int,
+                       default=8080)
 
     args, remaining = parser.parse_known_args(arguments)
 
@@ -234,3 +241,8 @@ def main(arguments: list[str] | None = None):
             style='red'
         )
         sys.exit(1)
+
+    if args.serve:
+        from .server import serve
+        parsed_settings = parse_settings_args(settings, argv=remaining)
+        serve(args.port, parsed_settings.output_dir)

@@ -61,7 +61,7 @@ class AnchovyRendererHTML(RendererHTML):
     integration and toml frontmatter support.
     """
     # https://github.com/executablebooks/markdown-it-py/issues/256
-    def fence(self, tokens: Sequence[Token], idx: int, options: OptionsDict, _env: EnvType):
+    def fence(self, tokens: Sequence[Token], idx: int, options: OptionsDict, env: EnvType):
         """
         Handles rendering a markdown code fence, with optional syntax
         highlighting.

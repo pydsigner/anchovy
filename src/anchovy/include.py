@@ -11,7 +11,7 @@ from anchovy.core import Context
 
 from .core import Context
 from .custody import CustodyEntry
-from .dependencies import PipDependency
+from .dependencies import Dependency, PipDependency
 from .simple import BaseStandardStep
 
 
@@ -76,7 +76,7 @@ class URLLibFetchStep(BaseStandardStep):
     """
     @classmethod
     def get_dependencies(cls):
-        return {PipDependency('tomli')} if sys.version_info < (3, 11) else {}
+        return {PipDependency('tomli')} if sys.version_info < (3, 11) else set[Dependency]()
 
     def bind(self, context: Context):
         super().bind(context)
