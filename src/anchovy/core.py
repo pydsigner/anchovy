@@ -118,14 +118,11 @@ class Context:
             else:
                 yield candidate
 
-    def process(self, input_paths: list[Path] | None = None):
+    def match_paths(self, input_paths: list[Path]):
         """
-        Process a set of files using the Context's defined rules. If
-        @input_paths is empty or None, `self.find_inputs()` will be used to get
-        a tree of files to process. If intermediate files are produced,
-        `self.process()` will be called recursively with them.
+        Match a set of input paths against the Context's defined Rules, and
+        associate them with the Steps of those Rules.
         """
-        input_paths = input_paths or list(self.find_inputs(self.settings['input_dir']))
         # We want to handle tasks in the order they're defined!
         tasks: dict[Step, list[tuple[Path, list[Path]]]]
         tasks = {r.step: [] for r in self.rules if r.step}
@@ -152,6 +149,19 @@ class Context:
                     # We need two breaks because we're trying to get out of the
                     # surrounding for loop.
                     break
+
+        return tasks
+
+    def process(self, input_paths: list[Path] | None = None):
+        """
+        Process a set of files using the Context's defined rules. If
+        @input_paths is empty or None, `self.find_inputs()` will be used to get
+        a tree of files to process. If intermediate files are produced,
+        `self.process()` will be called recursively with them.
+        """
+        input_paths = input_paths or list(self.find_inputs(self.settings['input_dir']))
+
+        tasks = self.match_paths(input_paths)
 
         flattened: list[tuple[Step, Path, list[Path]]] = []
         for step, paths in tasks.items():
