@@ -13,6 +13,10 @@ EXAMPLE_LIST = [
     'gallery',
     'code_index',
 ]
+EXAMPLE_PATHS = {
+    name: (pathlib.Path(__file__).parent.parent / 'examples/' / f'{name}').with_suffix('.py')
+    for name in EXAMPLE_LIST
+}
 
 
 @pytest.mark.parametrize('name', EXAMPLE_LIST)
@@ -20,7 +24,7 @@ def test_example(name: str, tmp_path: pathlib.Path):
     old_artifact_path = (pathlib.Path(__file__).parent / 'artifacts' / name).with_suffix('.json')
     old_artifact = load_artifact(old_artifact_path)
 
-    context = run_example(name, tmp_path)
+    context = run_example(EXAMPLE_PATHS[name], tmp_path)
     if not (new_artifact_path := context['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name}')
     new_artifact = load_artifact(new_artifact_path)
@@ -34,12 +38,12 @@ def test_example_rerun(name: str, tmp_path: pathlib.Path):
     Run an example twice without purging, and check that the runs have
     identical output and unchanged mtimes.
     """
-    context_one = run_example(name, tmp_path)
+    context_one = run_example(EXAMPLE_PATHS[name], tmp_path)
     if not (first_artifact_path := context_one['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #1')
     first_artifact = load_artifact(first_artifact_path)
 
-    context_two = run_example(name, tmp_path)
+    context_two = run_example(EXAMPLE_PATHS[name], tmp_path)
     if not (second_artifact_path := context_two['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #2')
     second_artifact = load_artifact(second_artifact_path)
@@ -53,12 +57,12 @@ def test_example_purge(name: str, tmp_path: pathlib.Path):
     Run an example twice while purging, and check that the runs have
     identical output and different mtimes.
     """
-    context_one = run_example(name, tmp_path, purge_dirs=True)
+    context_one = run_example(EXAMPLE_PATHS[name], tmp_path, purge_dirs=True)
     if not (first_artifact_path := context_one['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #1')
     first_artifact = load_artifact(first_artifact_path)
 
-    context_two = run_example(name, tmp_path, purge_dirs=True)
+    context_two = run_example(EXAMPLE_PATHS[name], tmp_path, purge_dirs=True)
     if not (second_artifact_path := context_two['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name} #2')
     second_artifact = load_artifact(second_artifact_path)
@@ -75,7 +79,7 @@ def test_example_cli(name, tmp_path):
     old_artifact = load_artifact(old_artifact_path)
 
     # TODO: Figure out why code_index doesn't work with purge_dirs=False.
-    context = run_example_cli(name, tmp_path, purge_dirs=True)
+    context = run_example_cli(EXAMPLE_PATHS[name], tmp_path, purge_dirs=True)
     if not (new_artifact_path := context['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name}')
     new_artifact = load_artifact(new_artifact_path)

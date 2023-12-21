@@ -20,12 +20,8 @@ def get_context_dir(context: Context, key: str):
     return t.cast('ContextDir', str(path.parents[-2]))
 
 
-def get_example_path(name: str):
-    return (pathlib.Path(__file__).parent.parent / 'examples/' / f'{name}').with_suffix('.py')
-
-
-def load_example(name: str):
-    return runpy.run_path(str(get_example_path(name)))
+def load_example(path: pathlib.Path):
+    return runpy.run_path(str(path))
 
 
 def load_artifact(path: pathlib.Path):
@@ -33,8 +29,8 @@ def load_artifact(path: pathlib.Path):
         return json.load(file)
 
 
-def load_context(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
-    module_items = load_example(name)
+def load_context(path: pathlib.Path, tmp_dir: pathlib.Path, purge_dirs: bool = False):
+    module_items = load_example(path)
     input_dir: pathlib.Path = module_items['SETTINGS']['input_dir']
     artifact_path = tmp_dir / 'artifact.json'
 
@@ -49,18 +45,18 @@ def load_context(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
     return Context(settings, rules)
 
 
-def run_example(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
-    context = load_context(name, tmp_dir, purge_dirs)
+def run_example(path: pathlib.Path, tmp_dir: pathlib.Path, purge_dirs: bool = False):
+    context = load_context(path, tmp_dir, purge_dirs)
     context.run()
     return context
 
 
-def run_example_cli(name: str, tmp_dir: pathlib.Path, purge_dirs: bool = False):
-    context = load_context(name, tmp_dir, purge_dirs)
+def run_example_cli(path: pathlib.Path, tmp_dir: pathlib.Path, purge_dirs: bool = False):
+    context = load_context(path, tmp_dir, purge_dirs)
     context.custodian.bind(context)
 
     arguments = [
-        str(get_example_path(name)),
+        str(path),
         '--custody-cache', str(context['custody_cache'])
     ]
     if purge_dirs:
