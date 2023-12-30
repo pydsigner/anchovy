@@ -31,7 +31,7 @@ RULES = [
     Rule(
         REMatcher(r'.*\.md'),
         [OutputDirPathCalc('.html'), None],
-        JinjaMarkdownStep()
+        JinjaMarkdownStep(frontmatter_parser='toml')
     ),
     # Convert JPG files to WebP...
     Rule(

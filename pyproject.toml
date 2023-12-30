@@ -71,9 +71,9 @@ all = ["anchovy[base]"]
 # ignore this option.
 cq = [
     "anchovy[all]",
-    "commonmark>=0.9.1", "markdown>=3.4.3", "mistletoe>=1.1.0",
     "tqdm>=4.65.0",
     "minify-html>=0.11.1",
+    "ruamel.yaml>=0.18.5",
     "pylint",
     "pyright",
     "pytest",

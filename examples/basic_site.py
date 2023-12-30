@@ -30,7 +30,7 @@ RULES = [
     Rule(
         REMatcher(r'.*\.md'),
         [OutputDirPathCalc('.html'), None],
-        JinjaMarkdownStep()
+        JinjaMarkdownStep(frontmatter_parser='simple')
     ),
     # Copy everything else in static/ directories through.
     Rule(
