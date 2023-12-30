@@ -112,6 +112,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
                  auto_anchors: bool = False,
                  auto_typography: bool = True,
                  code_highlighting: bool = True,
+                 footnotes: bool = True,
                  pygments_params: dict[str, t.Any] | None = None,
                  wordcount: bool = False):
         """
@@ -140,6 +141,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
         :param code_highlighting: Whether to enable code highlighting.
         :param frontmatter_parser: The name of the frontmatter parser to use,
             or a function capable of parsing frontmatter from a string.
+        :param footnotes: Whether to enable the `mdit_py_plugins.footnote`
+            plugin.
         :param pygments_params: Parameters to supply to
             `pygments.formatters.html.HtmlFormatter`.
         :param wordcount: Whether to enable the `mdit_py_plugins.wordcount`
@@ -154,6 +157,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
         self.auto_typography = auto_typography
         self.code_highlighting = code_highlighting
         self.frontmatter_parser = frontmatter_parser
+        self.footnotes = footnotes
         self.pygments_params = pygments_params or {}
         self.wordcount = wordcount
         self._md_processor: t.Callable[[str], tuple[str, dict[str, t.Any]]] | None = None
@@ -221,6 +225,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
         from mdit_py_plugins.anchors import anchors_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.container import container_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.footnote import footnote_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.front_matter import front_matter_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.wordcount import wordcount_plugin  # type: ignore[reportPrivateImportUsage]
         from .components import md_rendering
@@ -246,6 +251,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
             anchors_plugin(processor)
         attrs_plugin(processor)
         attrs_block_plugin(processor)
+        if self.footnotes:
+            footnote_plugin(processor)
         front_matter_plugin(processor)
         if self.wordcount:
             wordcount_plugin(processor)
