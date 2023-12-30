@@ -105,12 +105,12 @@ class JinjaMarkdownStep(JinjaRenderStep):
                  jinja_env: Environment | None = None,
                  jinja_globals: dict[str, t.Any] | None = None,
                  *,
+                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = 'yaml',
                  container_types: list[tuple[str | None, list[str]]] | None = None,
                  container_renderers: dict[str, MDContainerRenderer] | None = None,
                  substitutions: dict[str, str] | None = None,
                  auto_anchors: bool = False,
                  auto_typography: bool = True,
-                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = 'yaml',
                  code_highlighting: bool = True,
                  pygments_params: dict[str, t.Any] | None = None,
                  wordcount: bool = False):
