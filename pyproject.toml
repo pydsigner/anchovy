@@ -73,6 +73,7 @@ cq = [
     "anchovy[all]",
     "tqdm>=4.65.0",
     "minify-html>=0.11.1",
+    "ruamel.yaml>=0.18.5",
     "pylint",
     "pyright",
     "pytest",
