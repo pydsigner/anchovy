@@ -1,5 +1,7 @@
-template: base.jinja.html
-footnote: Generated with Anchovy!
+---
+template = "base.jinja.html"
+footnote = "Generated with Anchovy!"
+---
 
 # Photo Gallery
 

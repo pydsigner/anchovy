@@ -28,8 +28,8 @@ if t.TYPE_CHECKING:
 
 
 MARKDOWN_TEMPLATE = """---
-template = "base.jinja.html"
-footnote = "Generated from {path} by Anchovy."
+template: base.jinja.html
+footnote: Generated from {path} by Anchovy.
 ---
 # {path}
 
