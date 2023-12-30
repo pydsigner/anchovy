@@ -124,6 +124,8 @@ class JinjaMarkdownStep(JinjaRenderStep):
             Additionally, all frontmatter keys will be included, rendered
             markdown will be added as `'rendered_markdown'`, and wordcount data
             will be added as a `'wordcount'` dict if enabled.
+        :param frontmatter_parser: The name of the frontmatter parser to use,
+            or a function capable of parsing frontmatter from a string.
         :param container_types: A list of tuples pairing a HTML tag or None
             with a list of container names that should render to that HTML tag.
             If the HTML tag is none, the default raw `<div>` renderer from
@@ -139,8 +141,6 @@ class JinjaMarkdownStep(JinjaRenderStep):
         :param auto_typography: Whether to enable smartquotes and replacement
             functionalities in markdown-it-py.
         :param code_highlighting: Whether to enable code highlighting.
-        :param frontmatter_parser: The name of the frontmatter parser to use,
-            or a function capable of parsing frontmatter from a string.
         :param footnotes: Whether to enable the `mdit_py_plugins.footnote`
             plugin.
         :param pygments_params: Parameters to supply to
@@ -150,13 +150,13 @@ class JinjaMarkdownStep(JinjaRenderStep):
         """
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
+        self.frontmatter_parser = frontmatter_parser
         self.container_types = container_types or []
         self.container_renderers = container_renderers or {}
         self.substitutions = substitutions or {}
         self.auto_anchors = auto_anchors
         self.auto_typography = auto_typography
         self.code_highlighting = code_highlighting
-        self.frontmatter_parser = frontmatter_parser
         self.footnotes = footnotes
         self.pygments_params = pygments_params or {}
         self.wordcount = wordcount
@@ -243,6 +243,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
             md_rendering.AnchovyRendererHTML,
             processor.renderer
         ).set_front_matter_parser(get_frontmatter_parser(self.frontmatter_parser))
+        front_matter_plugin(processor)
 
         processor.enable(['strikethrough', 'table'])
         if self.auto_typography:
@@ -253,7 +254,6 @@ class JinjaMarkdownStep(JinjaRenderStep):
         attrs_block_plugin(processor)
         if self.footnotes:
             footnote_plugin(processor)
-        front_matter_plugin(processor)
         if self.wordcount:
             wordcount_plugin(processor)
 
