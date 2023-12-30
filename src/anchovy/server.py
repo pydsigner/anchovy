@@ -61,7 +61,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
             else:
                 # Get the file extension and set the MIME type accordingly
-                mime_type, _enc = mimetypes.guess_type(file_path)
+                mime_type, _enc = mimetypes.guess_type(file_path, strict=False)
                 self.send_response(200)
                 self.send_header('Content-type', mime_type or DEFAULT_MIME_TYPE)
                 self.send_header('ETag', etag)
