@@ -79,6 +79,8 @@ def test_example_cli(name, tmp_path):
     old_artifact = load_artifact(old_artifact_path)
 
     # TODO: Figure out why code_index doesn't work with purge_dirs=False.
+    # TODO: Files don't seem to survive in the test directory after a CLI run
+    # other than the artifact.
     context = run_example_cli(EXAMPLE_PATHS[name], tmp_path, purge_dirs=True)
     if not (new_artifact_path := context['custody_cache']):
         raise RuntimeError(f'No custody artifact generated for {name}')
