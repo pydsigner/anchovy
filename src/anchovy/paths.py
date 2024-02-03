@@ -6,6 +6,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, ContextDir, Matcher, PathCalc
+from .custody import CONTEXT_DIR_KEYS
 
 
 T = t.TypeVar('T')
@@ -51,16 +52,23 @@ class DirPathCalc(PathCalc[T]):
     extension information for the input paths, allowing for meaningful work
     with extensions that `pathlib.Path` does not reflect, like `.tar.gz`.
     """
-    def __init__(self, dest: Path, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
+    def __init__(self,
+                 dest: Path | ContextDir,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None):
         self.dest = dest
         self.ext = ext
         self.transform = transform
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(self.dest, self.ext, context, path, match, self.transform)
+        if self.dest in CONTEXT_DIR_KEYS:
+            dest = context[self.dest]
+        else:
+            dest = Path(self.dest)
+        return _to_dir_inner(dest, self.ext, context, path, match, self.transform)
 
 
-class OutputDirPathCalc(PathCalc[T]):
+class OutputDirPathCalc(DirPathCalc[T]):
     """
     PathCalc which makes its input paths children of the Context's output
     directory. If @ext is specified, it will replace the extension of input
@@ -69,15 +77,13 @@ class OutputDirPathCalc(PathCalc[T]):
     meaningful work with extensions that `pathlib.Path` does not reflect, like
     `.tar.gz`.
     """
-    def __init__(self, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
-        self.ext = ext
-        self.transform = transform
-
-    def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(context['output_dir'], self.ext, context, path, match, self.transform)
+    def __init__(self,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None):
+        super().__init__('output_dir', ext, transform)
 
 
-class WorkingDirPathCalc(PathCalc[T]):
+class WorkingDirPathCalc(DirPathCalc[T]):
     """
     PathCalc which makes its input paths children of the Context's working
     directory. If @ext is specified, it will replace the extension of input
@@ -86,12 +92,39 @@ class WorkingDirPathCalc(PathCalc[T]):
     meaningful work with extensions that `pathlib.Path` does not reflect, like
     `.tar.gz`.
     """
-    def __init__(self, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
-        self.ext = ext
-        self.transform = transform
+    def __init__(self,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None):
+        super().__init__('working_dir', ext, transform)
 
-    def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(context['working_dir'], self.ext, context, path, match, self.transform)
+
+class WebIndexPathCalc(DirPathCalc[T]):
+    """
+    DirPathCalc which additionally nests its input paths into an index
+    structure so that file extensions can be omitted in URLs.
+    """
+    index_base = 'index'
+
+    def __init__(self,
+                 dest: Path | ContextDir,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None,
+                 index_base: str | None = None):
+        if transform:
+            def full_transform(path: Path):
+                return self._web_transform(transform(path))
+        else:
+            full_transform = self._web_transform
+        super().__init__(dest, ext, full_transform)
+        self.index_base = index_base or self.index_base
+
+    def _web_transform(self, path: Path) -> Path:
+        """
+        Transform a/b.c to a/b/index.c, while leaving a/index.c as-is.
+        """
+        if path.stem == self.index_base:
+            return path
+        return (path.with_suffix('') / self.index_base).with_suffix(path.suffix)
 
 
 class REMatcher(Matcher[re.Match | None]):

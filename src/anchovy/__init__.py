@@ -10,5 +10,5 @@ from .images import CWebPStep, ImageMagickStep, IMThumbnailStep, PillowStep, Opt
 from .include import RequestsFetchStep, UnpackArchiveStep, URLLibFetchStep
 from .jinja import JinjaExtendedMarkdownStep, JinjaMarkdownStep, JinjaRenderStep
 from .minify import AssetMinifierStep, CSSMinifierStep, HTMLMinifierStep, ResourcePackerStep
-from .paths import DirPathCalc, OutputDirPathCalc, REMatcher, WorkingDirPathCalc
+from .paths import DirPathCalc, OutputDirPathCalc, REMatcher, WebIndexPathCalc, WorkingDirPathCalc
 from .simple import BaseCommandStep, BaseStandardStep, DirectCopyStep

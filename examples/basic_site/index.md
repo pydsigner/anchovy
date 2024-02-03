@@ -1,5 +1,7 @@
+---
 template: base.jinja.html
 footnote: Generated with Anchovy!
+---
 
 # Welcome to Example Site 1!
 

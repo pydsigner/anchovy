@@ -34,10 +34,12 @@ Source = "https://github.com/pydsigner/anchovy"
 
 [project.optional-dependencies]
 toml = ['tomli >= 2.0.1; python_version < "3.11"']
+yaml = ["ruamel.yaml>=0.18.5"]
 jinja = ["Jinja2>=3.1.2"]
 markdown = [
     "anchovy[jinja]",
     "anchovy[toml]",
+    "anchovy[yaml]",
     "markdown_it_py>=3.0.0",
     "mdit_py_plugins>=0.4.0",
     # Pygments is a fairly large dependency and perhaps not critical; but we
@@ -71,7 +73,6 @@ all = ["anchovy[base]"]
 # ignore this option.
 cq = [
     "anchovy[all]",
-    "commonmark>=0.9.1", "markdown>=3.4.3", "mistletoe>=1.1.0",
     "tqdm>=4.65.0",
     "minify-html>=0.11.1",
     "pylint",

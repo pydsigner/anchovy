@@ -63,6 +63,7 @@ class Custodian:
     Class for managing custody info and intelligent rebuilds.
     """
     encoding = 'utf-8'
+    newline = '\n'
     context: 'Context'
 
     def __init__(self,
@@ -193,7 +194,7 @@ class Custodian:
             'graph': self.graph,
             'meta': self.meta,
         }
-        with path.open('w', encoding=self.encoding) as file:
+        with path.open('w', encoding=self.encoding, newline=self.newline) as file:
             json.dump(data, file, indent=2)
 
     def update_meta(self, entry: CustodyEntry):

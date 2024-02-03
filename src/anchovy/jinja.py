@@ -11,6 +11,10 @@ from pathlib import Path
 
 from .dependencies import PipDependency, Dependency
 from .simple import BaseStandardStep
+from .components.md_frontmatter import (
+    FrontMatterParser, FrontMatterParserName,
+    get_frontmatter_parser,
+)
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
@@ -79,129 +83,7 @@ class JinjaRenderStep(BaseStandardStep):
 
 class JinjaMarkdownStep(JinjaRenderStep):
     """
-    A Step for rendering Markdown using Jinja templates. Parses according to
-    CommonMark and renders to HTML by default.
-    """
-    @classmethod
-    def _build_markdownit(cls):
-        import markdown_it
-        processor = markdown_it.MarkdownIt()
-
-        def convert(md_string: str) -> str:
-            return processor.render(md_string)
-
-        return convert
-
-    @classmethod
-    def _build_mistletoe(cls):
-        import mistletoe
-
-        def convert(md_string: str) -> str:
-            return mistletoe.markdown(md_string)
-
-        return convert
-
-    @classmethod
-    def _build_markdown(cls):
-        import markdown
-        processor = markdown.Markdown()
-
-        def convert(md_string: str):
-            return processor.convert(md_string)
-
-        return convert
-
-    @classmethod
-    def _build_commonmark(cls):
-        import commonmark
-        parser = commonmark.Parser()
-        renderer = commonmark.HtmlRenderer()
-
-        def convert(md_string: str) -> str:
-            return renderer.render(parser.parse(md_string))
-
-        return convert
-
-    @classmethod
-    def get_options(cls):
-        """
-        Helper method returning a list of tuples of dependencies and markdown
-        renderer factories for those dependencies.
-        """
-        return [
-            (PipDependency('markdown-it-py', check_name='markdown_it'), cls._build_markdownit),
-            (PipDependency('mistletoe'), cls._build_mistletoe),
-            (PipDependency('markdown'), cls._build_markdown),
-            (PipDependency('commonmark'), cls._build_commonmark),
-        ]
-
-    @classmethod
-    def get_dependencies(cls):
-        deps = [option[0] for option in cls.get_options()]
-        dep_set = {reduce(lambda x, y: x | y, deps)} if deps else set[Dependency]()
-
-        return super().get_dependencies() | dep_set
-
-    def __init__(self,
-                 default_template: str | None = None,
-                 md_processor: MDProcessor | None = None,
-                 jinja_env: Environment | None = None,
-                 jinja_globals: dict[str, t.Any] | None = None):
-        super().__init__(jinja_env, jinja_globals)
-        self.default_template = default_template
-        self._md_processor = md_processor
-
-    @property
-    def md_processor(self):
-        """
-        Returns the markdown processor for this Step, creating it if necessary.
-        """
-        if not self._md_processor:
-            for dep, factory in self.get_options():
-                if dep.satisfied:
-                    self._md_processor = factory()
-                    break
-            else:
-                raise RuntimeError('Markdown processor could not be initialized!')
-        return self._md_processor
-
-
-    def __call__(self, path: Path, output_paths: list[Path]):
-        meta, content = self.extract_metadata(path.read_text(self.encoding))
-        meta |= {'rendered_markdown': self.md_processor(content.strip()).strip()}
-
-        template_path = self.render_template(
-            meta.get('template', self.default_template),
-            meta,
-            output_paths
-        )
-        if template_path:
-            return [path, Path(template_path)], output_paths
-
-    def extract_metadata(self, text: str):
-        """
-        Read metadata from the front of a markdown-formatted text.
-        """
-        meta = {}
-        lines = text.splitlines()
-
-        i = 0
-        for line in lines:
-            if ':' not in line:
-                break
-            key, value = line.split(':', 1)
-            if not key.isidentifier():
-                break
-
-            meta[key.strip()] = value.strip()
-            i += 1
-
-        return meta, '\n'.join(lines[i:])
-
-
-class JinjaExtendedMarkdownStep(JinjaRenderStep):
-    """
-    A Step for extended Markdown rendering.
+    A Step for Markdown rendering.
 
     Goes beyond the default functionality of markdown-it-py to offer toml
     frontmatter, pygments syntax highlighting for code blocks, containers,
@@ -223,12 +105,14 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
                  jinja_env: Environment | None = None,
                  jinja_globals: dict[str, t.Any] | None = None,
                  *,
+                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = 'yaml',
                  container_types: list[tuple[str | None, list[str]]] | None = None,
                  container_renderers: dict[str, MDContainerRenderer] | None = None,
                  substitutions: dict[str, str] | None = None,
                  auto_anchors: bool = False,
                  auto_typography: bool = True,
                  code_highlighting: bool = True,
+                 footnotes: bool = True,
                  pygments_params: dict[str, t.Any] | None = None,
                  wordcount: bool = False):
         """
@@ -240,6 +124,8 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
             Additionally, all frontmatter keys will be included, rendered
             markdown will be added as `'rendered_markdown'`, and wordcount data
             will be added as a `'wordcount'` dict if enabled.
+        :param frontmatter_parser: The name of the frontmatter parser to use,
+            or a function capable of parsing frontmatter from a string.
         :param container_types: A list of tuples pairing a HTML tag or None
             with a list of container names that should render to that HTML tag.
             If the HTML tag is none, the default raw `<div>` renderer from
@@ -249,12 +135,14 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
             is needed beyond the default options.
         :param substitutions: A dictionary of variable names and values to
             substitute into markdown before it is rendered. See
-            `JinjaExtendedMarkdownStep.apply_substitutions()` for more details.
+            `JinjaMarkdownStep.apply_substitutions()` for more details.
         :param auto_anchors: Whether to enable the `mdit_py_plugins.anchors`
             plugin.
         :param auto_typography: Whether to enable smartquotes and replacement
             functionalities in markdown-it-py.
         :param code_highlighting: Whether to enable code highlighting.
+        :param footnotes: Whether to enable the `mdit_py_plugins.footnote`
+            plugin.
         :param pygments_params: Parameters to supply to
             `pygments.formatters.html.HtmlFormatter`.
         :param wordcount: Whether to enable the `mdit_py_plugins.wordcount`
@@ -262,12 +150,14 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
         """
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
+        self.frontmatter_parser = frontmatter_parser
         self.container_types = container_types or []
         self.container_renderers = container_renderers or {}
         self.substitutions = substitutions or {}
         self.auto_anchors = auto_anchors
         self.auto_typography = auto_typography
         self.code_highlighting = code_highlighting
+        self.footnotes = footnotes
         self.pygments_params = pygments_params or {}
         self.wordcount = wordcount
         self._md_processor: t.Callable[[str], tuple[str, dict[str, t.Any]]] | None = None
@@ -335,6 +225,7 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
         from mdit_py_plugins.anchors import anchors_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.container import container_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.footnote import footnote_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.front_matter import front_matter_plugin  # type: ignore[reportPrivateImportUsage]
         from mdit_py_plugins.wordcount import wordcount_plugin  # type: ignore[reportPrivateImportUsage]
         from .components import md_rendering
@@ -347,6 +238,13 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
             },
             renderer_cls=md_rendering.AnchovyRendererHTML
         )
+
+        t.cast(
+            md_rendering.AnchovyRendererHTML,
+            processor.renderer
+        ).set_front_matter_parser(get_frontmatter_parser(self.frontmatter_parser))
+        front_matter_plugin(processor)
+
         processor.enable(['strikethrough', 'table'])
         if self.auto_typography:
             processor.enable(['smartquotes', 'replacements'])
@@ -354,7 +252,8 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
             anchors_plugin(processor)
         attrs_plugin(processor)
         attrs_block_plugin(processor)
-        front_matter_plugin(processor)
+        if self.footnotes:
+            footnote_plugin(processor)
         if self.wordcount:
             wordcount_plugin(processor)
 
@@ -375,3 +274,6 @@ class JinjaExtendedMarkdownStep(JinjaRenderStep):
             return rendered_md, meta
 
         return convert
+
+
+JinjaExtendedMarkdownStep = JinjaMarkdownStep

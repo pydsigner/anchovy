@@ -12,7 +12,7 @@ from anchovy import (
     CustodyEntry,
     DirectCopyStep,
     InputBuildSettings,
-    JinjaExtendedMarkdownStep,
+    JinjaMarkdownStep,
     JinjaRenderStep,
     OutputDirPathCalc,
     PathCalc,
@@ -20,6 +20,7 @@ from anchovy import (
     ResourcePackerStep,
     Rule,
     UnpackArchiveStep,
+    WebIndexPathCalc,
     WorkingDirPathCalc,
 )
 
@@ -28,8 +29,8 @@ if t.TYPE_CHECKING:
 
 
 MARKDOWN_TEMPLATE = """---
-template = "base.jinja.html"
-footnote = "Generated from {path} by Anchovy."
+template: base.jinja.html
+footnote: Generated from {path} by Anchovy.
 ---
 # {path}
 
@@ -131,8 +132,8 @@ RULES = [
     # Render markdown files and stop processing.
     Rule(
         REMatcher(r'.*\.md'),
-        [WorkingDirPathCalc('.html'), None],
-        JinjaExtendedMarkdownStep(
+        [WebIndexPathCalc('working_dir', '.html'), None],
+        JinjaMarkdownStep(
             default_template='base.j.html',
             pygments_params={'classprefix': 'pyg-'},
         )
@@ -149,7 +150,7 @@ RULES = [
         [WorkingDirPathCalc('.html'), None],
         CodeIndexStep(
             '*.py',
-            OutputDirPathCalc('.html')
+            WebIndexPathCalc('output_dir', '.html')
         )
     ),
     # Ignore all other Jinja templates.
