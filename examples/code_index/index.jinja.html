@@ -4,7 +4,7 @@
 <main>
     <h1>Examples</h1>
     {% for source, target in leaves %}
-    <a href="{{target.as_posix()}}"><h2>{{ source.name }}</h2></a>
+    <a href="{{target.parent.as_posix()}}"><h2>{{ source.name }}</h2></a>
     {% endfor %}
 </main>
 {% endblock %}
