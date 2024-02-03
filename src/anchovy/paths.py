@@ -6,6 +6,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, ContextDir, Matcher, PathCalc
+from .custody import CONTEXT_DIR_KEYS
 
 
 T = t.TypeVar('T')
@@ -51,13 +52,20 @@ class DirPathCalc(PathCalc[T]):
     extension information for the input paths, allowing for meaningful work
     with extensions that `pathlib.Path` does not reflect, like `.tar.gz`.
     """
-    def __init__(self, dest: Path, ext: str | None = None, transform: t.Callable[[Path], Path] | None = None):
+    def __init__(self,
+                 dest: Path | ContextDir,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None):
         self.dest = dest
         self.ext = ext
         self.transform = transform
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        return _to_dir_inner(self.dest, self.ext, context, path, match, self.transform)
+        if self.dest in CONTEXT_DIR_KEYS:
+            dest = context[self.dest]
+        else:
+            dest = Path(self.dest)
+        return _to_dir_inner(dest, self.ext, context, path, match, self.transform)
 
 
 class OutputDirPathCalc(PathCalc[T]):
