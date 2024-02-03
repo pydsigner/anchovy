@@ -86,20 +86,20 @@
         "working_dir/static/css_pack.css"
       ]
     },
-    "working_dir/basic_site.html": {
+    "working_dir/basic_site/index.html": {
       "working_dir/basic_site.md": [
-        "working_dir/basic_site.html"
+        "working_dir/basic_site/index.html"
       ],
       "input_dir/base.jinja.html": [
-        "working_dir/basic_site.html"
+        "working_dir/basic_site/index.html"
       ]
     },
-    "working_dir/gallery.html": {
+    "working_dir/gallery/index.html": {
       "working_dir/gallery.md": [
-        "working_dir/gallery.html"
+        "working_dir/gallery/index.html"
       ],
       "input_dir/base.jinja.html": [
-        "working_dir/gallery.html"
+        "working_dir/gallery/index.html"
       ]
     },
     "output_dir/static/css_pack.css": {
@@ -112,14 +112,14 @@
         "output_dir/index.html"
       ]
     },
-    "output_dir/basic_site.html": {
-      "working_dir/basic_site.html": [
-        "output_dir/basic_site.html"
+    "output_dir/basic_site/index.html": {
+      "working_dir/basic_site/index.html": [
+        "output_dir/basic_site/index.html"
       ]
     },
-    "output_dir/gallery.html": {
-      "working_dir/gallery.html": [
-        "output_dir/gallery.html"
+    "output_dir/gallery/index.html": {
+      "working_dir/gallery/index.html": [
+        "output_dir/gallery/index.html"
       ]
     }
   },
@@ -128,7 +128,7 @@
       "path",
       {
         "sha1": "",
-        "m_time": 1706995623.6526809,
+        "m_time": 1706996735.449964,
         "size": 4096
       }
     ],
@@ -136,7 +136,7 @@
       "path",
       {
         "sha1": "c4983436e017a238d94796250a749d74cbc76835",
-        "m_time": 1706995623.6526809,
+        "m_time": 1706996735.4489732,
         "size": 1071
       }
     ],
@@ -144,7 +144,7 @@
       "path",
       {
         "sha1": "3cdd5e3cc41664211b63f98b94a0791282f1ea4d",
-        "m_time": 1706995623.6526809,
+        "m_time": 1706996735.449964,
         "size": 1407
       }
     ],
@@ -159,24 +159,24 @@
     "working_dir/index.jinja.html": [
       "path",
       {
-        "sha1": "c361ccf60628e76f571f8229d9c896603f7042ab",
-        "m_time": 1706995623.6602678,
-        "size": 298
+        "sha1": "522ee3defec401e1a661c862b313cb76a8683d9f",
+        "m_time": 1706996735.457506,
+        "size": 305
       }
     ],
     "input_dir/index.jinja.html": [
       "path",
       {
-        "sha1": "c361ccf60628e76f571f8229d9c896603f7042ab",
-        "m_time": 1700432465.1655195,
-        "size": 298
+        "sha1": "522ee3defec401e1a661c862b313cb76a8683d9f",
+        "m_time": 1706996649.193668,
+        "size": 305
       }
     ],
     "working_dir/static/core.css": [
       "path",
       {
         "sha1": "23b855543fd50b49b743413cc221e1bee266c6c9",
-        "m_time": 1706995623.6736958,
+        "m_time": 1706996735.4615524,
         "size": 306
       }
     ],
@@ -192,7 +192,7 @@
       "path",
       {
         "sha1": "16d39823b42dfc58eb0b12d04cc54c233575f398",
-        "m_time": 1706995623.681307,
+        "m_time": 1706996735.470035,
         "size": 5551
       }
     ],
@@ -208,7 +208,7 @@
       "path",
       {
         "sha1": "0cc6ab8a6e988e4f3ff88a30dca17f4b8087a37b",
-        "m_time": 1706995623.6852465,
+        "m_time": 1706996735.4745364,
         "size": 36
       }
     ],
@@ -224,7 +224,7 @@
       "path",
       {
         "sha1": "bf995c9fb6202933eb3d6b433b38bae484e2f7d1",
-        "m_time": 1706995623.7074897,
+        "m_time": 1706996735.4912386,
         "size": 1184
       }
     ],
@@ -232,16 +232,16 @@
       "path",
       {
         "sha1": "e03d87bee6bd515e50c752acae7a24cc6700aef7",
-        "m_time": 1706995623.7105067,
+        "m_time": 1706996735.494867,
         "size": 1514
       }
     ],
     "working_dir/index.html": [
       "path",
       {
-        "sha1": "e653663027dfc58550559eaa9d2ba816dd94b8e0",
-        "m_time": 1706995623.7190287,
-        "size": 427
+        "sha1": "0b2f6b68215f5d1135e3deec703b012033fcea97",
+        "m_time": 1706996735.5039737,
+        "size": 417
       }
     ],
     "working_dir:*.py": [
@@ -257,15 +257,15 @@
       "path",
       {
         "sha1": "5620127ab0d2261762dac0c30d1fe79e86dcac03",
-        "m_time": 1706995623.7240794,
+        "m_time": 1706996735.508551,
         "size": 5859
       }
     ],
-    "working_dir/basic_site.html": [
+    "working_dir/basic_site/index.html": [
       "path",
       {
         "sha1": "ffe41a786d2d6e21e277aa1db53db621384aa76f",
-        "m_time": 1706995623.8251395,
+        "m_time": 1706996735.6131053,
         "size": 4852
       }
     ],
@@ -273,15 +273,15 @@
       "path",
       {
         "sha1": "cd1fad850af896b28d5cd43b64837e1360a9b0a9",
-        "m_time": 1700432465.1645195,
+        "m_time": 1706996724.3570445,
         "size": 349
       }
     ],
-    "working_dir/gallery.html": [
+    "working_dir/gallery/index.html": [
       "path",
       {
         "sha1": "607b78c4b55e9b7598d74c7dae26847536932758",
-        "m_time": 1706995623.8331532,
+        "m_time": 1706996735.6226301,
         "size": 6386
       }
     ],
@@ -289,31 +289,31 @@
       "path",
       {
         "sha1": "c363895ad4c4f75aff899690c56eef2e300980be",
-        "m_time": 1706995623.8389888,
+        "m_time": 1706996735.6266575,
         "size": 2800
       }
     ],
     "output_dir/index.html": [
       "path",
       {
-        "sha1": "239ba6c1e7802f77005bcef7ce3eae4ef59df4ae",
-        "m_time": 1706995623.8761384,
-        "size": 263
+        "sha1": "310b5f2330ee78a24b009ca52df2583bd4e29d9f",
+        "m_time": 1706996735.6696851,
+        "size": 253
       }
     ],
-    "output_dir/basic_site.html": [
+    "output_dir/basic_site/index.html": [
       "path",
       {
         "sha1": "f217f536a707d91b90b6d50ab94fb5e9c310a5f2",
-        "m_time": 1706995623.9063706,
+        "m_time": 1706996735.693998,
         "size": 4439
       }
     ],
-    "output_dir/gallery.html": [
+    "output_dir/gallery/index.html": [
       "path",
       {
         "sha1": "ddac506b836ee7fffaed7f1dad18967bd11acf0e",
-        "m_time": 1706995623.9233155,
+        "m_time": 1706996735.7010386,
         "size": 5887
       }
     ]
