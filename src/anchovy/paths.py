@@ -98,6 +98,34 @@ class WorkingDirPathCalc(DirPathCalc[T]):
         super().__init__('working_dir', ext, transform)
 
 
+class WebIndexPathCalc(DirPathCalc[T]):
+    """
+    DirPathCalc which additionally nests its input paths into an index
+    structure so that file extensions can be omitted in URLs.
+    """
+    index_base = 'index'
+
+    def __init__(self,
+                 dest: Path | ContextDir,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None,
+                 index_base: str | None = None):
+        if transform:
+            def full_transform(path: Path):
+                return self._web_transform(transform(path))
+        else:
+            full_transform = self._web_transform
+        super().__init__(dest, ext, full_transform)
+        self.index_base = index_base or self.index_base
+
+    def _web_transform(self, path: Path) -> Path:
+        """
+        Transform a/b.c to a/b/index.c, while leaving a/index.c as-is.
+        """
+        if path.stem == self.index_base:
+            return path
+        return (path.with_suffix('') / self.index_base).with_suffix(path.suffix)
+
 
 class REMatcher(Matcher[re.Match | None]):
     """
