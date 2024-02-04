@@ -93,3 +93,21 @@ def test_web_index_path_calc(config: tuple, input: Path, expected: Path, dummy_c
 def test_working_dir_path_calc(config: tuple, input: tuple[Path, t.Any], expected: Path, dummy_context: Context):
     calc = WorkingDirPathCalc(*config)
     assert calc(dummy_context, *input) == expected
+
+
+@pytest.mark.parametrize('config,input,expected', [
+    ((r'.*\.html',), INPUT_PATH / 'foo.html', {}),
+    ((r'f.*\.html',), INPUT_PATH / 'foo.html', None),
+    ((r'f.*\.html', 0, 'input_dir'), INPUT_PATH / 'foo.html', {}),
+    ((r'.*(?P<ext>\.j\.html)', 0, 'input_dir'), INPUT_PATH / 'foo.j.html', {'ext': '.j.html'}),
+    ((r'.*(?P<ext>\.j\.html)', 0, 'input_dir'), INPUT_PATH / 'foo.html', None),
+    ((r'.*(?P<ext>\.j\.html)', 0, 'working_dir'), INPUT_PATH / 'foo.j.html', None),
+    ((r'.*(?P<ext>\.j\.html)', 0, 'working_dir'), WORKING_PATH / 'foo.j.html', {'ext': '.j.html'}),
+])
+def test_re_matcher(config: tuple, input: Path, expected: dict | None, dummy_context: Context):
+    matcher = REMatcher(*config)
+    result = matcher(dummy_context, input)
+    if result:
+        assert result.groupdict() == expected
+    else:
+        assert result is expected
