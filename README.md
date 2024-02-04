@@ -9,34 +9,35 @@
 Anchovy is a minimal, unopinionated file-processing framework equipped with a
 complete static website generation toolkit.
 
-* **Minimal:** Anchovy's core is around a thousand lines of code and has no
+* **Minimal:** Anchovy’s core is around a thousand lines of code and has no
   mandatory dependencies. Plus, Anchovy can be used for real projects with just
   a few pip-installable extras, even if you want to preprocess CSS.
 
 * **Unopinionated:** Anchovy offers a set of components which can be easily
-  configured to your site's exact requirements, without tediously ripping out
+  configured to your site’s exact requirements, without tediously ripping out
   or overriding entrenched behaviors. Anchovy does not assume you are building
   a blog or that you wish to design your templates in a specific way. You can
-  even build things that aren't websites! Plus, Anchovy operates on files, so
-  it's simple to integrate tools like imagemagick, dart-sass, or less.js if you
+  even build things that aren’t websites! Plus, Anchovy operates on files, so
+  it’s simple to integrate tools like imagemagick, dart-sass, or less.js if you
   need them.
 
 * **Complete:** Anchovy comes with a dependency auditing system, allowing you
   to grab any component you want without installing anything but Anchovy and
   find out what you *will* need to run your build. Choose from a wealth of
-  Steps, Anchovy's modular file processors, for everything from rendering Jinja
+  Steps, Anchovy’s modular file processors, for everything from rendering Jinja
   templates and minifying CSS to unpacking archives and thumbnailing images.
   Plus, add a few extra parameters or lines of configuration to get automatic
   intelligent minimum builds based on input checksums, and get a reproducible
   run artifact to boot— even if you want to fetch HTTP resources or write your
-  own Steps.
+  own Steps. Iterate quickly by launching a lightweight development-grade web
+  server once the build is complete.
 
 ## Installation
 
 Anchovy has no essential prerequisites and can be installed with
 `pip install anchovy` to get just the framework and a few built-in components,
 but for typical usage `pip install anchovy[base]` is recommended. This will
-pull in support for Jinja2 templating, markdown, minification, and Anchovy's
+pull in support for Jinja2 templating, markdown, minification, and Anchovy’s
 CSS preprocessor. A full list of available extras may be found in the
 [pyproject.toml](./pyproject.toml) file.
 
@@ -51,6 +52,17 @@ Anchovy operates on config files written in Python, or even modules directly.
 * `python -m anchovy -h`
 * `anchovy -m mypackage.anchovyconf -o ../release/`
 * `python -m anchovy mysite/anchovy_site.py -- -h`
+
+### Show Me
+
+Run `anchovy examples/code_index.py -s -p 8080`, then open a browser to
+localhost:8080 (or click the link in the console). This example offers the most
+extensive demonstration of Anchovy’s functionality as of version 1.0.
+
+### What’s the Baseline?
+
+Here’s minimal example performing about what the `staticjinja` markdown example
+offers:
 
 ```python
 from pathlib import Path
@@ -96,8 +108,10 @@ RULES = [
 ]
 ```
 
-This example is very simple, but is legitimately enough for a small website.
-If we stored the configuration in `config.py` and added a raw site like this:
+This example is very simple, but it’s legitimately enough to start with for a
+small website, and offers an advantage over other minimal frameworks by putting
+additional batteries within an arm’s reach. If we stored the configuration in
+`config.py` and added a raw site like this:
 ```
 site/
     static/
