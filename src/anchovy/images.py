@@ -102,8 +102,9 @@ class PillowStep(Step):
     """
     A simple Pillow step which can convert and/or thumbnail images.
     """
-    def __init__(self, thumbnail: tuple[int, int] | None = None):
+    def __init__(self, thumbnail: tuple[int, int] | None = None, transpose: bool = True):
         self.thumbnail = thumbnail
+        self.transpose = transpose
 
     @classmethod
     def get_dependencies(cls):
@@ -112,13 +113,15 @@ class PillowStep(Step):
         }
 
     def __call__(self, path: Path, output_paths: list[Path]):
-        from PIL import Image
+        from PIL import Image, ImageOps
 
         groups = {}
         for target_path in output_paths:
             groups.setdefault(target_path.suffix, []).append(target_path)
 
         with Image.open(path) as img:
+            if self.transpose:
+                ImageOps.exif_transpose(img, in_place=True)
             if self.thumbnail:
                 img.thumbnail(self.thumbnail)
 
