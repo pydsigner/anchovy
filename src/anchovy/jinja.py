@@ -74,11 +74,50 @@ class JinjaRenderStep(BaseStandardStep):
         :param meta: Any parameters to be passed to the template.
         :param output_paths: A list of Paths the rendered template will be
             written to.
+        :returns: A tuple of (main_template_path, all_template_dependencies).
         """
         template = self.env.get_template(template_name)
         with self.ensure_outputs(output_paths):
             template.stream(**meta).dump(str(output_paths[0]), encoding=self.encoding)
-        return template.filename
+
+        # Find all template dependencies (includes, extends, imports)
+        template_deps = self._find_template_dependencies(template_name)
+        return template.filename, template_deps
+
+    def _find_template_dependencies(self, template_name: str) -> list[Path]:
+        """
+        Find all templates referenced by the given template (includes, extends, imports).
+
+        :param template_name: The name of the template to analyze.
+        :returns: A list of Path objects for all dependent templates.
+        """
+        from jinja2 import meta
+
+        dependencies = []
+        seen = set([template_name])
+        to_check = [template_name]
+
+        while to_check:
+            current = to_check.pop()
+            try:
+                source = self.env.loader.get_source(self.env, current)[0]
+                ast = self.env.parse(source)
+
+                # Find all referenced templates (includes, extends, imports)
+                refs = meta.find_referenced_templates(ast)
+                for ref in refs:
+                    if ref and ref not in seen:
+                        seen.add(ref)
+                        to_check.append(ref)
+                        # Convert template name to absolute Path
+                        template_path = self.env.loader.get_source(self.env, ref)[1]
+                        if template_path:
+                            dependencies.append(Path(template_path))
+            except Exception:
+                # If we can't parse a template, skip it
+                pass
+
+        return dependencies
 
 
 class JinjaMarkdownStep(JinjaRenderStep):
@@ -171,13 +210,15 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
         meta['rendered_markdown'] = rendered_md
 
-        template_path = self.render_template(
+        template_path, template_deps = self.render_template(
             meta.get('template', self.default_template),
             meta,
             output_paths
         )
         if template_path:
-            return [path, Path(template_path)], output_paths
+            # Track the markdown file, main template, and all template dependencies
+            sources = [path, Path(template_path)] + template_deps
+            return sources, output_paths
 
     @property
     def md_processor(self):
