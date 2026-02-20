@@ -37,25 +37,13 @@ complete static website generation toolkit.
 Anchovy has no essential prerequisites and can be installed with
 `pip install anchovy` to get just the framework and a few built-in components,
 but for typical usage `pip install anchovy[base]` is recommended. This will
-pull in support for Jinja2 templating, markdown, minification, and Anchovy's
+pull in support for Jinja2 templating, markdown, minification, and Anchovy’s
 CSS preprocessor. A full list of available extras may be found in the
 [pyproject.toml](./pyproject.toml) file.
 
 Alternatively, Anchovy may be installed directly from source with
 `pip install git+https://github.com/pydsigner/anchovy` or the corresponding
 `pip install git+https://github.com/pydsigner/anchovy#egg=anchovy[base]`.
-
-### Using uv
-
-For development or to install as a global CLI tool:
-
-```bash
-# Install as a global tool (recommended)
-uv tool install --editable ".[base]"
-
-# Or install in a project
-uv pip install ".[base]"
-```
 
 ## Command Line Usage
 
@@ -149,18 +137,6 @@ This example can be found in runnable form as [examples/basic_site.py](./example
 in the source distribution. Available command line arguments can be seen by
 passing `-h`: `python -m anchovy examples/basic_site.py -- -h`. The `--` is
 required because `anchovy` itself also accepts the flag.
-
-## Documentation
-
-Comprehensive documentation is available in the [docs/](./docs/) directory:
-
-- **[Getting Started](./docs/getting-started.md)** - Installation, first project, and basic usage
-- **[Core Concepts](./docs/core-concepts.md)** - Deep dive into Rules, Steps, Matchers, and PathCalcs
-- **[Steps Reference](./docs/steps-reference.md)** - Complete guide to all built-in Steps with examples
-- **[Matchers and PathCalcs](./docs/matchers-pathcalcs.md)** - Advanced file routing and path handling
-- **[Custody and Rebuilds](./docs/custody-and-rebuilds.md)** - Intelligent incremental builds and caching
-- **[Advanced Usage](./docs/advanced-usage.md)** - Custom components, programmatic usage, and integrations
-- **[API Reference](./docs/api-reference.md)** - Complete API documentation
 
 ## Programmatic Usage
 
