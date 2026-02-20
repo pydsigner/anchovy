@@ -105,7 +105,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
                  jinja_env: Environment | None = None,
                  jinja_globals: dict[str, t.Any] | None = None,
                  *,
-                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = 'yaml',
+                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = t.cast(FrontMatterParserName, 'yaml'),
                  container_types: list[tuple[str | None, list[str]]] | None = None,
                  container_renderers: dict[str, MDContainerRenderer] | None = None,
                  substitutions: dict[str, str] | None = None,
@@ -150,7 +150,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
         """
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
-        self.frontmatter_parser = frontmatter_parser
+        self.frontmatter_parser: FrontMatterParser | FrontMatterParserName = frontmatter_parser
         self.container_types = container_types or []
         self.container_renderers = container_renderers or {}
         self.substitutions = substitutions or {}

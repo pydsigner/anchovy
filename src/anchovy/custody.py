@@ -22,6 +22,13 @@ _JsonDict = dict[str, _JsonSerializable]
 CONTEXT_DIR_KEYS: set[ContextDir] = {'input_dir', 'output_dir', 'working_dir'}
 
 
+def is_context_dir(key: t.Any) -> t.TypeIs[ContextDir]:
+    """
+    Whether a string is a `ContextDir`.
+    """
+    return key in CONTEXT_DIR_KEYS
+
+
 def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
     """
     Calculate a checksum for a `Path`. Directories result in empty checksums.
@@ -116,7 +123,7 @@ class Custodian:
         Undo `genericize_path()` to turn a key back into a Path.
         """
         # https://github.com/pydsigner/anchovy/issues/66
-        if key in CONTEXT_DIR_KEYS:
+        if is_context_dir(key):
             return self.context[key]
 
         path = Path(key)
