@@ -22,6 +22,7 @@ if t.TYPE_CHECKING:
     from markdown_it.renderer import RendererHTML
     from markdown_it.token import Token
     from markdown_it.utils import EnvType, OptionsDict
+    from .core import Context
 
 MDProcessor = t.Callable[[str], str]
 MDContainerRenderer =  t.Callable[
@@ -47,6 +48,7 @@ class JinjaRenderStep(BaseStandardStep):
             env.globals.update(extra_globals)
         self._env = env
         self._extra_globals = extra_globals
+        self._dep_cache: dict[Context, dict[str, list[Path]]] = {}
 
     @property
     def env(self):
@@ -81,8 +83,7 @@ class JinjaRenderStep(BaseStandardStep):
             template.stream(**meta).dump(str(output_paths[0]), encoding=self.encoding)
 
         # Find all template dependencies (includes, extends, imports)
-        template_deps = self._find_template_dependencies(template_name)
-        return template.filename, template_deps
+        return self._find_template_dependencies(template_name)
 
     def _find_template_dependencies(self, template_name: str) -> list[Path]:
         """
@@ -93,30 +94,24 @@ class JinjaRenderStep(BaseStandardStep):
         """
         from jinja2 import meta
 
-        dependencies = []
-        seen = set([template_name])
-        to_check = [template_name]
+        if template_name in self._dep_cache.setdefault(self.context, {}):
+            return self._dep_cache[self.context][template_name]
 
-        while to_check:
-            current = to_check.pop()
-            try:
-                source = self.env.loader.get_source(self.env, current)[0]
-                ast = self.env.parse(source)
+        dependencies: list[Path] = []
 
-                # Find all referenced templates (includes, extends, imports)
-                refs = meta.find_referenced_templates(ast)
-                for ref in refs:
-                    if ref and ref not in seen:
-                        seen.add(ref)
-                        to_check.append(ref)
-                        # Convert template name to absolute Path
-                        template_path = self.env.loader.get_source(self.env, ref)[1]
-                        if template_path:
-                            dependencies.append(Path(template_path))
-            except Exception:
-                # If we can't parse a template, skip it
-                pass
+        assert self.env.loader is not None, "Jinja Environment must have a loader to find template dependencies."
+        source, path, _h = self.env.loader.get_source(self.env, template_name)
+        ast = self.env.parse(source)
+        if path:
+            dependencies.append(Path(path))
 
+            # Find all referenced templates (includes, extends, imports)
+            refs = meta.find_referenced_templates(ast)
+            for ref in set(refs):
+                if ref is not None:
+                    dependencies.extend(self._find_template_dependencies(ref))
+
+        self._dep_cache[self.context][template_name] = dependencies
         return dependencies
 
 
@@ -210,15 +205,12 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
         meta['rendered_markdown'] = rendered_md
 
-        template_path, template_deps = self.render_template(
+        template_deps = self.render_template(
             meta.get('template', self.default_template),
             meta,
             output_paths
         )
-        if template_path:
-            # Track the markdown file, main template, and all template dependencies
-            sources = [path, Path(template_path)] + template_deps
-            return sources, output_paths
+        return [path, *template_deps], output_paths
 
     @property
     def md_processor(self):
