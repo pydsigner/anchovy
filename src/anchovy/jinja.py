@@ -76,7 +76,8 @@ class JinjaRenderStep(BaseStandardStep):
         :param meta: Any parameters to be passed to the template.
         :param output_paths: A list of Paths the rendered template will be
             written to.
-        :returns: A tuple of (main_template_path, all_template_dependencies).
+        :returns: A list of Paths for template dependencies, including the
+            rendered template itself.
         """
         template = self.env.get_template(template_name)
         with self.ensure_outputs(output_paths):
@@ -85,12 +86,11 @@ class JinjaRenderStep(BaseStandardStep):
         # Find all template dependencies (includes, extends, imports)
         return self._find_template_dependencies(template_name)
 
-    def _find_template_dependencies(self, template_name: str) -> list[Path]:
+    def _find_template_dependencies(self, template_name: str):
         """
         Find all templates referenced by the given template (includes, extends, imports).
 
         :param template_name: The name of the template to analyze.
-        :returns: A list of Path objects for all dependent templates.
         """
         from jinja2 import meta
 
