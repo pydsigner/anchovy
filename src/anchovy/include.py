@@ -160,6 +160,12 @@ class SQLExtractStep(BaseStandardStep):
         self.ext = ext
         self.binary = binary
 
+    def ensure_output_dirs(self, output_paths: list[Path]):
+        for o_path in output_paths:
+            # Don't jump up to the parent, since we're expecting to get
+            # directories as our output paths anyways.
+            o_path.mkdir(parents=True, exist_ok=True)
+
     def __call__(self, path: Path, output_paths: list[Path]):
         self.ensure_output_dirs(output_paths)
         conn = self.connection_factory()
