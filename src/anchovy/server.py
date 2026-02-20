@@ -82,7 +82,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 def serve(port: int, directory: str | pathlib.Path, host: str = 'localhost'):
     with ThreadedHTTPServer((host, port), directory=directory) as httpd:
-        print(f'Serving at http://localhost:{port}')
+        print(f'Serving at http://{host}:{port}')
         httpd.serve_forever()
 
 
