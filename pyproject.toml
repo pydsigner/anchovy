@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64.0", "setuptools-scm"]
+requires = ["setuptools>=77.0.3", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "anchovy"
 description = "A minimal, unopinionated file processing engine intended for static website generation."
 readme = "README.md"
 requires-python = ">=3.10"
-license = {"text" = "Apache-2.0"}
+license = "Apache-2.0"
 authors = [
     {"name" = "Daniel Foerster", "email" = "pydsigner@gmail.com"},
 ]
@@ -15,13 +15,14 @@ keywords = ["static", "website", "generation", "html", "css", "template"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Pre-processors",
     "Topic :: Text Processing :: Markup",
@@ -119,9 +120,6 @@ persistent = true
 # Minimum Python version to use for version dependent checks. Will default to the
 # version used to run pylint.
 py-version = "3.10"
-# When enabled, pylint would attempt to guess common misconfiguration and emit
-# user-friendly hints instead of false-positive error messages.
-suggestion-mode = true
 extension-pkg-whitelist = [
     "lightningcss",
 ]

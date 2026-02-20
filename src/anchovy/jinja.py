@@ -105,7 +105,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
                  jinja_env: Environment | None = None,
                  jinja_globals: dict[str, t.Any] | None = None,
                  *,
-                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = 'yaml',
+                 frontmatter_parser: FrontMatterParser | FrontMatterParserName = t.cast(FrontMatterParserName, 'yaml'),
                  container_types: list[tuple[str | None, list[str]]] | None = None,
                  container_renderers: dict[str, MDContainerRenderer] | None = None,
                  substitutions: dict[str, str] | None = None,
@@ -150,7 +150,7 @@ class JinjaMarkdownStep(JinjaRenderStep):
         """
         super().__init__(jinja_env, jinja_globals)
         self.default_template = default_template
-        self.frontmatter_parser = frontmatter_parser
+        self.frontmatter_parser: FrontMatterParser | FrontMatterParserName = frontmatter_parser
         self.container_types = container_types or []
         self.container_renderers = container_renderers or {}
         self.substitutions = substitutions or {}
@@ -219,15 +219,12 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
     def _build_processor(self):
         import markdown_it
-        # TODO Need for pyright suppression will be eliminated in the next
-        # release of mdit_py_plugins:
-        #  https://github.com/executablebooks/mdit-py-plugins/pull/91
-        from mdit_py_plugins.anchors import anchors_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.container import container_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.footnote import footnote_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.front_matter import front_matter_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.wordcount import wordcount_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.anchors import anchors_plugin
+        from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
+        from mdit_py_plugins.container import container_plugin
+        from mdit_py_plugins.footnote import footnote_plugin
+        from mdit_py_plugins.front_matter import front_matter_plugin
+        from mdit_py_plugins.wordcount import wordcount_plugin
         from .components import md_rendering
 
         processor = markdown_it.MarkdownIt(

@@ -1,13 +1,13 @@
 {
   "info": {
-    "input_dir": "examples\\gallery",
-    "output_dir": "output\\gallery",
-    "working_dir": "working\\gallery",
-    "custody_cache": "output\\gallery.json",
+    "input_dir": "examples/gallery",
+    "output_dir": "output/gallery",
+    "working_dir": "working/gallery",
+    "custody_cache": "output/gallery.json",
     "purge_dirs": "True"
   },
   "parameters": {
-    "anchovy_version": "0.12.1.dev3+g0b211d8.d20230817"
+    "anchovy_version": "1.0.2.dev1+g9f78db558"
   },
   "graph": {
     "output_dir/index.html": {
@@ -79,7 +79,7 @@
       "path",
       {
         "sha1": "1d3e421721ec906bc128e4d55864d82aa6a6c75d",
-        "m_time": 1706995629.7952046,
+        "m_time": 1771564754.4546452,
         "size": 894
       }
     ],
@@ -87,7 +87,7 @@
       "path",
       {
         "sha1": "9f27b1b3c02eb311934b91670b75223332345e46",
-        "m_time": 1703960959.0921924,
+        "m_time": 1768672922.30065,
         "size": 691
       }
     ],
@@ -95,7 +95,7 @@
       "path",
       {
         "sha1": "2fad43a9e064d556cfac55d19509f4ce7a328870",
-        "m_time": 1661323407.0471978,
+        "m_time": 1768672922.3004866,
         "size": 294
       }
     ],
@@ -103,7 +103,7 @@
       "path",
       {
         "sha1": "b83692b7ecefc8f7258e668b3809c698b58215ad",
-        "m_time": 1706995629.9750297,
+        "m_time": 1771564754.5693567,
         "size": 130280
       }
     ],
@@ -111,7 +111,7 @@
       "path",
       {
         "sha1": "203990dbc21656099ebf8e06339897ff59b1e569",
-        "m_time": 1661323407.0136852,
+        "m_time": 1768672922.2954984,
         "size": 890709
       }
     ],
@@ -119,7 +119,7 @@
       "path",
       {
         "sha1": "f68028822c70dd10050e31fd94dddd118130367c",
-        "m_time": 1706995630.2949483,
+        "m_time": 1771564754.7693582,
         "size": 486084
       }
     ],
@@ -127,7 +127,7 @@
       "path",
       {
         "sha1": "9548f6b06d5a74ecc70a02ec1d6ee024396dc912",
-        "m_time": 1661323407.0189798,
+        "m_time": 1768672922.2964983,
         "size": 706821
       }
     ],
@@ -135,7 +135,7 @@
       "path",
       {
         "sha1": "5487a4719f9444eb3dea1def8559a01d3987646d",
-        "m_time": 1706995630.5707417,
+        "m_time": 1771564754.9413593,
         "size": 384794
       }
     ],
@@ -143,7 +143,7 @@
       "path",
       {
         "sha1": "3b94e6a05cfb68faf1d4e15f82760ec306990295",
-        "m_time": 1661323407.025743,
+        "m_time": 1768672922.2974985,
         "size": 679302
       }
     ],
@@ -151,7 +151,7 @@
       "path",
       {
         "sha1": "9d8d12085d4fe45bf991ef213d6ec9d687f1aea0",
-        "m_time": 1706995630.659237,
+        "m_time": 1771564755.0043597,
         "size": 112870
       }
     ],
@@ -159,7 +159,7 @@
       "path",
       {
         "sha1": "d2b3364f1f5be5153295518a5b1ee61bd52cffe3",
-        "m_time": 1661323407.0307305,
+        "m_time": 1768672922.2984984,
         "size": 482152
       }
     ],
@@ -167,7 +167,7 @@
       "path",
       {
         "sha1": "ec990618526da22c865fbbbef1709e0248a6db3c",
-        "m_time": 1706995630.9003868,
+        "m_time": 1771564755.1673608,
         "size": 213976
       }
     ],
@@ -175,55 +175,55 @@
       "path",
       {
         "sha1": "23e6ad2efc9cb2ec65a010b43032f7569afab574",
-        "m_time": 1661323407.034723,
+        "m_time": 1768672922.2984984,
         "size": 447542
       }
     ],
     "output_dir/static/images/anchovy-nypl.thumb.webp": [
       "path",
       {
-        "sha1": "cdc071ac8c1df352d311cc5f2953323d63f1d11f",
-        "m_time": 1706995630.9275067,
-        "size": 3290
+        "sha1": "f74ad5160b884744248b7f598e3fadab01d974f4",
+        "m_time": 1771564755.184361,
+        "size": 3252
       }
     ],
     "output_dir/static/images/home-sweet-home-cdk.thumb.webp": [
       "path",
       {
-        "sha1": "5b0050327c24463e8c40dd5f719143395f83ed6c",
-        "m_time": 1706995630.945872,
-        "size": 12328
+        "sha1": "a8fc7fe199c2935dbf83305eec1d38a5f59df82e",
+        "m_time": 1771564755.1983612,
+        "size": 12142
       }
     ],
     "output_dir/static/images/nice-wheels-cdk.thumb.webp": [
       "path",
       {
-        "sha1": "14a1a1a9bd5efa32ea61ce0bd21ec05a76222a4f",
-        "m_time": 1706995630.9749384,
-        "size": 13700
+        "sha1": "4549140674b3288c8ebe99329b0ba715229280fc",
+        "m_time": 1771564755.2223613,
+        "size": 13758
       }
     ],
     "output_dir/static/images/quayside-newcastle.thumb.webp": [
       "path",
       {
         "sha1": "5c778a19692593bca5ddadb2fd0c97adca38451a",
-        "m_time": 1706995631.001175,
+        "m_time": 1771564755.2373614,
         "size": 11854
       }
     ],
     "output_dir/static/images/stormy-cdk.thumb.webp": [
       "path",
       {
-        "sha1": "813bcb7b2d5e97b6d432e18a0bc531f3f3fdf166",
-        "m_time": 1706995631.0337472,
-        "size": 6042
+        "sha1": "7f16e7795ab09f9d0a774a1bdb53436efa1aff11",
+        "m_time": 1771564755.2533615,
+        "size": 5980
       }
     ],
     "output_dir/static/core.css": [
       "path",
       {
         "sha1": "8a1e53893dea46843e962949774273166a4608f1",
-        "m_time": 1706995631.0469563,
+        "m_time": 1771564755.2558157,
         "size": 526
       }
     ],
@@ -231,7 +231,7 @@
       "path",
       {
         "sha1": "8a1e53893dea46843e962949774273166a4608f1",
-        "m_time": 1661323407.0501904,
+        "m_time": 1768672922.30065,
         "size": 526
       }
     ]

@@ -1,13 +1,13 @@
 {
   "info": {
-    "input_dir": "examples\\code_index",
-    "output_dir": "output\\code_index",
-    "working_dir": "working\\code_index",
-    "custody_cache": "output\\code_index.json",
+    "input_dir": "examples/code_index",
+    "output_dir": "output/code_index",
+    "working_dir": "working/code_index",
+    "custody_cache": "output/code_index.json",
     "purge_dirs": "True"
   },
   "parameters": {
-    "anchovy_version": "0.12.1.dev3+g0b211d8.d20230817"
+    "anchovy_version": "1.0.2.dev1+g9f78db558"
   },
   "graph": {
     "working_dir": {
@@ -128,15 +128,15 @@
       "path",
       {
         "sha1": "",
-        "m_time": 1706996735.449964,
-        "size": 4096
+        "m_time": 1771564882.784627,
+        "size": 46
       }
     ],
     "working_dir/basic_site.py": [
       "path",
       {
         "sha1": "c4983436e017a238d94796250a749d74cbc76835",
-        "m_time": 1706996735.4489732,
+        "m_time": 1771564882.784627,
         "size": 1071
       }
     ],
@@ -144,7 +144,7 @@
       "path",
       {
         "sha1": "3cdd5e3cc41664211b63f98b94a0791282f1ea4d",
-        "m_time": 1706996735.449964,
+        "m_time": 1771564882.784744,
         "size": 1407
       }
     ],
@@ -152,7 +152,7 @@
       "path",
       {
         "sha1": "212d13b73c1b6579519c38b019eae828358cc98d",
-        "m_time": 1700432465.1645195,
+        "m_time": 1768672922.3004413,
         "size": 1233
       }
     ],
@@ -160,7 +160,7 @@
       "path",
       {
         "sha1": "522ee3defec401e1a661c862b313cb76a8683d9f",
-        "m_time": 1706996735.457506,
+        "m_time": 1771564882.788638,
         "size": 305
       }
     ],
@@ -168,7 +168,7 @@
       "path",
       {
         "sha1": "522ee3defec401e1a661c862b313cb76a8683d9f",
-        "m_time": 1706996649.193668,
+        "m_time": 1768672922.3004413,
         "size": 305
       }
     ],
@@ -176,7 +176,7 @@
       "path",
       {
         "sha1": "23b855543fd50b49b743413cc221e1bee266c6c9",
-        "m_time": 1706996735.4615524,
+        "m_time": 1771564882.7908564,
         "size": 306
       }
     ],
@@ -184,7 +184,7 @@
       "path",
       {
         "sha1": "0c537d96df6aa891be2ba27af58975eb8fff9e2b",
-        "m_time": 1700432465.1760292,
+        "m_time": 1768672922.3004413,
         "size": 369
       }
     ],
@@ -192,7 +192,7 @@
       "path",
       {
         "sha1": "16d39823b42dfc58eb0b12d04cc54c233575f398",
-        "m_time": 1706996735.470035,
+        "m_time": 1771564882.7958777,
         "size": 5551
       }
     ],
@@ -200,7 +200,7 @@
       "path",
       {
         "sha1": "e81fa6d29a89ef0f69f06e235b0ce9b9e1f593be",
-        "m_time": 1700432465.1760292,
+        "m_time": 1768672922.3004866,
         "size": 4606
       }
     ],
@@ -208,7 +208,7 @@
       "path",
       {
         "sha1": "0cc6ab8a6e988e4f3ff88a30dca17f4b8087a37b",
-        "m_time": 1706996735.4745364,
+        "m_time": 1771564882.7966843,
         "size": 36
       }
     ],
@@ -216,7 +216,7 @@
       "path",
       {
         "sha1": "0cc6ab8a6e988e4f3ff88a30dca17f4b8087a37b",
-        "m_time": 1700432465.1760292,
+        "m_time": 1768672922.3004866,
         "size": 36
       }
     ],
@@ -224,7 +224,7 @@
       "path",
       {
         "sha1": "bf995c9fb6202933eb3d6b433b38bae484e2f7d1",
-        "m_time": 1706996735.4912386,
+        "m_time": 1771564882.8027022,
         "size": 1184
       }
     ],
@@ -232,7 +232,7 @@
       "path",
       {
         "sha1": "e03d87bee6bd515e50c752acae7a24cc6700aef7",
-        "m_time": 1706996735.494867,
+        "m_time": 1771564882.803378,
         "size": 1514
       }
     ],
@@ -240,7 +240,7 @@
       "path",
       {
         "sha1": "0b2f6b68215f5d1135e3deec703b012033fcea97",
-        "m_time": 1706996735.5039737,
+        "m_time": 1771564882.8072402,
         "size": 417
       }
     ],
@@ -257,39 +257,39 @@
       "path",
       {
         "sha1": "5620127ab0d2261762dac0c30d1fe79e86dcac03",
-        "m_time": 1706996735.508551,
+        "m_time": 1771564882.8100204,
         "size": 5859
       }
     ],
     "working_dir/basic_site/index.html": [
       "path",
       {
-        "sha1": "ffe41a786d2d6e21e277aa1db53db621384aa76f",
-        "m_time": 1706996735.6131053,
-        "size": 4852
+        "sha1": "04a73f736fa7bd2abaccf0ade88ccc8a74df58c4",
+        "m_time": 1771564882.8550258,
+        "size": 4960
       }
     ],
     "input_dir/base.jinja.html": [
       "path",
       {
         "sha1": "cd1fad850af896b28d5cd43b64837e1360a9b0a9",
-        "m_time": 1706996724.3570445,
+        "m_time": 1768672922.300374,
         "size": 349
       }
     ],
     "working_dir/gallery/index.html": [
       "path",
       {
-        "sha1": "607b78c4b55e9b7598d74c7dae26847536932758",
-        "m_time": 1706996735.6226301,
-        "size": 6386
+        "sha1": "f65f79eb16e3505b151e4e58988ef41f4031d756",
+        "m_time": 1771564882.8582406,
+        "size": 6494
       }
     ],
     "output_dir/static/css_pack.css": [
       "path",
       {
         "sha1": "c363895ad4c4f75aff899690c56eef2e300980be",
-        "m_time": 1706996735.6266575,
+        "m_time": 1771564882.8598766,
         "size": 2800
       }
     ],
@@ -297,24 +297,24 @@
       "path",
       {
         "sha1": "310b5f2330ee78a24b009ca52df2583bd4e29d9f",
-        "m_time": 1706996735.6696851,
+        "m_time": 1771564882.8624423,
         "size": 253
       }
     ],
     "output_dir/basic_site/index.html": [
       "path",
       {
-        "sha1": "f217f536a707d91b90b6d50ab94fb5e9c310a5f2",
-        "m_time": 1706996735.693998,
-        "size": 4439
+        "sha1": "fb36181456252e8ecdacb49025c3865bdc0bcdec",
+        "m_time": 1771564882.8701634,
+        "size": 4539
       }
     ],
     "output_dir/gallery/index.html": [
       "path",
       {
-        "sha1": "ddac506b836ee7fffaed7f1dad18967bd11acf0e",
-        "m_time": 1706996735.7010386,
-        "size": 5887
+        "sha1": "174faa32e67bfa8de9f6ea906770daa74d76445b",
+        "m_time": 1771564882.873274,
+        "size": 5987
       }
     ]
   }

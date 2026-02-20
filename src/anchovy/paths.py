@@ -6,7 +6,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, ContextDir, Matcher, PathCalc
-from .custody import CONTEXT_DIR_KEYS
+from .custody import is_context_dir
 
 
 T = t.TypeVar('T')
@@ -61,7 +61,7 @@ class DirPathCalc(PathCalc[T]):
         self.transform = transform
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        if self.dest in CONTEXT_DIR_KEYS:
+        if is_context_dir(self.dest):
             dest = context[self.dest]
         else:
             dest = Path(self.dest)
