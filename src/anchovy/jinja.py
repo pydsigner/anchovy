@@ -219,15 +219,12 @@ class JinjaMarkdownStep(JinjaRenderStep):
 
     def _build_processor(self):
         import markdown_it
-        # TODO Need for pyright suppression will be eliminated in the next
-        # release of mdit_py_plugins:
-        #  https://github.com/executablebooks/mdit-py-plugins/pull/91
-        from mdit_py_plugins.anchors import anchors_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.container import container_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.footnote import footnote_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.front_matter import front_matter_plugin  # type: ignore[reportPrivateImportUsage]
-        from mdit_py_plugins.wordcount import wordcount_plugin  # type: ignore[reportPrivateImportUsage]
+        from mdit_py_plugins.anchors import anchors_plugin
+        from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
+        from mdit_py_plugins.container import container_plugin
+        from mdit_py_plugins.footnote import footnote_plugin
+        from mdit_py_plugins.front_matter import front_matter_plugin
+        from mdit_py_plugins.wordcount import wordcount_plugin
         from .components import md_rendering
 
         processor = markdown_it.MarkdownIt(
