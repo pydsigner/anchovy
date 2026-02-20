@@ -163,12 +163,15 @@ def main(arguments: list[str] | None = None):
     Anchovy main function. Finds or creates a Context using an Anchovy config
     file and command line arguments, then executes a build using it.
     """
-    parser = argparse.ArgumentParser(description='Build an anchovy project.')
+    parser = argparse.ArgumentParser(description='Build an anchovy project.', add_help=False)
+    parser.add_argument('-h', '--help',
+                        help='show this help message and exit',
+                        action='store_true')
     parser.add_argument('--audit-steps',
                         help=('show information about available, unavailable, '
                               'and used steps, instead of building the project'),
                         action='store_true')
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group()
     group.add_argument('-m',
                        help='import path of a config file to build',
                        type=importlib.import_module,
@@ -188,6 +191,14 @@ def main(arguments: list[str] | None = None):
                        default=8080)
 
     args, remaining = parser.parse_known_args(arguments)
+    if args.help:
+        if args.module or args.config_file:
+            remaining.append('--help')
+        else:
+            parser.print_help()
+            sys.exit(0)
+    elif not args.module and not args.config_file:
+        parser.error('one of the following arguments is required: config_file or -m/--module')
 
     if args.config_file:
         label: str = str(args.config_file)
