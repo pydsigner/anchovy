@@ -13,6 +13,7 @@ from .pretty_utils import print_with_style
 
 if t.TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing_extensions import TypeIs
     from .core import Context, ContextDir
 
 
@@ -22,7 +23,7 @@ _JsonDict = dict[str, _JsonSerializable]
 CONTEXT_DIR_KEYS: set[ContextDir] = {'input_dir', 'output_dir', 'working_dir'}
 
 
-def is_context_dir(key: t.Any) -> t.TypeIs[ContextDir]:
+def is_context_dir(key: t.Any) -> TypeIs[ContextDir]:
     """
     Whether a string is a `ContextDir`.
     """
