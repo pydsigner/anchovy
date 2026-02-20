@@ -92,7 +92,10 @@ def compare_artifacts(old: dict, new: dict, context: Context, mtime_mode=MTIME_M
                 continue
             try:
                 assert n_dict['sha1'] == o_dict['sha1']
-                assert n_dict['size'] == o_dict['size']
+                # Ignore sizes for directories; fixes issue with mismatch on
+                # GitHub runner
+                if n_dict['sha1']:
+                    assert n_dict['size'] == o_dict['size']
                 if mtime_mode == MTIME_MODE_NE and context_dir != 'input_dir':
                     assert n_dict['m_time'] != o_dict['m_time']
                 elif mtime_mode == MTIME_MODE_EQ:
