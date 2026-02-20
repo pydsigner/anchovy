@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import shutil
 import sys
+import typing as t
 from pathlib import Path
 
 from anchovy.core import Context
@@ -13,6 +14,9 @@ from .core import Context
 from .custody import CustodyEntry
 from .dependencies import Dependency, PipDependency
 from .simple import BaseStandardStep
+
+if t.TYPE_CHECKING:
+    from _typeshed.dbapi import DBAPIConnection
 
 
 class RequestsFetchStep(BaseStandardStep):
@@ -131,3 +135,45 @@ class UnpackArchiveStep(BaseStandardStep):
             all_outputs.append(o_path)
             all_outputs.extend(self.context.find_inputs(o_path))
         return [path], all_outputs
+
+
+class SQLExtractStep(BaseStandardStep):
+    """
+    A step for extracting files from a SQL database. The query should return
+    two columns: first, the name of the output file and second, the content of
+    the file. The output PathCalc used with this step should resolve to a
+    directory where output files will be placed.
+    """
+    def __init__(self,
+                 connection_factory: t.Callable[[], DBAPIConnection],
+                 ext: str = '',
+                 binary: bool = False):
+        """
+        :param connection_factory: A callable that returns a new DB-API 2.0
+            database connection.
+        :param ext: An optional extension to add to the name of the output
+            files.
+        :param binary: Whether the output data should be treated as text or as
+            binary.
+        """
+        self.connection_factory = connection_factory
+        self.ext = ext
+        self.binary = binary
+
+    def __call__(self, path: Path, output_paths: list[Path]):
+        self.ensure_output_dirs(output_paths)
+        conn = self.connection_factory()
+        curr = conn.cursor()
+        with path.open(encoding=self.encoding) as f:
+            curr.execute(f.read())
+
+        outputs = []
+        for name, data in curr.fetchall():
+            for o_base in output_paths:
+                out_path = o_base / (name + self.ext)
+                with (out_path.open('wb') if self.binary else out_path.open('w', encoding=self.encoding)) as f:
+                    f.write(data)
+                outputs.append(out_path)
+
+        conn.close()
+        return [path], outputs
