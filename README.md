@@ -51,7 +51,12 @@ Anchovy operates on config files written in Python, or even modules directly.
 
 * `python -m anchovy -h`
 * `anchovy -m mypackage.anchovyconf -o ../release/`
-* `python -m anchovy mysite/anchovy_site.py -- -h`
+* `python -m anchovy mysite/anchovy_site.py -h`
+
+If `-h` is supplied with a module or config file, help will be displayed for
+the pipeline configuration. If it is supplied without a module or config file,
+help will be displayed for anchovy's own run-time options, such as
+`--audit-steps` and `--serve`, as well as how to specify a module/config file.
 
 ### Show Me
 
@@ -135,8 +140,7 @@ output/
 
 This example can be found in runnable form as [examples/basic_site.py](./examples/basic_site.py)
 in the source distribution. Available command line arguments can be seen by
-passing `-h`: `python -m anchovy examples/basic_site.py -- -h`. The `--` is
-required because `anchovy` itself also accepts the flag.
+passing `-h`: `python -m anchovy examples/basic_site.py -h`.
 
 ## Programmatic Usage
 
