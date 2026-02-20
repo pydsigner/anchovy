@@ -45,7 +45,7 @@ FRONTMATTER_PARSER_FACTORIES: dict[FrontMatterParserName, t.Callable[[], FrontMa
 }
 
 
-def get_frontmatter_parser(parser) -> FrontMatterParser:
+def get_frontmatter_parser(parser: FrontMatterParserName | FrontMatterParser) -> FrontMatterParser:
     if callable(parser):
         return parser
     return FRONTMATTER_PARSER_FACTORIES[parser]()
