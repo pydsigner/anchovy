@@ -10,6 +10,6 @@ from .images import CWebPStep, ImageMagickStep, IMThumbnailStep, PillowStep, Opt
 from .include import RequestsFetchStep, SQLExtractStep, UnpackArchiveStep, URLLibFetchStep
 from .jinja import JinjaExtendedMarkdownStep, JinjaMarkdownStep, JinjaRenderStep
 from .minify import AssetMinifierStep, CSSMinifierStep, HTMLMinifierStep, ResourcePackerStep
-from .paths import DirPathCalc, OutputDirPathCalc, REMatcher, WebIndexPathCalc, WorkingDirPathCalc
+from .paths import DirPathCalc, HashSuffixPathCalc, OutputDirPathCalc, REMatcher, WebIndexPathCalc, WorkingDirPathCalc
 from .rewrite import BaseRewriteStep, HTMLRewriteStep
 from .simple import BaseCommandStep, BaseStandardStep, DirectCopyStep

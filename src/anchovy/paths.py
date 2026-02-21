@@ -6,7 +6,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, ContextDir, Matcher, PathCalc
-from .custody import is_context_dir
+from .custody import checksum, is_context_dir
 
 
 T = t.TypeVar('T')
@@ -125,6 +125,33 @@ class WebIndexPathCalc(DirPathCalc[T]):
         if path.stem == self.index_base:
             return path
         return (path.with_suffix('') / self.index_base).with_suffix(path.suffix)
+
+
+class HashSuffixPathCalc(DirPathCalc[T]):
+    """
+    DirPathCalc which additionally adds a hash suffix before the file extension.
+    The hash is calculated from the content of the input file, so this PathCalc
+    is best used after other transformations are complete. The hash will be
+    truncated to @hash_length characters.
+    """
+    def __init__(self,
+                 dest: Path | ContextDir,
+                 ext: str | None = None,
+                 transform: t.Callable[[Path], Path] | None = None,
+                 hash_length: int = 8):
+        super().__init__(dest, ext, transform)
+        self.hash_length = hash_length
+
+    def __call__(self, context: Context, path: Path, match: T) -> Path:
+        hash_suffix = checksum(path)[:self.hash_length]
+        new_path = super().__call__(context, path, match)
+        # If the file has a compound extension like .tar.gz, we want to insert
+        # the hash before the whole extension, not just before .gz. We can't \
+        # reliably detect this for the user, but if they specify an extension
+        # we can safely put the hash before that.
+        if self.ext:
+            return new_path.with_name(f'{new_path.name[:-len(self.ext)]}.{hash_suffix}{self.ext}')
+        return new_path.with_name(f'{new_path.stem}.{hash_suffix}{new_path.suffix}')
 
 
 class REMatcher(Matcher[re.Match | None]):
