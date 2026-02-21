@@ -6,7 +6,7 @@ import typing as t
 from pathlib import Path
 
 from .core import Context, ContextDir, Matcher, PathCalc
-from .custody import checksum, is_context_dir
+from .custody import is_context_dir
 
 
 T = t.TypeVar('T')
@@ -143,7 +143,7 @@ class HashSuffixPathCalc(DirPathCalc[T]):
         self.hash_length = hash_length
 
     def __call__(self, context: Context, path: Path, match: T) -> Path:
-        hash_suffix = checksum(path)[:self.hash_length]
+        hash_suffix = context.custodian.checksum(path)[:self.hash_length]
         new_path = super().__call__(context, path, match)
         # If the file has a compound extension like .tar.gz, we want to insert
         # the hash before the whole extension, not just before .gz. We can't \
