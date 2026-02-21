@@ -11,4 +11,5 @@ from .include import RequestsFetchStep, SQLExtractStep, UnpackArchiveStep, URLLi
 from .jinja import JinjaExtendedMarkdownStep, JinjaMarkdownStep, JinjaRenderStep
 from .minify import AssetMinifierStep, CSSMinifierStep, HTMLMinifierStep, ResourcePackerStep
 from .paths import DirPathCalc, OutputDirPathCalc, REMatcher, WebIndexPathCalc, WorkingDirPathCalc
+from .rewrite import BaseRewriteStep, HTMLRewriteStep
 from .simple import BaseCommandStep, BaseStandardStep, DirectCopyStep
