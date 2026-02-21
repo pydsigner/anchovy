@@ -62,7 +62,8 @@ web = [
     "anchovy[markdown]",
     "anchovy[css]",
     "anchovy[pillow]",
-    "anchovy[minify]"
+    "anchovy[minify]",
+    "lxml>=6.0.2",
 ]
 include = ["requests>=2.31.0", "anchovy[toml]"]
 base = ["anchovy[web]", "anchovy[include]", "anchovy[pretty]"]
