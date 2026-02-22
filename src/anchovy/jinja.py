@@ -84,9 +84,9 @@ class JinjaRenderStep(BaseStandardStep):
             template.stream(**meta).dump(str(output_paths[0]), encoding=self.encoding)
 
         # Find all template dependencies (includes, extends, imports)
-        return self._find_template_dependencies(template_name)
+        return self.find_template_dependencies(template_name)
 
-    def _find_template_dependencies(self, template_name: str):
+    def find_template_dependencies(self, template_name: str):
         """
         Find all templates referenced by the given template (includes, extends, imports).
 
@@ -99,7 +99,7 @@ class JinjaRenderStep(BaseStandardStep):
 
         dependencies: list[Path] = []
 
-        assert self.env.loader is not None, "Jinja Environment must have a loader to find template dependencies."
+        assert self.env.loader is not None, 'Jinja Environment must have a loader to find template dependencies.'
         source, path, _h = self.env.loader.get_source(self.env, template_name)
         ast = self.env.parse(source)
         if path:
@@ -109,7 +109,7 @@ class JinjaRenderStep(BaseStandardStep):
             refs = meta.find_referenced_templates(ast)
             for ref in set(refs):
                 if ref is not None:
-                    dependencies.extend(self._find_template_dependencies(ref))
+                    dependencies.extend(self.find_template_dependencies(ref))
 
         self._dep_cache[self.context][template_name] = dependencies
         return dependencies
