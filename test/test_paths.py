@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from anchovy.core import BuildSettings, Context, Matcher, PathCalc, Rule, Step
-from anchovy.paths import DirPathCalc, OutputDirPathCalc, REMatcher, WebIndexPathCalc, WorkingDirPathCalc
+from anchovy.paths import DirPathCalc, HashSuffixPathCalc, OutputDirPathCalc, REMatcher, WebIndexPathCalc, WorkingDirPathCalc
 
 
 INPUT_PATH = Path('input')
@@ -92,6 +92,18 @@ def test_web_index_path_calc(config: tuple, input: Path, expected: Path, dummy_c
 ])
 def test_working_dir_path_calc(config: tuple, input: tuple[Path, t.Any], expected: Path, dummy_context: Context):
     calc = WorkingDirPathCalc(*config)
+    assert calc(dummy_context, *input) == expected
+
+
+@pytest.mark.parametrize('config,input,hash,expected', [
+    (('output_dir', '.webp'), (INPUT_PATH / 'foo.jpg', None), '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', OUTPUT_PATH / 'foo.2c26b46b.webp'),
+    (('working_dir',), (INPUT_PATH / 'foo.jpg', None), 'deadbeefdeadbeef', WORKING_PATH / 'foo.deadbeef.jpg'),
+    (('working_dir', '.webp', None, 12), (INPUT_PATH / 'foo.jpg', None), '0413413422d706483bfa0f98a5e886266e7ae', WORKING_PATH / 'foo.0413413422d7.webp'),
+    (('output_dir', '.tar.gz'), (INPUT_PATH / 'foo.tar', None), '0413413422d706483bfa0f98a5e886266e7ae', OUTPUT_PATH / 'foo.04134134.tar.gz'),
+])
+def test_hash_suffix_path_calc(config: tuple, input: tuple[Path, t.Any], hash: str, expected: Path, dummy_context: Context):
+    dummy_context.custodian.checksum = lambda path: hash
+    calc = HashSuffixPathCalc(*config)
     assert calc(dummy_context, *input) == expected
 
 
