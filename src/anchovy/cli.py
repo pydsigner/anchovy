@@ -18,6 +18,15 @@ from .custody import Custodian
 from .pretty_utils import print_with_style
 
 
+DEFAULT_SETTINGS = InputBuildSettings(
+    input_dir=Path('site'),
+    output_dir=Path('output'),
+    working_dir=None,
+    custody_cache=None,
+    purge_dirs=None,
+)
+
+
 class BuildNamespace:
     """
     Internal used to preserve typing between InputBuildSettings, argparse, and
@@ -31,7 +40,19 @@ class BuildNamespace:
 
     def __init__(self, settings: InputBuildSettings | None = None):
         if settings:
-            self.__dict__.update(settings)
+            self.load_settings(settings)
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({", ".join(f"{k}={v!r}" for k, v in self.__dict__.items())})'
+
+    def load_settings(self, settings: InputBuildSettings):
+        """
+        Load settings from an InputBuildSettings into this namespace. Any
+        settings already present will be preserved.
+        """
+        for k, v in settings.items():
+            if k not in self.__dict__:
+                self.__dict__[k] = v
 
     def to_build_settings(self, resolved_working_dir: Path):
         """
@@ -50,6 +71,18 @@ class BuildNamespace:
         )
 
 
+class CLINamespace(BuildNamespace):
+    """
+    A BuildNamespace with additional attributes for CLI arguments.
+    """
+    help: bool
+    audit_steps: bool
+    module: t.Any
+    config_file: Path | None
+    serve: bool
+    port: int
+
+
 @contextlib.contextmanager
 def _wrap_temp(path: Path | None):
     if path:
@@ -59,6 +92,45 @@ def _wrap_temp(path: Path | None):
             yield Path(temp_dir)
 
 
+def install_settings_args(parser: argparse.ArgumentParser):
+    """
+    Add arguments for the standard Anchovy settings to the given ArgumentParser.
+    """
+    parser.add_argument('-i', '--input',
+                        help='input directory with raw files to process',
+                        type=Path,
+                        dest='input_dir',
+                        default=argparse.SUPPRESS)
+    parser.add_argument('-o', '--output',
+                        help='output directory for final built files',
+                        type=Path,
+                        dest='output_dir',
+                        default=argparse.SUPPRESS)
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-w', '--working',
+                       help='directory for intermediate files; defaults to a new temporary directory',
+                       type=Path,
+                       dest='working_dir',
+                       default=argparse.SUPPRESS)
+    group.add_argument('--use-temporary',
+                       help='force use of a temporary directory for intermediate files',
+                       action='store_const',
+                       dest='working_dir',
+                       const=None,
+                       default=argparse.SUPPRESS)
+
+    parser.add_argument('--custody-cache',
+                        help='path to a cache file for chain of custody and change detection',
+                        type=Path,
+                        default=argparse.SUPPRESS)
+    parser.add_argument('--purge',
+                        help='purge the output directory before building',
+                        action=argparse.BooleanOptionalAction,
+                        dest='purge_dirs',
+                        default=argparse.SUPPRESS)
+
+
 def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[str] | None = None, **kw):
     """
     Internal function used by `run_from_rules()` to combine an instance of
@@ -66,44 +138,12 @@ def parse_settings_args(settings: InputBuildSettings | None = None, argv: list[s
     can be easily turned into BuildSettings.
     """
     namespace = BuildNamespace(settings)
-
     parser = argparse.ArgumentParser(**kw)
-    parser.add_argument('-i', '--input',
-                        help='input directory with raw files to process',
-                        type=Path,
-                        dest='input_dir',
-                        default=Path('site'))
-    parser.add_argument('-o', '--output',
-                        help='output directory for final built files',
-                        type=Path,
-                        dest='output_dir',
-                        default=Path('output'))
-
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-w', '--working',
-                       help='directory for intermediate files; defaults to a new temporary directory',
-                       type=Path,
-                       dest='working_dir')
-    group.add_argument('--use-temporary',
-                       help='force use of a temporary directory for intermediate files',
-                       action='store_const',
-                       dest='working_dir',
-                       const=None)
-
-    parser.add_argument('--custody-cache',
-                        help='path to a cache file for chain of custody and change detection',
-                        type=Path,
-                        default=None)
-    parser.add_argument('--purge',
-                        help='purge the output directory before building',
-                        action=argparse.BooleanOptionalAction,
-                        dest='purge_dirs',
-                        default=None)
-
+    install_settings_args(parser)
     return parser.parse_args(argv, namespace=namespace)
 
 
-def run_from_rules(settings: InputBuildSettings | None,
+def run_from_rules(settings: InputBuildSettings | BuildNamespace | None,
                    rules: list[Rule],
                    custodian: Custodian | None = None,
                    context_cls: t.Type[Context] = Context,
@@ -113,9 +153,23 @@ def run_from_rules(settings: InputBuildSettings | None,
     execute a build using the new Context. A Custodian and a custom Context
     class may be additionally supplied.
     """
-    final_settings = parse_settings_args(settings, **kw)
-    with _wrap_temp(final_settings.working_dir) as working_dir:
-        context = context_cls(final_settings.to_build_settings(working_dir), rules, custodian)
+    if not isinstance(settings, BuildNamespace):
+        settings = parse_settings_args(settings, **kw)
+    settings.load_settings(DEFAULT_SETTINGS)
+    with _wrap_temp(settings.working_dir) as working_dir:
+        context = context_cls(settings.to_build_settings(working_dir), rules, custodian)
+        context.run()
+
+
+def run_from_context(context: Context, args: BuildNamespace | None = None):
+    """
+    Update the given Context with command line arguments, then execute a build
+    using it.
+    """
+    if args:
+        context.settings.update(**args.__dict__)
+    with _wrap_temp(context.settings['working_dir']) as working_dir:
+        context.settings['working_dir'] = working_dir
         context.run()
 
 
@@ -163,15 +217,12 @@ def main(arguments: list[str] | None = None):
     Anchovy main function. Finds or creates a Context using an Anchovy config
     file and command line arguments, then executes a build using it.
     """
-    parser = argparse.ArgumentParser(description='Build an anchovy project.', add_help=False)
-    parser.add_argument('-h', '--help',
-                        help='show this help message and exit',
-                        action='store_true')
+    parser = argparse.ArgumentParser(description='Build an anchovy project.')
     parser.add_argument('--audit-steps',
                         help=('show information about available, unavailable, '
                               'and used steps, instead of building the project'),
                         action='store_true')
-    group = parser.add_mutually_exclusive_group()
+    group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-m',
                        help='import path of a config file to build',
                        type=importlib.import_module,
@@ -189,16 +240,8 @@ def main(arguments: list[str] | None = None):
                        help='port to serve from',
                        type=int,
                        default=8080)
-
-    args, remaining = parser.parse_known_args(arguments)
-    if args.help:
-        if args.module or args.config_file:
-            remaining.append('--help')
-        else:
-            parser.print_help()
-            sys.exit(0)
-    elif not args.module and not args.config_file:
-        parser.error('one of the following arguments is required: config_file or -m/--module')
+    install_settings_args(parser)
+    args = parser.parse_args(arguments, namespace=CLINamespace())
 
     if args.config_file:
         label: str = str(args.config_file)
@@ -238,9 +281,11 @@ def main(arguments: list[str] | None = None):
     elif context or rules:
         try:
             if context:
-                context.run()
+                run_from_context(context, args)
             elif rules:
-                run_from_rules(settings, rules, custodian, argv=remaining, prog=f'anchovy {label}')
+                if settings:
+                    args.load_settings(settings)
+                run_from_rules(args, rules, custodian)
         except StepUnavailableException as e:
             pprint_missing_deps(e.step)
             sys.exit(1)
@@ -255,5 +300,4 @@ def main(arguments: list[str] | None = None):
 
     if args.serve:
         from .server import serve
-        parsed_settings = parse_settings_args(settings, argv=remaining)
-        serve(args.port, parsed_settings.output_dir)
+        serve(args.port, args.output_dir)
