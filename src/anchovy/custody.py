@@ -30,26 +30,6 @@ def is_context_dir(key: t.Any) -> TypeIs[ContextDir]:
     return key in CONTEXT_DIR_KEYS
 
 
-def checksum(path: Path, hashname: str = 'sha1', _bufsize=2**18):
-    """
-    Calculate a checksum for a `Path`. Directories result in empty checksums.
-    """
-    if path.is_dir():
-        return ''
-    digest = hashlib.new(hashname)
-
-    buf = bytearray(_bufsize)
-    view = memoryview(buf)
-    with path.open('rb') as file:
-        while True:
-            size = file.readinto(buf)
-            if size == 0:
-                break  # EOF
-            digest.update(view[:size])
-
-    return digest.hexdigest()
-
-
 class CustodyEntry:
     """
     Class holding custody info for a single input or output path.
@@ -72,6 +52,8 @@ class Custodian:
     """
     encoding = 'utf-8'
     newline = '\n'
+    hashname = 'sha1'
+    _bufsize = 2**18
     context: 'Context'
 
     def __init__(self,
@@ -139,6 +121,25 @@ class Custodian:
         """
         return (self.degenericize_path(key) for key in self.graph)
 
+    def checksum(self, path: Path):
+        """
+        Calculate a checksum for a `Path`. Directories result in empty checksums.
+        """
+        if path.is_dir():
+            return ''
+        digest = hashlib.new(self.hashname)
+
+        buf = bytearray(self._bufsize)
+        view = memoryview(buf)
+        with path.open('rb') as file:
+            while True:
+                size = file.readinto(buf)
+                if size == 0:
+                    break  # EOF
+                digest.update(view[:size])
+
+        return digest.hexdigest()
+
     def entry_from_path(self, path: Path):
         """
         Create a `CustodyEntry` for a path. Provides a sha1 checksum along with
@@ -149,7 +150,7 @@ class Custodian:
         # m_time testing by registering a new checker and does not need to
         # subclass CustodyManager for this common case.
         stat = path.stat()
-        meta = {'sha1': checksum(path), 'm_time': stat.st_mtime, 'size': stat.st_size}
+        meta = {'sha1': self.checksum(path), 'm_time': stat.st_mtime, 'size': stat.st_size}
         return CustodyEntry('path', self.genericize_path(path), meta)
 
     def check_path(self, entry: CustodyEntry) -> bool:
@@ -157,7 +158,7 @@ class Custodian:
         Default sha1-based checker for path staleness.
         """
         path = self.degenericize_path(entry.key)
-        return path.exists() and entry['sha1'] == checksum(path)
+        return path.exists() and entry['sha1'] == self.checksum(path)
 
     def ensure_entry(self, record: Path | CustodyEntry):
         """

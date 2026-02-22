@@ -10,85 +10,90 @@
     "anchovy_version": "1.0.2.dev1+g9f78db558"
   },
   "graph": {
-    "output_dir/index.html": {
+    "working_dir/index.html": {
       "input_dir/index.md": [
-        "output_dir/index.html"
+        "working_dir/index.html"
       ],
       "input_dir/base.jinja.html": [
-        "output_dir/index.html"
+        "working_dir/index.html"
       ]
     },
-    "output_dir/static/images/anchovy-nypl.webp": {
+    "output_dir/static/images/anchovy-nypl.203990db.webp": {
       "input_dir/static/images/anchovy-nypl.jpg": [
-        "output_dir/static/images/anchovy-nypl.webp"
+        "output_dir/static/images/anchovy-nypl.203990db.webp"
       ]
     },
-    "output_dir/static/images/home-sweet-home-cdk.webp": {
+    "output_dir/static/images/home-sweet-home-cdk.9548f6b0.webp": {
       "input_dir/static/images/home-sweet-home-cdk.jpg": [
-        "output_dir/static/images/home-sweet-home-cdk.webp"
+        "output_dir/static/images/home-sweet-home-cdk.9548f6b0.webp"
       ]
     },
-    "output_dir/static/images/nice-wheels-cdk.webp": {
+    "output_dir/static/images/nice-wheels-cdk.3b94e6a0.webp": {
       "input_dir/static/images/nice-wheels-cdk.jpg": [
-        "output_dir/static/images/nice-wheels-cdk.webp"
+        "output_dir/static/images/nice-wheels-cdk.3b94e6a0.webp"
       ]
     },
-    "output_dir/static/images/quayside-newcastle.webp": {
+    "output_dir/static/images/quayside-newcastle.d2b3364f.webp": {
       "input_dir/static/images/quayside-newcastle.jpg": [
-        "output_dir/static/images/quayside-newcastle.webp"
+        "output_dir/static/images/quayside-newcastle.d2b3364f.webp"
       ]
     },
-    "output_dir/static/images/stormy-cdk.webp": {
+    "output_dir/static/images/stormy-cdk.23e6ad2e.webp": {
       "input_dir/static/images/stormy-cdk.jpg": [
-        "output_dir/static/images/stormy-cdk.webp"
+        "output_dir/static/images/stormy-cdk.23e6ad2e.webp"
       ]
     },
-    "output_dir/static/images/anchovy-nypl.thumb.webp": {
+    "output_dir/static/images/anchovy-nypl.203990db.thumb.webp": {
       "input_dir/static/images/anchovy-nypl.jpg": [
-        "output_dir/static/images/anchovy-nypl.thumb.webp"
+        "output_dir/static/images/anchovy-nypl.203990db.thumb.webp"
       ]
     },
-    "output_dir/static/images/home-sweet-home-cdk.thumb.webp": {
+    "output_dir/static/images/home-sweet-home-cdk.9548f6b0.thumb.webp": {
       "input_dir/static/images/home-sweet-home-cdk.jpg": [
-        "output_dir/static/images/home-sweet-home-cdk.thumb.webp"
+        "output_dir/static/images/home-sweet-home-cdk.9548f6b0.thumb.webp"
       ]
     },
-    "output_dir/static/images/nice-wheels-cdk.thumb.webp": {
+    "output_dir/static/images/nice-wheels-cdk.3b94e6a0.thumb.webp": {
       "input_dir/static/images/nice-wheels-cdk.jpg": [
-        "output_dir/static/images/nice-wheels-cdk.thumb.webp"
+        "output_dir/static/images/nice-wheels-cdk.3b94e6a0.thumb.webp"
       ]
     },
-    "output_dir/static/images/quayside-newcastle.thumb.webp": {
+    "output_dir/static/images/quayside-newcastle.d2b3364f.thumb.webp": {
       "input_dir/static/images/quayside-newcastle.jpg": [
-        "output_dir/static/images/quayside-newcastle.thumb.webp"
+        "output_dir/static/images/quayside-newcastle.d2b3364f.thumb.webp"
       ]
     },
-    "output_dir/static/images/stormy-cdk.thumb.webp": {
+    "output_dir/static/images/stormy-cdk.23e6ad2e.thumb.webp": {
       "input_dir/static/images/stormy-cdk.jpg": [
-        "output_dir/static/images/stormy-cdk.thumb.webp"
+        "output_dir/static/images/stormy-cdk.23e6ad2e.thumb.webp"
       ]
     },
     "output_dir/static/core.css": {
       "input_dir/static/core.css": [
         "output_dir/static/core.css"
       ]
+    },
+    "output_dir/index.html": {
+      "working_dir/index.html": [
+        "output_dir/index.html"
+      ]
     }
   },
   "meta": {
-    "output_dir/index.html": [
+    "working_dir/index.html": [
       "path",
       {
-        "sha1": "1d3e421721ec906bc128e4d55864d82aa6a6c75d",
-        "m_time": 1771564754.4546452,
-        "size": 894
+        "sha1": "a78737e00aa7bc3f8ec335f3b7dbcfbc1d626bc0",
+        "m_time": 1771716487.398494,
+        "size": 886
       }
     ],
     "input_dir/index.md": [
       "path",
       {
-        "sha1": "9f27b1b3c02eb311934b91670b75223332345e46",
-        "m_time": 1768672922.30065,
-        "size": 691
+        "sha1": "e2d6684e72130e5594f6ab2d3f1f5011bce612d1",
+        "m_time": 1771692731.2353485,
+        "size": 683
       }
     ],
     "input_dir/base.jinja.html": [
@@ -99,11 +104,11 @@
         "size": 294
       }
     ],
-    "output_dir/static/images/anchovy-nypl.webp": [
+    "output_dir/static/images/anchovy-nypl.203990db.webp": [
       "path",
       {
         "sha1": "b83692b7ecefc8f7258e668b3809c698b58215ad",
-        "m_time": 1771564754.5693567,
+        "m_time": 1771716487.5088446,
         "size": 130280
       }
     ],
@@ -115,11 +120,11 @@
         "size": 890709
       }
     ],
-    "output_dir/static/images/home-sweet-home-cdk.webp": [
+    "output_dir/static/images/home-sweet-home-cdk.9548f6b0.webp": [
       "path",
       {
         "sha1": "f68028822c70dd10050e31fd94dddd118130367c",
-        "m_time": 1771564754.7693582,
+        "m_time": 1771716487.709846,
         "size": 486084
       }
     ],
@@ -131,11 +136,11 @@
         "size": 706821
       }
     ],
-    "output_dir/static/images/nice-wheels-cdk.webp": [
+    "output_dir/static/images/nice-wheels-cdk.3b94e6a0.webp": [
       "path",
       {
         "sha1": "5487a4719f9444eb3dea1def8559a01d3987646d",
-        "m_time": 1771564754.9413593,
+        "m_time": 1771716487.8918474,
         "size": 384794
       }
     ],
@@ -147,11 +152,11 @@
         "size": 679302
       }
     ],
-    "output_dir/static/images/quayside-newcastle.webp": [
+    "output_dir/static/images/quayside-newcastle.d2b3364f.webp": [
       "path",
       {
         "sha1": "9d8d12085d4fe45bf991ef213d6ec9d687f1aea0",
-        "m_time": 1771564755.0043597,
+        "m_time": 1771716487.9478478,
         "size": 112870
       }
     ],
@@ -163,11 +168,11 @@
         "size": 482152
       }
     ],
-    "output_dir/static/images/stormy-cdk.webp": [
+    "output_dir/static/images/stormy-cdk.23e6ad2e.webp": [
       "path",
       {
         "sha1": "ec990618526da22c865fbbbef1709e0248a6db3c",
-        "m_time": 1771564755.1673608,
+        "m_time": 1771716488.127849,
         "size": 213976
       }
     ],
@@ -179,43 +184,43 @@
         "size": 447542
       }
     ],
-    "output_dir/static/images/anchovy-nypl.thumb.webp": [
+    "output_dir/static/images/anchovy-nypl.203990db.thumb.webp": [
       "path",
       {
         "sha1": "f74ad5160b884744248b7f598e3fadab01d974f4",
-        "m_time": 1771564755.184361,
+        "m_time": 1771716488.1458492,
         "size": 3252
       }
     ],
-    "output_dir/static/images/home-sweet-home-cdk.thumb.webp": [
+    "output_dir/static/images/home-sweet-home-cdk.9548f6b0.thumb.webp": [
       "path",
       {
         "sha1": "a8fc7fe199c2935dbf83305eec1d38a5f59df82e",
-        "m_time": 1771564755.1983612,
+        "m_time": 1771716488.1618495,
         "size": 12142
       }
     ],
-    "output_dir/static/images/nice-wheels-cdk.thumb.webp": [
+    "output_dir/static/images/nice-wheels-cdk.3b94e6a0.thumb.webp": [
       "path",
       {
         "sha1": "4549140674b3288c8ebe99329b0ba715229280fc",
-        "m_time": 1771564755.2223613,
+        "m_time": 1771716488.1858497,
         "size": 13758
       }
     ],
-    "output_dir/static/images/quayside-newcastle.thumb.webp": [
+    "output_dir/static/images/quayside-newcastle.d2b3364f.thumb.webp": [
       "path",
       {
         "sha1": "5c778a19692593bca5ddadb2fd0c97adca38451a",
-        "m_time": 1771564755.2373614,
+        "m_time": 1771716488.2018497,
         "size": 11854
       }
     ],
-    "output_dir/static/images/stormy-cdk.thumb.webp": [
+    "output_dir/static/images/stormy-cdk.23e6ad2e.thumb.webp": [
       "path",
       {
         "sha1": "7f16e7795ab09f9d0a774a1bdb53436efa1aff11",
-        "m_time": 1771564755.2533615,
+        "m_time": 1771716488.21885,
         "size": 5980
       }
     ],
@@ -223,7 +228,7 @@
       "path",
       {
         "sha1": "8a1e53893dea46843e962949774273166a4608f1",
-        "m_time": 1771564755.2558157,
+        "m_time": 1771716488.2211373,
         "size": 526
       }
     ],
@@ -233,6 +238,14 @@
         "sha1": "8a1e53893dea46843e962949774273166a4608f1",
         "m_time": 1768672922.30065,
         "size": 526
+      }
+    ],
+    "output_dir/index.html": [
+      "path",
+      {
+        "sha1": "4f676348c893c19fa7b7c0d2c8386e2e07271857",
+        "m_time": 1771716488.2358472,
+        "size": 950
       }
     ]
   }
