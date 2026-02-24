@@ -53,11 +53,6 @@ Anchovy operates on config files written in Python, or even modules directly.
 * `anchovy -m mypackage.anchovyconf -o ../release/`
 * `python -m anchovy mysite/anchovy_site.py -h`
 
-If `-h` is supplied with a module or config file, help will be displayed for
-the pipeline configuration. If it is supplied without a module or config file,
-help will be displayed for anchovy's own run-time options, such as
-`--audit-steps` and `--serve`, as well as how to specify a module/config file.
-
 ### Show Me
 
 Run `anchovy examples/code_index.py -s -p 8080`, then open a browser to
